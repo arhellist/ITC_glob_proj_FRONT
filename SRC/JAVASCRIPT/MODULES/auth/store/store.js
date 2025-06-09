@@ -1,5 +1,6 @@
-import { API_URL } from"../http/axios.js"
+//import { API_URL } from"../http/axios.js"
 import AuthService from "../services/AuthService.js"
+import axiosAPI from '../http/axios.js'
 
 console.log(`class Store has been started`)
 
@@ -55,8 +56,9 @@ export default class Store {
   }
 
   async checkAuth(){
+    console.log(`checkAuth`)
     try {
-        const response = await axios.get(`${API_URL}/refresh`, {withCredentials: true});
+        const response = await axios.get(`/auth/refresh`, {withCredentials: true});
         console.log(response);
         localStorage.setItem("token", response.data.accessToken);
         this.setAuth(true);
