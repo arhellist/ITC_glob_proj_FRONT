@@ -17,14 +17,13 @@ export default class AuthService {
     }
   }
 
-  static async registration(email, password, name, phone) {
+  static async registration(email, password) {
     console.log('=== Начало процесса регистрации ===');
     try {
       const response = await axiosAPI.post("/auth/registration", { 
         email, 
         password,
-        name,
-        phone 
+
       });
       console.log('Успешный ответ при регистрации:', response.data);
       return response;
