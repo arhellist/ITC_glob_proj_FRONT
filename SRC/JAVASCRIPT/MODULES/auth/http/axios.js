@@ -1,7 +1,17 @@
-import { logout } from "../store/store.js";
+import axios from 'axios';
+
+// Определяем API URL в зависимости от окружения
+const url = typeof __API_URL__ !== 'undefined' ? __API_URL__ : 
+           (typeof __IS_PRODUCTION__ !== 'undefined' && __IS_PRODUCTION__ ? 'https://arhellist.ru' : 'http://localhost:3000');
+
+console.log('=== Конфигурация axios ===');
+console.log('API URL:', url);
+console.log('Is Production:', typeof __IS_PRODUCTION__ !== 'undefined' ? __IS_PRODUCTION__ : 'undefined');
+console.log('Domain:', typeof __DOMAIN__ !== 'undefined' ? __DOMAIN__ : 'undefined');
 
 const axiosAPI = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: url,
+  timeout: 60000, // 20 секунд таймаут
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,12 +22,20 @@ const axiosAPI = axios.create({
 axiosAPI.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
+    console.log(`accessToken axiosAPI.interceptors.request.use: ${token}` )
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Authorization заголовок добавлен:', config.headers.Authorization);
+    } else {
+      console.log('Authorization заголовок НЕ добавлен - нет токена');
     }
+    
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor
@@ -25,48 +43,23 @@ axiosAPI.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
-    
-    // Проверяем, что это 401 ошибка и запрос еще не повторялся
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh')) {
       originalRequest._retry = true;
-      
       try {
-        console.log('Пробуем обновить токен...');
-        const { data } = await axiosAPI.post('/auth/refresh', {});
-        
+        const refreshAxios = axios.create({ baseURL: url, withCredentials: true });
+        const { data } = await refreshAxios.get('/auth/refresh');
+        console.log('Refresh token data:', data); // Теперь будет выводиться
         if (data.accessToken) {
-          console.log('Токен успешно обновлен');
           localStorage.setItem('accessToken', data.accessToken);
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
           return axiosAPI(originalRequest);
-        } else {
-          throw new Error('Новый токен не получен');
         }
+        throw new Error('No accessToken received');
       } catch (refreshError) {
-        console.error('Ошибка обновления токена:', refreshError);
-        
-        // Проверяем, является ли это ошибкой истечения refreshToken
-        if (refreshError.response?.status === 401) {
-          console.log('RefreshToken истек, выполняем выход из системы');
-          // Выполняем выход из системы
-          await logout();
-          // Можно также перенаправить на страницу входа
-          window.location.reload();
-        } else if (refreshError.response?.status === 403) {
-          console.log('RefreshToken недействителен, выполняем выход из системы');
-          await logout();
-          window.location.reload();
-        } else {
-          console.log('Неизвестная ошибка при обновлении токена');
-          await logout();
-          window.location.reload();
-        }
-        
+        localStorage.removeItem('accessToken');
         return Promise.reject(refreshError);
       }
     }
-    
-    // Если это не 401 ошибка или запрос уже повторялся, просто возвращаем ошибку
     return Promise.reject(error);
   }
 );

@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="SRC/CSS/index.css">
-
-     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-     <!--<script src="./SRC/JAVASCRIPT/MODULES/cdn/axios.min.js"></script>-->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
+    <link rel="stylesheet" href="./SRC/CSS/index.css" />
+    <link rel="stylesheet" href="./SRC/CSS/notifications.css" />
     <title>ITC ECOSYSTEM</title>
-</head>
-<body>
-<canvas id="candlesCanvas"></canvas>   
-<div class="root"></div>
-
-<script src="./miniApp/src/js/JapaneseCandlesticks.js"></script>
+  </head>
+  <body>
+    <div class="notification_container"></div>
+    <div class="bg"><canvas id="candlesCanvas"></canvas></div>
+    <div class="root flex"></div>
+    <script
+      type="module"
+      src="SRC/JAVASCRIPT/MODULES/JapaneseCandlesticks.js"
+    ></script>
     <script type="module" src="SRC/JAVASCRIPT/index.js"></script>
-</body>
+  </body>
 </html>

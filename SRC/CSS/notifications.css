@@ -1,0 +1,163 @@
+.notification_container{
+    position: absolute;
+    z-index: 1000;
+    top: 5vh;
+    right: 0;
+    height: 100%;
+    transform: translateX(75%);
+
+}
+
+
+.notification{
+    position: relative;
+    margin-top: 1vh;
+    z-index: 1000;
+    right: 0;
+    width: 20vw;
+    height: 4vw;
+    z-index: 1000;
+    border-radius: 1vw 0 0 1vw;
+    color: #000000;
+    font-size: 1vw;
+    font-weight: 600;
+    text-align: center;
+    gap: 1vw;
+    justify-content: start;
+    padding-left: 1vw;
+    
+}
+.notification_img{
+    width: 3vw;
+    height: 3vw;
+}
+
+.click_notification{
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.click_notification:hover{
+    transform: translateX(-75%);
+}
+
+
+/*Ошибка*/
+.error{
+    background-color: #ff000062;
+    border-left: 0.5vw solid #ff0000ce;
+    box-shadow: 0 0 1vw 0.1vw #ff0000;
+    transform: translateX(-75%);
+}
+.error_icon{
+    background-image: url("../IMG/warning.png");
+    background-size: cover;
+    background-position: center;
+}   
+
+/*Успех*/
+.success{
+    background-color: #00ff0062;
+    border-left: 0.5vw solid #00ff00ce;
+    box-shadow: 0 0 1vw 0.1vw #00ff00;
+    transform: translateX(-75%);
+}
+.success_icon{
+    background-image: url("../IMG/check.png");
+    background-size: cover;
+    background-position: center;
+}
+
+/*Внимание*/
+.attention{
+    background-color: #e5ff0062;
+    border-left: 0.5vw solid #eeff00ce;
+    box-shadow: 0 0 1vw 0.1vw #d9ff00;
+    transform: translateX(-75%);
+}
+
+.attention_icon{
+    background-image: url("../IMG/attention.png");
+    background-size: cover;
+    background-position: center;
+}
+
+
+
+
+
+
+
+/*Инфо*/
+.info{
+    background-color: #0000ff62;
+    border-left: 0.5vw solid #0000ffce;
+    box-shadow: 0 0 1vw 0.1vw #0000ff;
+}
+.info_icon{
+    background-image: url("../IMG/info.png");
+    background-size: cover;
+    background-position: center;
+}
+
+
+/*Почта*/
+.post{
+    background-color: #0000ff62;
+    border-left: 0.5vw solid #0000ffce;
+    box-shadow: 0 0 1vw 0.1vw #0000ff;
+}
+.post_icon{
+    background-image: url("../IMG/post.png");
+    background-size: cover;
+    background-position: center;
+}
+
+
+/*Сообщение*/
+.message{
+    background-color: #00ff6a62;
+    border-left: 0.5vw solid #00ff6a;
+    box-shadow: 0 0 1vw 0.1vw #00ff6a;
+}
+.message_icon{
+    background-image: url("../IMG/message.png");
+    background-size: cover;
+    background-position: center;
+}
+
+
+
+
+
+
+
+.remove_notification{
+    animation: remove_notification 6s forwards;
+}   
+
+@keyframes remove_notification{
+    0%{
+        opacity: 1;
+        transform: translateX(-75%);
+    }
+    100%{
+        opacity: 0;
+        transform: translateX(120%);
+    }
+}
+
+.delete_notification{
+    animation: delete_notification 2s forwards;
+}   
+
+@keyframes delete_notification{
+    0%{
+        opacity: 1;
+        transform: translateY(0) translateX(-75%);
+    }
+    100%{
+        opacity: 0;
+        transform: translateY(1000%) translateX(-75%);
+    }
+}

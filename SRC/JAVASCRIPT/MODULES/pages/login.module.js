@@ -1,76 +1,240 @@
+import {
+  login,
+  registration,
+  logout,
+  getUser,
+  getIsAuth,
+} from "../auth/store/store.js";
+import { closeMenu, cleanRoot, reCaptchaKeyAPI } from "../utils.js";
+import { clearDOMPurify } from "../utils.js";
+import {
+  ErrorNotification,
+  SuccessNotification,
+  AttentionNotification,
+  InfoNotification,
+  PostNotification,
+  MessageNotification,
+} from "../notifications.js";
+import PersonalRoom from "./personalRoom.module.js";
+const notification_container = document.querySelector(
+  ".notification_container"
+);
+
 export default function Login(root) {
-    const insertLogin = () => {
-      root.insertAdjacentHTML(
-        "beforeend",
-        `
-              
+  const insertLogin = () => {
+    const template = `
           <div class="login-container-blur flex bru">
-  
-  
-    
               <div class="login-container flex flex-column bru">
               <div class="radio flex flex-row">
                 <input label="REG" type="radio" id="reg" name="sign" value="reg" checked bru>
                 <input label="LOGIN" type="radio" id="login" name="sign" value="login" bru>
               </div>
                   <h1 class="login-title">Registration</h1>
-              
               <div class="login-container-body flex flex-column">
-                  <input type="email" placeholder="Email" class="email-input bru">
-                  <input type="password" placeholder="Password" class="password-input bru">
-                  <button class="login-button bru login-submit">Login</button>
+
+                  <input type="text" placeholder="Фамилия" class="surname-input bru" required>
+                  <input type="text" placeholder="Имя" class="name-input bru" required>
+                  <input type="text" placeholder="Отчество" class="patronymic-input bru" required>
+
+                  <input type="tel" placeholder="Телефон" class="phone-input bru" required>
+
+                  <input type="email" placeholder="Электропочта" class="email-input bru" required>
+                  <input type="password" placeholder="Пароль" class="password-input bru" required>
+                  <input type="password" placeholder="Повторите пароль" class="repeat-password-input bru" required>
+
+                  <div class="cf-turnstile" data-sitekey="${reCaptchaKeyAPI}"></div>
+                  <button class="login-button bru login-login">Login</button>
                   <button class="login-button bru login-register">Registration</button>
               </div>
-      </div>
+            </div>
           </div>
-          `
-      );
-    };
-  
-    insertLogin();
-  
-  
-  const reg = document.querySelector("#reg");
-  const login = document.querySelector("#login");
-  
-  
-  reg.addEventListener("change", () => {
-    if (reg.checked) {
-      document.querySelector(".login-title").textContent = "Registration"; //меняет текст заголовка на "Registration"
-  
-      document.querySelector(".email-input").style.display = "block"; //показывает инпут email
-  
-      document.querySelector(".login-submit").style.display = "none"; //скрывает кнопку регистрации
-      document.querySelector(".login-register").style.display = "block"; //показывает кнопку входа
-    }
-  })
-  
-  login.addEventListener("change", () => {
-    if (login.checked) {
-      document.querySelector(".login-title").textContent = "Login"; //меняет текст заголовка на "Login"
-      document.querySelector(".login-submit").style.display = "block"; //показывает кнопку входа
-      document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
-  
-      document.querySelector(".email-input").style.display = "block"; //скрывает инпут email
-    }
-  })
-  
-  
-    // Обработка фокуса на INPUT:
-    //если фокус на инпуте, то добавляется класс эффкт BLUR пропадает
-    document.querySelector(".email-input").addEventListener("focus", () =>
-        document.querySelector(".login-container-blur").classList.add("inputFocus")
-      );
-    document.querySelector(".email-input").addEventListener("blur", () =>
-        document.querySelector(".login-container-blur").classList.remove("inputFocus")
-      );
-    document.querySelector(".password-input").addEventListener("focus", () =>
-        document.querySelector(".login-container-blur").classList.add("inputFocus")
-      );
-    document.querySelector(".password-input").addEventListener("blur", () =>
-        document.querySelector(".login-container-blur").classList.remove("inputFocus")
-      );
-  
-  }
+`;
+    const clean = clearDOMPurify(template);
+    root.insertAdjacentHTML("beforeend", clean);
+  };
+  cleanRoot(root); //  очищаем root перед вставкой формы Аутентификации
+  insertLogin();
 
-  
+  const loginButton = document.querySelector(".login-login");
+  const register = document.querySelector(".login-register");
+
+  const regBut = document.querySelector("#reg");
+  const loginBut = document.querySelector("#login");
+
+  document.querySelector(".login-login").style.display = "none"; //скрывает кнопку регистрации
+  document.querySelector(".login-register").style.display = "block"; //показывает кнопку входа
+
+  regBut.addEventListener("change", () => {
+    //меню регистрации
+    if (regBut.checked) {
+      document.querySelector(".login-title").textContent = "Registration"; //меняет текст заголовка на "Registration"
+
+      document.querySelector(".login-login").style.display = "none"; //скрывает кнопку регистрации
+      document.querySelector(".login-register").style.display = "block"; //показывает кнопку входа
+
+      document.querySelector(".name-input").style.display = "block"; //показывает инпут имени
+      document.querySelector(".surname-input").style.display = "block"; //показывает инпут фамилии
+      document.querySelector(".patronymic-input").style.display = "block"; //показывает инпут отчества
+      document.querySelector(".phone-input").style.display = "block"; //показывает инпут телефона
+      document.querySelector(".repeat-password-input").style.display = "block"; //показывает инпут повторения пароля
+    }
+  });
+
+  loginBut.addEventListener("change", () => {
+    //меню входа
+    if (loginBut.checked) {
+      document.querySelector(".login-title").textContent = "Login"; //меняет текст заголовка на "Login"
+      document.querySelector(".login-login").style.display = "block"; //показывает кнопку входа
+      document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
+
+      document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
+
+      document.querySelector(".name-input").style.display = "none"; //скрывает инпут имени
+      document.querySelector(".surname-input").style.display = "none"; //скрывает инпут фамилии
+      document.querySelector(".patronymic-input").style.display = "none"; //скрывает инпут отчества
+      document.querySelector(".phone-input").style.display = "none"; //скрывает инпут телефона
+      document.querySelector(".repeat-password-input").style.display = "none"; //скрывает инпут повторения пароля
+    }
+  });
+
+  // Обработка фокуса на INPUT:
+  //если фокус на инпуте, то добавляется класс эффкт BLUR пропадает
+  document
+    .querySelector(".email-input")
+    .addEventListener("focus", () =>
+      document
+        .querySelector(".login-container-blur")
+        .classList.add("inputFocus")
+    );
+  document
+    .querySelector(".email-input")
+    .addEventListener("blur", () =>
+      document
+        .querySelector(".login-container-blur")
+        .classList.remove("inputFocus")
+    );
+  document
+    .querySelector(".password-input")
+    .addEventListener("focus", () =>
+      document
+        .querySelector(".login-container-blur")
+        .classList.add("inputFocus")
+    );
+  document
+    .querySelector(".password-input")
+    .addEventListener("blur", () =>
+      document
+        .querySelector(".login-container-blur")
+        .classList.remove("inputFocus")
+    );
+
+  // обработка кнопки входа
+  loginButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    loginButton.disabled = true;
+
+    try {
+      const email = document.querySelector(".email-input").value;
+      const password = document.querySelector(".password-input").value;
+
+      console.log("Login form loginted:", { email, password });
+
+      const result = await login(email, password);
+
+      console.log("Login result:", {
+        success: !!result,
+        hasToken: !!result?.data?.token,
+      });
+
+      const user = getUser();
+      console.log(`user============================================>`);
+      console.log(user);
+
+      const isAuth = getIsAuth();
+      console.log(`isAuth============================================>`);
+      console.log(isAuth);
+
+      if (isAuth) {
+        document.querySelector(".login-container-blur").style.position = "absolute";
+        SuccessNotification( notification_container, `Вы успешно авторизовались` );
+        await  PersonalRoom(root);
+
+        if(!getUser().isActivated){ // если аккаунт не активирован, то показывается уведомление
+          AttentionNotification(notification_container, "Активируйте ваш аккаунт");
+        }
+      }
+    } catch (error) {
+      console.error("Login form error:", {
+        message: error.message,
+        response: error.response?.data,
+      });
+      ErrorNotification(notification_container, "Ошибка аутентификации");
+    } finally {
+      loginButton.disabled = false;
+    }
+  });
+
+  // обработка кнопки регистрации
+  register.addEventListener("click", async (event) => {
+    event.preventDefault();
+
+    register.disabled = true;
+    register.textContent = "Регистрация...";
+
+    try {
+      const email = document.querySelector(".email-input")?.value;
+      const password = document.querySelector(".password-input")?.value;
+      const name = document.querySelector(".name-input")?.value;
+      const surname = document.querySelector(".surname-input")?.value;
+      const patronymic = document.querySelector(".patronymic-input")?.value;
+      const phone = document.querySelector(".phone-input")?.value;
+      const repeatPassword = document.querySelector(".repeat-password-input")?.value;
+
+      if (
+        email &&
+        password &&
+        name &&
+        surname &&
+        patronymic &&
+        phone &&
+        repeatPassword
+      ) {
+        console.log("Попытка регистрации...");
+        if (password !== repeatPassword) {
+          ErrorNotification(notification_container, "Пароли не совпадают");
+          return;
+        }
+
+        await registration(email, password, name, surname, patronymic, phone);
+
+        const user = getUser();
+        console.log(`user============================================>`);
+        console.log(user);
+
+        const isAuth = getIsAuth();
+        console.log(`isAuth============================================>`);
+        console.log(isAuth);
+
+        if (isAuth) {
+          document.querySelector(".login-container-blur").style.position = "absolute";
+          SuccessNotification( notification_container, `Вы успешно зарегистрировались` );
+            PersonalRoom(root);
+
+            if(!getUser().isActivated){
+              AttentionNotification(notification_container, "Активируйте ваш аккаунт");
+            }
+
+        }
+      } else {
+        console.log("Поля не заполнены");
+        ErrorNotification(notification_container, "Заполните все поля");
+      }
+    } catch (error) {
+      console.error("Ошибка при регистрации:", error.message);
+      ErrorNotification(notification_container, "Ошибка регистрации");
+    } finally {
+      register.disabled = false;
+      register.textContent = "Registration";
+    }
+  });
+}
