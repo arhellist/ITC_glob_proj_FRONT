@@ -1,25 +1,12 @@
-import {
-  closeMenu,
-  openMenu,
-  getAuth,
-  cleanRoot,
-  getAllQueryParams,
-} from "../../MODULES/utils.js";
-import {
-  ErrorNotification,
-  SuccessNotification,
-  InfoNotification,
-  AttentionNotification,
-  PostNotification,
-  MessageNotification,
-} from "../notifications.js";
+import { closeMenu, openMenu, getAuth, cleanRoot, getAllQueryParams,} from "../../MODULES/utils.js";
+import { ErrorNotification, SuccessNotification, InfoNotification, AttentionNotification, PostNotification, MessageNotification,} from "../notifications.js";
 
 import { activated } from "../services/params-service.js";
 
 const notification_container = document.querySelector(
   ".notification_container"
 );
-export const parseParams = () => {
+export const parseParams = (queryParams, successMessage, errorMessage) => {
   const params = getAllQueryParams();
   console.log(`params`);
   console.log(params);

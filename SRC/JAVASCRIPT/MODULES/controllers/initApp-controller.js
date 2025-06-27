@@ -1,6 +1,6 @@
 import Login from "../../MODULES/pages/login.module.js"
 import { closeMenu, openMenu, getAuth ,cleanRoot, getAllQueryParams} from "../../MODULES/utils.js";
-import PersonalRoom from "../../MODULES/pages/personalRoom.module.js";
+import {PersonalRoom} from "../../MODULES/pages/personalRoom.module.js";
 export const initApp = async (root) => {
     const searchAuth = await getAuth(); // проверка на Авторизацию
     console.log(`searchAuth`);console.log(searchAuth)

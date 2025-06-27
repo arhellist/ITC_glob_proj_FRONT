@@ -21,6 +21,7 @@ console.log(`origin: ` + origin)
 document.addEventListener(`DOMContentLoaded`, async()=>{
   
   
+  //parseParams(queryParams, successMessage, errorMessage)
   parseParams()
   await initApp(root);
 

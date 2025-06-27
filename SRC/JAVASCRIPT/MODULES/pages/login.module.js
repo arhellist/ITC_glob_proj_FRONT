@@ -1,35 +1,26 @@
-import {
-  login,
-  registration,
-  logout,
-  getUser,
-  getIsAuth,
-} from "../auth/store/store.js";
+import {  login, registration, getUser, getIsAuth } from "../auth/store/store.js";
+import { getCSRF } from "../auth/services/AuthService.js";
 import { closeMenu, cleanRoot, reCaptchaKeyAPI } from "../utils.js";
-import { clearDOMPurify } from "../utils.js";
-import {
-  ErrorNotification,
-  SuccessNotification,
-  AttentionNotification,
-  InfoNotification,
-  PostNotification,
-  MessageNotification,
-} from "../notifications.js";
-import PersonalRoom from "./personalRoom.module.js";
+import { clearDOMPurify, setCaptcha } from "../utils.js";
+import { ErrorNotification,  SuccessNotification, AttentionNotification } from "../notifications.js";
+import {PersonalRoom} from "./personalRoom.module.js";
 const notification_container = document.querySelector(
   ".notification_container"
 );
 
-export default function Login(root) {
+export default async function Login(root) {
+
+const csrfToken = await getCSRF();
+
   const insertLogin = () => {
     const template = `
           <div class="login-container-blur flex bru">
               <div class="login-container flex flex-column bru">
               <div class="radio flex flex-row">
-                <input label="REG" type="radio" id="reg" name="sign" value="reg" checked bru>
-                <input label="LOGIN" type="radio" id="login" name="sign" value="login" bru>
+                <input label="REG" type="radio" id="reg" name="sign" value="reg"  bru>
+                <input label="LOGIN" type="radio" id="login" name="sign" value="login" checked bru>
               </div>
-                  <h1 class="login-title">Registration</h1>
+                  <h1 class="login-title">Login</h1>
               <div class="login-container-body flex flex-column">
 
                   <input type="text" placeholder="Фамилия" class="surname-input bru" required>
@@ -42,9 +33,11 @@ export default function Login(root) {
                   <input type="password" placeholder="Пароль" class="password-input bru" required>
                   <input type="password" placeholder="Повторите пароль" class="repeat-password-input bru" required>
 
-                  <div class="cf-turnstile" data-sitekey="${reCaptchaKeyAPI}"></div>
+                  <input type="hidden" name="captchaVerified" id="captchaVerified" value="0">
+
                   <button class="login-button bru login-login">Login</button>
                   <button class="login-button bru login-register">Registration</button>
+
               </div>
             </div>
           </div>
@@ -53,20 +46,38 @@ export default function Login(root) {
     root.insertAdjacentHTML("beforeend", clean);
   };
   cleanRoot(root); //  очищаем root перед вставкой формы Аутентификации
-  insertLogin();
+  insertLogin(); // вставка формы Аутентификации
+  
+  const loginContainer = document.querySelector(".login-container");
 
   const loginButton = document.querySelector(".login-login");
   const register = document.querySelector(".login-register");
 
+
+
   const regBut = document.querySelector("#reg");
   const loginBut = document.querySelector("#login");
 
-  document.querySelector(".login-login").style.display = "none"; //скрывает кнопку регистрации
-  document.querySelector(".login-register").style.display = "block"; //показывает кнопку входа
+
+
+
+  setCaptcha(loginContainer); // установка капчи
+  document.querySelector('.captcha-container').style.display = 'none';
+  document.querySelector(".login-login").style.display = "block"; //показывает кнопку входа
+  document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
+  document.querySelector(".name-input").style.display = "none"; //скрывает инпут имени
+  document.querySelector(".surname-input").style.display = "none"; //скрывает инпут фамилии
+  document.querySelector(".patronymic-input").style.display = "none"; //скрывает инпут отчества
+  document.querySelector(".phone-input").style.display = "none"; //скрывает инпут телефона
+  document.querySelector(".repeat-password-input").style.display = "none"; //скрывает инпут повторения пароля
+
+
+
 
   regBut.addEventListener("change", () => {
     //меню регистрации
     if (regBut.checked) {
+      document.querySelector('.captcha-container').style.display = 'block';
       document.querySelector(".login-title").textContent = "Registration"; //меняет текст заголовка на "Registration"
 
       document.querySelector(".login-login").style.display = "none"; //скрывает кнопку регистрации
@@ -77,16 +88,16 @@ export default function Login(root) {
       document.querySelector(".patronymic-input").style.display = "block"; //показывает инпут отчества
       document.querySelector(".phone-input").style.display = "block"; //показывает инпут телефона
       document.querySelector(".repeat-password-input").style.display = "block"; //показывает инпут повторения пароля
+      captchaContainer.style.display = "block"; //показывает контейнер капчи
     }
   });
 
   loginBut.addEventListener("change", () => {
     //меню входа
     if (loginBut.checked) {
+      document.querySelector('.captcha-container').style.display = 'none';
       document.querySelector(".login-title").textContent = "Login"; //меняет текст заголовка на "Login"
       document.querySelector(".login-login").style.display = "block"; //показывает кнопку входа
-      document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
-
       document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
 
       document.querySelector(".name-input").style.display = "none"; //скрывает инпут имени
