@@ -1,4 +1,4 @@
-import { closeMenu, cleanRoot, reCaptchaKeyAPI, clearDOMPurify} from "../../utils.js";
+import { closeMenu, cleanRoot, clearDOMPurify} from "../../utils.js";
 
 
 export async function insertUserProfileMenu (mainContainer){

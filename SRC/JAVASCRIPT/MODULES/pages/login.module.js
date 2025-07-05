@@ -1,16 +1,25 @@
-import {  login, registration, getUser, getIsAuth } from "../auth/store/store.js";
+import {
+  login,
+  registration,
+  getUser,
+  getIsAuth,
+  setIsCaptcha,
+  getIsCaptcha,
+} from "../auth/store/store.js";
 import { getCSRF } from "../auth/services/AuthService.js";
-import { closeMenu, cleanRoot, reCaptchaKeyAPI } from "../utils.js";
-import { clearDOMPurify, setCaptcha } from "../utils.js";
-import { ErrorNotification,  SuccessNotification, AttentionNotification } from "../notifications.js";
-import {PersonalRoom} from "./personalRoom.module.js";
+import { closeMenu, cleanRoot, clearDOMPurify, setCaptcha } from "../utils.js";
+import {
+  ErrorNotification,
+  SuccessNotification,
+  AttentionNotification,
+} from "../notifications.js";
+import { PersonalRoom } from "./personalRoom.module.js";
 const notification_container = document.querySelector(
   ".notification_container"
 );
 
 export default async function Login(root) {
-
-const csrfToken = await getCSRF();
+  const csrfToken = await getCSRF();
 
   const insertLogin = () => {
     const template = `
@@ -47,22 +56,15 @@ const csrfToken = await getCSRF();
   };
   cleanRoot(root); //  очищаем root перед вставкой формы Аутентификации
   insertLogin(); // вставка формы Аутентификации
-  
+
   const loginContainer = document.querySelector(".login-container");
 
   const loginButton = document.querySelector(".login-login");
   const register = document.querySelector(".login-register");
 
-
-
   const regBut = document.querySelector("#reg");
   const loginBut = document.querySelector("#login");
 
-
-
-
-  setCaptcha(loginContainer); // установка капчи
-  document.querySelector('.captcha-container').style.display = 'none';
   document.querySelector(".login-login").style.display = "block"; //показывает кнопку входа
   document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
   document.querySelector(".name-input").style.display = "none"; //скрывает инпут имени
@@ -71,13 +73,15 @@ const csrfToken = await getCSRF();
   document.querySelector(".phone-input").style.display = "none"; //скрывает инпут телефона
   document.querySelector(".repeat-password-input").style.display = "none"; //скрывает инпут повторения пароля
 
-
-
-
   regBut.addEventListener("change", () => {
     //меню регистрации
     if (regBut.checked) {
-      document.querySelector('.captcha-container').style.display = 'block';
+console.log(`getIsCaptcha()`);console.log(getIsCaptcha());
+
+      if (!getIsCaptcha()) {
+        setCaptcha(loginContainer); // установка капчи
+        document.querySelector(".captcha-container").style.display = "block";
+      }
       document.querySelector(".login-title").textContent = "Registration"; //меняет текст заголовка на "Registration"
 
       document.querySelector(".login-login").style.display = "none"; //скрывает кнопку регистрации
@@ -88,14 +92,13 @@ const csrfToken = await getCSRF();
       document.querySelector(".patronymic-input").style.display = "block"; //показывает инпут отчества
       document.querySelector(".phone-input").style.display = "block"; //показывает инпут телефона
       document.querySelector(".repeat-password-input").style.display = "block"; //показывает инпут повторения пароля
-      captchaContainer.style.display = "block"; //показывает контейнер капчи
     }
   });
 
   loginBut.addEventListener("change", () => {
     //меню входа
     if (loginBut.checked) {
-      document.querySelector('.captcha-container').style.display = 'none';
+      document.querySelector(".captcha-container").style.display = "none";
       document.querySelector(".login-title").textContent = "Login"; //меняет текст заголовка на "Login"
       document.querySelector(".login-login").style.display = "block"; //показывает кнопку входа
       document.querySelector(".login-register").style.display = "none"; //скрывает кнопку регистрации
@@ -105,6 +108,12 @@ const csrfToken = await getCSRF();
       document.querySelector(".patronymic-input").style.display = "none"; //скрывает инпут отчества
       document.querySelector(".phone-input").style.display = "none"; //скрывает инпут телефона
       document.querySelector(".repeat-password-input").style.display = "none"; //скрывает инпут повторения пароля
+
+
+     if(document.querySelector(".captcha-container"))  {
+      document.querySelector(".captcha-container").style.display = "none";
+     } 
+   
     }
   });
 
@@ -148,7 +157,7 @@ const csrfToken = await getCSRF();
       const email = document.querySelector(".email-input").value;
       const password = document.querySelector(".password-input").value;
 
-      console.log("Login form loginted:", { email, password });
+      console.log("Login form submitted:", { email });
 
       const result = await login(email, password);
 
@@ -166,12 +175,20 @@ const csrfToken = await getCSRF();
       console.log(isAuth);
 
       if (isAuth) {
-        document.querySelector(".login-container-blur").style.position = "absolute";
-        SuccessNotification( notification_container, `Вы успешно авторизовались` );
-        await  PersonalRoom(root);
+        document.querySelector(".login-container-blur").style.position =
+          "absolute";
+        SuccessNotification(
+          notification_container,
+          `Вы успешно авторизовались`
+        );
+        await PersonalRoom(root);
 
-        if(!getUser().isActivated){ // если аккаунт не активирован, то показывается уведомление
-          AttentionNotification(notification_container, "Активируйте ваш аккаунт");
+        if (!getUser().isActivated) {
+          // если аккаунт не активирован, то показывается уведомление
+          AttentionNotification(
+            notification_container,
+            "Активируйте ваш аккаунт"
+          );
         }
       }
     } catch (error) {
@@ -200,7 +217,13 @@ const csrfToken = await getCSRF();
       const patronymic = document.querySelector(".patronymic-input")?.value;
       const phone = document.querySelector(".phone-input")?.value;
       const repeatPassword = document.querySelector(".repeat-password-input")?.value;
+      console.log(`getIsCaptcha() при регистрации`);console.log(getIsCaptcha());
+      const captcha = getIsCaptcha();
 
+      if(!captcha){
+        ErrorNotification(notification_container, "Капча не пройдена");
+        return;
+      }
       if (
         email &&
         password &&
@@ -208,7 +231,8 @@ const csrfToken = await getCSRF();
         surname &&
         patronymic &&
         phone &&
-        repeatPassword
+        repeatPassword &&
+        captcha
       ) {
         console.log("Попытка регистрации...");
         if (password !== repeatPassword) {
@@ -216,7 +240,7 @@ const csrfToken = await getCSRF();
           return;
         }
 
-        await registration(email, password, name, surname, patronymic, phone);
+        await registration(email, password, name, surname, patronymic, phone, captcha);
 
         const user = getUser();
         console.log(`user============================================>`);
@@ -227,14 +251,20 @@ const csrfToken = await getCSRF();
         console.log(isAuth);
 
         if (isAuth) {
-          document.querySelector(".login-container-blur").style.position = "absolute";
-          SuccessNotification( notification_container, `Вы успешно зарегистрировались` );
-            PersonalRoom(root);
+          document.querySelector(".login-container-blur").style.position =
+            "absolute";
+          SuccessNotification(
+            notification_container,
+            `Вы успешно зарегистрировались`
+          );
+          PersonalRoom(root);
 
-            if(!getUser().isActivated){
-              AttentionNotification(notification_container, "Активируйте ваш аккаунт");
-            }
-
+          if (!getUser().isActivated) {
+            AttentionNotification(
+              notification_container,
+              "Активируйте ваш аккаунт"
+            );
+          }
         }
       } else {
         console.log("Поля не заполнены");

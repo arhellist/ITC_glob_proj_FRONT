@@ -1,7 +1,6 @@
 import DOMPurify from "dompurify";
-import { checkAuth, login, registration, logout, getUser, getIsAuth  } from "./auth/store/store";
+import { checkAuth, login, registration, logout, getUser, getIsAuth, getIsCaptcha, setIsCaptcha } from "./auth/store/store";
 
-export const reCaptchaKeyAPI = `0x4AAAAAABhPbLKOR0CTGSnV`
 // Очистка ROOT элемента
 export const cleanRoot = (root) =>{
   const children = root.children;
@@ -294,7 +293,8 @@ root.insertAdjacentHTML('beforeend', clean);
       verifyButton.textContent = '✓ Проверено';
       verifyButton.style.background = '#4CAF50';
       verifyButton.disabled = true;
-      
+      setIsCaptcha(true);
+
       // Скрываем контейнер капчи
       setTimeout(() => {
         document.querySelector('.captcha-container').style.display = 'none';

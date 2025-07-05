@@ -33,7 +33,7 @@ export async function login(email, password, recaptchaToken = null) {
   }
 }
 
-export async function registration(email, password, name, surname, patronymic, phone) {
+export async function registration(email, password, name, surname, patronymic, phone, captcha) {
   if (!email || !password) {
     throw new Error("Email и пароль обязательны");
   }
@@ -43,7 +43,7 @@ export async function registration(email, password, name, surname, patronymic, p
     console.log('Email:', email);
     console.log('CSRF-токен в window.csrfToken:', window.csrfToken);
     
-    const requestData = { email, password, name, surname, patronymic, phone };
+    const requestData = { email, password, name, surname, patronymic, phone, captcha };
     
     // CSRF-токен автоматически добавляется в axiosCSRF interceptor
     console.log('Отправляем запрос на /auth/registration с данными:', requestData);

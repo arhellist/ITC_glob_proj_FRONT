@@ -5,11 +5,13 @@ import {login as authLogin, registration as authRegistration, logout as authLogo
 let user = {};
 let responseAxios = {}
 let isAuth = false;
+let isCaptcha = false;
 
 // Геттеры для состояния
 export const getUser = () => user;
 export const getIsAuth = () => isAuth;
 export const getResponse = () => responseAxios;
+export const getIsCaptcha = () => isCaptcha;
 
 // Сеттеры для состояния
 export const setAuth = (bool) => {
@@ -22,6 +24,10 @@ export const setUser = (newUser) => {
 
 export const setResponse = (newresponseAxios) => {
   responseAxios = newresponseAxios;
+};
+
+export const setIsCaptcha = (bool) => {
+  isCaptcha = bool;
 };
 
 // Обработка ответа авторизации
@@ -65,9 +71,9 @@ export const login = async (email, password) => {
 };
 
 // Функция регистрации
-export const registration = async (email, password, name, surname, patronymic, phone) => {
+export const registration = async (email, password, name, surname, patronymic, phone, captcha) => {
   try {
-    const response = await authRegistration(email, password, name, surname, patronymic, phone);
+    const response = await authRegistration(email, password, name, surname, patronymic, phone, captcha);
     handleAuthResponse(response);
     await checkAuth();
   } catch (error) {

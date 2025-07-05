@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Определяем API URL в зависимости от окружения
-const url = typeof __API_URL__ !== 'undefined' ? __API_URL__ : 
-           (typeof __IS_PRODUCTION__ !== 'undefined' && __IS_PRODUCTION__ ? 'https://arhellist.ru' : 'http://localhost:3000');
+const url = typeof __API_URL__ !== 'undefined' ? __API_URL__ :  (typeof __IS_PRODUCTION__ !== 'undefined' && __IS_PRODUCTION__ ? 'https://arhellist.ru' : 'http://localhost:3000');
+
 
 console.log('=== Конфигурация axiosCSRF ===');
 console.log('API URL:', url);
