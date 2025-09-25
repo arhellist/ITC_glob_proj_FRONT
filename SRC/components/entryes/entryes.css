@@ -1,0 +1,330 @@
+.entryes {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.entryes-bg {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background-image: url("../../IMG/introBG.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter: blur(4px);
+  z-index: 1;
+}
+
+.entryes-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.247);
+  z-index: 2;
+}
+
+.formm-shadow {
+  box-shadow: 0 0 0.8vw 0.2vw rgba(0, 0, 0, 0.5);
+}
+.form-login-container {
+  position: relative;
+  width: 25vw;
+  height: 35vw;
+  gap: 1vw;
+  z-index: 12;
+}
+
+.form-registration-container {
+  height: 48vw;
+  gap: 0.8vw;
+}
+.form-login-logo {
+  width: 10vw;
+  height: 7vw;
+}
+
+.form-registration-logo {
+  width: 8vw;
+  height: 5vw;
+}
+.form-login-logo-img {
+  width: 100%;
+  height: 100%;
+}
+.form-login-logo-img {
+  background-image: url("../../IMG/mainLogo.png");
+}
+
+/* DIVS FROM FORM-LOGIN-CONTAINER */
+.form-login-container div {
+  width: 100%;
+}
+
+/* INPUTS & LABELS */
+.form-login-container div label {
+  width: 85%;
+}
+
+.form-login-container div input {
+  padding: 0 1vw;
+  height: 2vw;
+  width: 80%;
+  font-size: 1vw !important;
+}
+
+.form-registration-container div input {
+  padding: 0 1vw;
+  height: 1.4vw;
+  width: 80%;
+  font-size: 0.7vw !important;
+}
+/* HUMANYLY INPUTS */
+.form-password-inputs-humanyly {
+  padding: 0 1vw;
+  height: 2vw;
+  width: 80% !important;
+  background-color: white;
+  flex-direction: row-reverse;
+  gap: 1vw;
+  margin-top: 0.9vw;
+}
+
+.form-password-inputs-humanyly label {
+  width: 80% !important;
+  text-align: center;
+}
+
+.form-password-inputs-humanyly input {
+  width: 1vw !important;
+  height: 1vw !important;
+}
+
+.form-disclame {
+  position: relative;
+  width: 85% !important;
+  margin-top: 0.8vw;
+  flex-direction: row-reverse;
+  gap: 1vw;
+}
+
+.form-disclame input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.8vw !important;
+  height: 0.8vw !important;
+  background-color: #141414 !important;
+}
+
+.form-disclame a {
+  color: #ffffff !important;
+  text-decoration: underline;
+}
+
+.form-login-container .button {
+  width: 82% !important;
+  height: 2vw !important;
+  line-height: 2vw !important;
+}
+
+.form-login-redirect-registration {
+  width: 74%;
+}
+
+.form-login-redirect-registration-link {
+  text-decoration: underline;
+}
+
+/* CAPTCHA */
+
+.captcha-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin: 10px 0;
+  backdrop-filter: blur(10px);
+  border: 2px solid #000000;
+  z-index: 100;
+}
+.captcha-container h2 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: #333;
+}
+.captcha-container p {
+  font-size: 0.9em;
+  margin-bottom: 15px;
+  color: #666;
+}
+.puzzle-container {
+  position: relative;
+  width: 100%;
+  height: 60%;
+  top: 0;
+  margin: 0 auto 20px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #ddd;
+}
+.puzzle-background {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
+    linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
+    linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+.puzzle-hole {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.1);
+  border: 2px dashed #999;
+  border-radius: 4px;
+  z-index: 1;
+  box-sizing: border-box;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
+}
+.puzzle-piece {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+  border-radius: 4px;
+  cursor: grab;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+  will-change: left, top;
+  box-sizing: border-box;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
+}
+.puzzle-piece:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.puzzle-piece:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.puzzle-piece.dragging {
+  cursor: grabbing;
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+  transition: none;
+}
+.puzzle-indicator {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  user-select: none;
+}
+.puzzle-slider-container {
+  position: relative;
+  width: 100%;
+  height: 30px;
+  margin-top: 10px;
+}
+.puzzle-slider {
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  outline: none;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.puzzle-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4caf50;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.puzzle-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #4caf50;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.slider-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  z-index: -1;
+}
+.verify-button {
+  background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+  color: rgb(255, 255, 255);
+  transition: background 0.3s ease;
+}
+.verify-button:hover:not(:disabled) {
+  background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+  color: rgb(0, 0, 0);
+
+}
+.verify-button:disabled {
+  cursor: not-allowed;
+}
+.puzzle-success {
+  animation: successPulse 0.5s ease-in-out;
+  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+}
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

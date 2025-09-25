@@ -1,0 +1,384 @@
+.transactions-container {
+    width: 98%;
+    height: 100%;
+    gap: 1vw;
+    align-items: center;
+    justify-content: start;
+    margin-bottom: 1vw;
+  }
+  
+  .transactions-title {
+    width: 100%;
+    font-size: 1.5vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 1vw;
+  }
+  
+  .transactions-filter {
+    width: 100%;
+    gap: 1vw;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .transactions-filter-item {
+    min-width: 26%;
+    gap: 0.2vw;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .transactions-filter-item-title {
+    font-size: 1.2vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+  }
+  
+  /* КАСТОМНЫЙ SELECT КОМПОНЕНТ */
+  .custom-select-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 2.5vw;
+  }
+  
+  .custom-select {
+    position: relative;
+    width: 100%;
+    min-height: 2.5vw;
+    background: transparent;
+  }
+  
+  .custom-select-trigger {
+    width: 100%;
+    height: 2.5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 1vw;
+    z-index: 2;
+  }
+  
+  .custom-select-trigger.active {
+    border-radius: 0.6vw 0.6vw 0 0;
+  }
+  
+  .custom-select-value {
+    font-size: 1vw;
+    color: #000000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .custom-select-arrow {
+    position: absolute;
+    right: 0vw;
+    width: 2.5vw;
+    height: 2.5vw;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .custom-select-arrow-img {
+    width: 60%;
+    height: 60%;
+    background-image: url("../../../IMG/profiles/white/arrow.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .custom-select.active .custom-select-arrow-img {
+    transform: rotate(90deg);
+  }
+  
+  .custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .custom-select.active .custom-select-options {
+    max-height: 20vw;
+  }
+  
+  .custom-select-option {
+    position: relative;
+    z-index: 11;
+    padding: 0.8vw 1vw;
+    font-size: 1vw;
+    color: #000000;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .custom-select-option:last-child {
+    border-bottom: none;
+  }
+  
+  .custom-select-option:hover {
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+  }
+  
+  .custom-select-option.selected {
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    color: #ffffff;
+  }
+  
+  .transactions-filter-item-send-button {
+    width: 100%;
+    height: 2.5vw;
+    text-transform: uppercase;
+    text-align: center;
+    color: #ffffff;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    margin-top: auto;
+  }
+  
+  .transactions-table {
+    position: relative;
+    width: 100%;
+    height: 65vh;
+    gap: 1vw;
+    align-items: center;
+    justify-content: start;
+    overflow: hidden;
+  }
+  
+  .transactions-absence-message {
+    margin-top: 1vw;
+    height: 8vw;
+    width: 98%;
+    gap: 1vw;
+    align-items: center;
+    justify-content: start;
+  }
+  
+  .transactions-absence-message-icon {
+    margin-left: 2vw;
+    width: 8vw;
+    height: 5vw;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+  }
+  
+  .transactions-absence-message-icon-img {
+    width: 70%;
+    height: 70%;
+    background-image: url("../../../IMG/profiles/white/Refresh.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .transactions-absence-message-text {
+    margin-left: 1vw;
+    width: 100%;
+    height: 100%;
+    gap: 1vw;
+    align-items: center;
+    justify-content: start;
+  }
+  
+  .transactions-absence-message-text-title {
+    width: 100%;
+    font-size: 1.5vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+  }
+  
+  .transactions-absence-message-text-description {
+    width: 100%;
+    font-size: 1.2vw;
+    font-weight: 300;
+    color: #000000;
+    text-align: left;
+    line-height: 1.5;
+    gap: 1vw;
+    text-align: left;
+  }
+  
+  .transactions-absence-message-text-description a {
+    text-decoration: underline;
+    font-weight: 600;
+  }
+  
+  
+  .transactions-table-item-result{
+      position: relative;
+      width: 98%;
+      min-height: 3vw;
+      gap: 1vw;
+      margin-top: 2vw;
+      align-items: center;
+      justify-content: start;
+      cursor: pointer;
+      transition: all 0.3s ease;
+  }
+  
+  
+  .transactions-table-item-result-icon{
+      position: absolute;
+      left: 0;
+      width: 3vw;
+      height: 3vw;
+      background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+  }
+  
+  .transactions-table-item-result-icon-img{
+      width: 70%;
+      height: 70%;
+      background-image: url("../../../IMG/profiles/white/arrow.png");
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+  }
+  
+  .transactions-table-item-result-title{
+      font-size: 1.5vw;
+      font-weight: 900;
+      color: #141F33;
+      text-transform: uppercase;
+      text-align: left;
+      margin-left: 4vw;
+  }
+  
+  .transactions-table-item-result-summ{
+      font-size: 1.5vw;
+      font-weight: 900;
+      color: #141F33;
+      text-transform: uppercase;
+      text-align: left;
+      margin-left: auto;
+      margin-right: 2vw;
+  }
+  
+  .transactions-table-item{
+      width: 98%;
+      height: 3vw;
+      gap: 1vw;
+      align-items: center;
+      justify-content: start;
+      transition: all 0.3s ease;
+  }
+  
+  .transactions-table-item:first-child {
+      margin-top: 0.5vw;
+  }
+  
+  .transactions-table-item:last-child {
+      margin-bottom: 0.5vw;
+  }
+  
+  /* Контейнер для группы транзакций */
+  .transactions-table-group {
+      width: 98%;
+      height: 100%;
+      overflow-y: auto;
+      gap: .2vw;
+      align-items: center;
+      justify-content: start;
+      transition: max-height 0.3s ease;
+  }
+  
+  .transactions-table-group.collapsed {
+      max-height: 0;
+  }
+  
+  .transactions-table-group.expanded {
+      max-height: 50vw; /* Adjust as needed */
+  }
+  
+  
+  .transactions-table-item-number,
+  .transactions-table-item-type,
+  .transactions-table-item-date,
+  .transactions-table-item-summ{
+      margin-left: 2vw;
+      width: 100%;
+      height: 100%;
+      line-height: 3vw;
+      align-items: center;
+      justify-content: center;
+  }
+  /*
+  *{
+      border: 1px solid red;
+  }
+  */
+
+  /* Tooltip для выбора дат */
+  .transactions-filter-date-range-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-top: 5px;
+  }
+
+  .transactions-filter {
+    position: relative;
+  }
+
+  .calendar-modal-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .calendar-modal-window-filter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+  }
+
+  .calendar-modal-window .date-range-picker-custom {
+    position: relative;
+    z-index: 1001;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+  }
+  

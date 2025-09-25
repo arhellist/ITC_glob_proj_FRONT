@@ -1,0 +1,197 @@
+.correct-data-profile-container {
+  width: 90%;
+  height: 100%;
+  gap: 2vw;
+  justify-content: start;
+}
+
+.correct-data-profile-avatar-item {
+  position: relative;
+  width: 17vw;
+  height: 24vw;
+}
+
+.correct-data-profile-avatar-item-img {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.correct-data-profile-avatar-item-button {
+  margin-top: 1vw;
+  width: 100%;
+  height: 2.5vw;
+}
+
+.correct-data-profile-form{
+    width: 55%;
+    margin-left: 2vw;
+    justify-content: start;
+}
+.correct-data-profile-form-title,
+.correct-data-profile-delete-form-title{
+    width: 100%;
+    font-size: 1.3vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+.correct-data-profile-delete-form-title{
+    margin-left: 1.5vw;
+    margin-top: 1vw;
+}
+
+.correct-data-personal-info-panel {
+    width: 100%;
+    height: 100%;
+    margin-top: 1vw;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: start;
+    padding: 1vw 0;
+  }
+  
+  .correct-data-personal-info-panel label {
+    width: 100%;
+    font-size: 1vw;
+    font-weight: 300;
+    color: #000000;
+    margin-left: 2vw;
+    margin-top: 1vw;
+  }
+
+  .wrapper{
+    margin-left: 1vw;
+  }
+
+  
+  .correct-data-personal-info-panel input {
+    width: 18vw;
+    height: 2.5vw;
+    font-size: 1vw;
+    font-weight: 300;
+    color: #000000;
+    padding: 0 0.5vw;
+    border: none;
+  }
+
+  .correct-data-profile-delete-form{
+    margin-top: 1vw;
+    position: relative;
+    width: 100%;
+    align-items: start;
+  }
+
+
+  .correct-data-profile-delete-form-text{
+    position: relative;
+   left: 5vw;
+    width: 70%;
+    height: 5vw;
+  }
+
+  .correct-data-profile-delete-form-text span{
+    font-weight: 400;
+    font-size: 1vw;
+    color: #000000;
+  }
+
+  .correct-data-profile-delete-form-text p{
+    font-weight: 200;
+    font-size: 0.8vw;
+    color: #000000;
+    margin-top: .5vw;
+  }
+
+  .correct-data-profile-delete-form-icon{
+    position: absolute;
+    left: 1.5vw;
+    bottom: 1.3vw;
+    width: 2.8vw;
+    height: 2.8vw;
+  }
+
+  .correct-data-profile-delete-form-icon-img{
+    width: 80%;
+    height: 80%;
+    background-image: url("../../IMG/profiles/white/basket.png");
+  }
+  
+
+
+  .correct-data-profile-container-panel-button{
+    position: relative;
+    width: 20vw;
+    height: 3vw;
+    font-size: 1.2vw;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    transition: all 0.5s ease;
+  }
+
+  .gender-container{
+    position: relative;
+    width: 18vw;
+    height: 2.5vw;
+    margin-top: 2.2vw;
+    margin-left: 1vw;
+    overflow: hidden;
+  }
+
+  .gender-container input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  .gender-container label{
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    width: 50%;
+    height: 100%;
+    font-size: 1.5vw;
+    font-weight: 300;
+    text-align: center;
+    line-height: 2.5vw;
+
+  }
+
+  .correct-data-gender-container-chked{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    transition: left 0.3s ease;
+  }
+
+  /* Переключение позиции при выборе "Ж" */
+  #correct-data-gender-female:checked ~ .correct-data-gender-container-chked {
+    left: 50%;
+  }
+
+  /* Переключение позиции при выборе "М" */
+  #correct-data-gender-male:checked ~ .correct-data-gender-container-chked {
+    left: 0;
+  }
+
+  .correct-data-profile-container-panel-button-container{
+    gap: 1vw;
+  }
+  /*
+  *{
+    border: 1px solid #000000;
+}*/

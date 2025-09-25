@@ -1,23 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="yandex-verification" content="ec26b6ffa999d463" />
-    <script
-      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-      async
-      defer
-    ></script>
-    <link rel="stylesheet" href="./SRC/CSS/index.css" />
-    <link rel="stylesheet" href="./SRC/CSS/notifications.css" />
-    <title>ITC ECOSYSTEM</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>INVEST TIME CAPITAL - Next Generation Investment Platform</title>
+    <meta name="description" content="Professional investment platform for traditional and digital assets. ETFs, stocks, Bitcoin, Ethereum, Web3. Registered in Hong Kong." />
+    <meta name="keywords" content="investments, ETF, stocks, Bitcoin, Ethereum, Web3, DeFi, cryptocurrencies, traditional assets, portfolio diversification" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Invest Time Capital Limited" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://investtimecapital.pro/eng/" />
+    
+    <!-- Hreflang for language versions -->
+    <link rel="alternate" hreflang="en" href="https://investtimecapital.pro/" />
+    <link rel="alternate" hreflang="ru" href="https://investtimecapital.pro/ru/" />
+    <link rel="alternate" hreflang="x-default" href="https://investtimecapital.pro/" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="INVEST TIME CAPITAL - Next Generation Investment Platform" />
+    <meta property="og:description" content="Professional investment platform for traditional and digital assets. ETFs, stocks, Bitcoin, Ethereum, Web3." />
+    <meta property="og:url" content="https://investtimecapital.pro/eng/" />
+    <meta property="og:site_name" content="Invest Time Capital" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content="https://investtimecapital.pro/src/img/mainLogo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Invest Time Capital Logo" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="INVEST TIME CAPITAL - Next Generation Investment Platform" />
+    <meta name="twitter:description" content="Professional investment platform for traditional and digital assets." />
+    <meta name="twitter:image" content="https://investtimecapital.pro/src/img/mainLogo.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./src/img/mainLogo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./src/img/mainLogo.png" />
+    <link rel="apple-touch-icon" href="./src/img/mainLogo.png" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://lk.investtimecapital.pro" />
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./src/css/Normalize.css" />
+    <link rel="stylesheet" href="./src/css/index.css" />
+    <link rel="stylesheet" href="./src/css/parallelepiped.css" />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FinancialService",
+      "name": "Invest Time Capital",
+      "alternateName": "ITC",
+      "description": "Professional investment platform for traditional and digital assets",
+      "url": "https://investtimecapital.pro/",
+      "logo": "https://investtimecapital.pro/src/img/mainLogo.png",
+      "image": "https://investtimecapital.pro/src/img/mainLogo.png",
+      "telephone": "+852-0000-0000",
+      "email": "info@investtimecapital.pro",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "7/F, MW Tower, 111 Bonham Strand",
+        "addressLocality": "Sheung Wan",
+        "addressCountry": "HK"
+      },
+      "foundingDate": "2015",
+      "numberOfEmployees": "50-100",
+      "serviceType": [
+        "Investment Services",
+        "Asset Management",
+        "Financial Analytics",
+        "ETF Investments",
+        "Cryptocurrency Investments",
+        "Web3 Investments"
+      ],
+      "areaServed": {
+        "@type": "Country",
+        "name": "Global"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Investment Strategies",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Traditional Assets",
+              "description": "ETFs, stocks, bonds and funds"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Digital Assets",
+              "description": "Bitcoin, Ethereum, Web3, DeFi"
+            }
+          }
+        ]
+      },
+      "sameAs": [
+        "https://lk.investtimecapital.pro"
+      ]
+    }
+    </script>
+    <title>Vite + React</title>
   </head>
   <body>
-    <div class="notification_container"></div>
-    <div class="bg"><canvas id="candlesCanvas"></canvas></div>
-    <div class="root flex"></div>
-    <script type="module" src="SRC/JAVASCRIPT/MODULES/JapaneseCandlesticks.js" ></script>
-    <script type="module" src="SRC/JAVASCRIPT/index.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

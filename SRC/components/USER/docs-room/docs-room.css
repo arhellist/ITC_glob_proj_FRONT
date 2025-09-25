@@ -1,0 +1,141 @@
+.add-document-container {
+    width: 98%;
+    height: 100%;
+    gap: 1vw;
+    align-items: center;
+    justify-content: start;
+    margin-bottom: 1vw;
+  }
+  
+  .add-document-title {
+    width: 95%;
+    font-size: 1.5vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+  }
+  
+  .add-document-button-container {
+    width: 98%;
+    height: 95%;
+  }
+  
+  .add-document-button-container {
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 1vw;
+    margin-bottom: 1vw;
+  }
+  
+  .add-document-button-container-item {
+    width: 40vw;
+    height: 8.2vw;
+  }
+  
+  .add-document-button-container-item-button {
+    position: relative;
+    width: 25vw;
+    height: 3.5vw;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    color: white;
+    font-size: 1vw;
+    text-align: center;
+    padding: 0 1vw;
+  }
+
+  .iconRefresh{
+    display: none;
+    position: absolute;
+    left: 1vw;
+    width: 2.5vw;
+    height: 2.5vw;
+    background-image: url("../../../IMG/profiles/white/Refresh.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: refresh 1s linear infinite;
+  }
+  @keyframes refresh {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(-360deg);
+    }
+  }
+
+  .iconOk{
+    display: none;
+    position: absolute;
+    right: 1vw;
+    width: 2.5vw;
+    height: 2.5vw;
+    background-image: url("../../../IMG/profiles/white/Tick.png");
+  }
+
+  .iconEr {
+    display: none;  
+    position: absolute;
+    right: 1vw;
+    width: 2.5vw;
+    height: 2.5vw;
+    background-image: url("../../../IMG/profiles/white/Close.png");
+  }
+  
+  .add-document-button-container-item-text {
+    width: 55%;
+    text-align: center;
+    font-size: 1vw;
+    margin-top: 1vw;
+  }
+
+  .DL-COMPLITE{
+    background: linear-gradient(90deg, #9eec9b 0%, #a3d68b 50%, #0caf53 100%) !important;
+    color: #000000 !important;
+}
+
+
+.DL-ERROR {
+    background: linear-gradient(90deg, #ec9b9b 0%, #d68b8b 50%, #af0c0c 100%) !important;
+    color: #000000 !important;
+}
+  
+  .add-about,
+  .lastChildContainer {
+    height: 18vw;
+  }
+  
+  .add-about{
+      color: white;
+      justify-content: start;
+      gap: 1vw;
+  }
+  
+  .add-document-button-container-item-about-title{
+      margin-top: 1svw;
+      width: 90%;
+      font-size: 1.5vw;
+      text-transform: uppercase;
+      text-align: left;
+  }
+  
+  .add-document-button-container-item-about-text{
+  width: 90%;
+  font-size: 1.1vw;
+  font-weight: 300;
+  text-align: justify;
+  }
+  
+  
+  
+  .lastChildContainer {
+    justify-content: space-between;
+  }
+  
+  /*
+    *{
+      border: 1px solid red;
+    }*/
+  

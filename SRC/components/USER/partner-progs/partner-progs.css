@@ -1,0 +1,184 @@
+.partners-program-container{
+    width: 95%;
+    height: 95%;
+    gap: 1vw;
+}
+
+.partners-program-left{
+    width: 65%;
+    height: 100%;
+    justify-content: start;
+    gap: 1vw;
+}
+
+.partners-program-right{
+    width: 35%;
+    height: 100%;
+    justify-content: start;
+}
+
+.partners-program-reflink{
+    width: 100%;
+    height: 10vw;
+    gap: 1vw;
+}
+
+.partners-program-reflink-title,
+.partners-program-right-title{
+    width: 95%;
+    font-size: 1.5vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+}
+.partners-program-right-title{
+    text-align: center;
+}
+.partners-program-reflink-link{
+    position: relative;
+    width: 95%;
+    height: 3vw;
+    font-size: 1.5vw;
+
+}
+
+.partners-program-reflink-link-button{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3vw;
+    height: 3vw;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+}
+
+.partners-program-reflink-link-button-img{
+    width: 80%;
+    height: 80%;
+    background-image: url("../../../IMG/profiles/white/Foreign.png");
+}
+
+.partners-program-aboutreferal{
+    justify-content: space-between;
+    align-items: stretch;
+    height: 100%;
+}
+
+.partners-program-reflink-text{
+    width: 95%;
+    font-size: .8vw;
+    font-weight: 400;
+    color: #121213B2;
+    text-align: left;
+    margin-bottom: 1vw;
+}
+
+.partners-program-aboutreferal-text,
+.partners-program-aboutreferal-accounts{
+    width: 47%;
+    gap: 1vw;
+    justify-content: start;
+}
+
+.partners-program-aboutreferal-text-bookmark{
+    width: 85%;
+    height: 3vw;
+    margin-top: 2vw;
+}
+.partners-program-aboutreferal-text-bookmark-img{
+    width: 3vw;
+    height: 3vw;
+    background-image: url("../../../IMG/profiles/white/Bookmark.png");
+}
+
+.partners-program-aboutreferal-text-title{
+    width: 85%;
+    font-size: 1.5vw;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+
+}
+.partners-program-aboutreferal-text-text{
+    width: 85%;
+    font-size: 1vw;
+    font-weight: 300;
+    color: #ffffff;
+    text-align: left;
+    line-height: 1.5;
+    gap: 1vw;
+    text-indent: 1vw;
+    text-align: justify;
+}
+.partners-program-aboutreferal-accounts{
+    gap: 1vw;
+    justify-content: space-between;
+}
+
+.partners-program-aboutreferal-account-item{
+    width: 100%;
+    height: 50%;
+    gap: 1vw;
+    justify-content: start;
+    position: relative;
+}
+
+.partners-program-aboutreferal-account-item-title{
+    width: 60%;
+    font-size: 1.5vw;
+    font-weight: 400;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+    margin-left: 1vw;
+    margin-right: auto;
+}
+
+.partners-program-aboutreferal-account-item-text{
+    width: 50%;
+    font-size: 2.5vw;
+    font-weight: 800;
+    color: #141F33;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1vw;
+    margin-left: 1vw;
+    margin-right: auto;
+    position: absolute;
+    left: 1vw;
+    bottom: 2vw;
+}
+
+.partners-program-right-table{
+    width: 95%;
+    height: 100%;
+    gap: .3vw;
+    justify-content: start;
+    margin-top: .5vw;
+}
+.partners-program-right-table-item{
+    width: 100%;
+    height: 3vw;
+    gap: 1vw;
+    justify-content: start;
+}
+
+.partners-program-right-table-item-img{
+    width: 3vw;
+    height: 3vw;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+
+}
+.partners-program-right-table-item-img-img{
+    width: 80%;
+    height: 80%;
+    background-image: url("../../../IMG/profiles/white/ProfileAdd.png");
+}
+/*
+*{
+    border: 1px solid #ff0000;
+}*/
