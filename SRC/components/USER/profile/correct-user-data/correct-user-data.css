@@ -3,6 +3,11 @@
   height: 100%;
   gap: 2vw;
   justify-content: start;
+  overflow-y: auto;
+}
+
+.correct-data-profile-container-panel {
+  align-items: flex-start;
 }
 
 .correct-data-profile-avatar-item {
@@ -16,7 +21,12 @@
   z-index: 3;
   width: 100%;
   height: 100%;
+  overflow: hidden;
   object-fit: cover;
+}
+
+.correct-data-profile-avatar {
+  align-items: flex-start;
 }
 
 .correct-data-profile-avatar-item-button {
@@ -120,8 +130,137 @@
     height: 80%;
     background-image: url("../../IMG/profiles/white/basket.png");
   }
-  
 
+  /* Блок биометрической аутентификации */
+  .correct-data-biometric-form {
+    margin-top: 1vw;
+    position: relative;
+    width: 100%;
+    align-items: start;
+    padding: 0;
+    gap: 0.3vw;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .correct-data-biometric-form-title {
+    width: 100%;
+    font-size: 1.3vw;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    text-align: left;
+    margin-left: 1.5vw;
+    margin-top: 1vw;
+    padding-top: 1vw;
+    margin-bottom: 0.3vw;
+    box-sizing: border-box;
+  }
+
+  .correct-data-biometric-info {
+    width: 100%;
+    font-size: 1vw;
+    font-weight: 300;
+    color: #000000;
+    margin-left: 2vw;
+    margin-top: 0.3vw;
+    margin-bottom: 0.3vw;
+    box-sizing: border-box;
+    padding-right: 2vw;
+  }
+
+  .correct-data-biometric-credentials {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vw;
+    margin-top: 0.3vw;
+    margin-bottom: 0.3vw;
+    box-sizing: border-box;
+    padding-right: 2vw;
+  }
+
+  .correct-data-biometric-credentials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vw;
+    margin-top: 0.3vw;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .correct-data-biometric-credential-item {
+    width: calc(100% - 4vw);
+    max-width: calc(100% - 4vw);
+    padding: 0.8vw 1vw;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 0.9vw;
+    color: #000000;
+    margin-left: 2vw;
+    margin-right: 2vw;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-wrap: break-word;
+    min-width: 0;
+  }
+
+  .correct-data-biometric-credential-item span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .correct-data-biometric-revoke-btn {
+    padding: 0.3vw 1vw;
+    font-size: 0.8vw;
+    font-weight: 500;
+    color: #ffffff;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ff6b6b 0%, #ee5a6f 100%);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .correct-data-biometric-revoke-btn:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+
+  .correct-data-biometric-form-button {
+    width: 20vw;
+    height: 2.5vw;
+    margin-top: 0.5vw;
+    margin-left: 2vw;
+    margin-bottom: 1vw;
+    font-size: 1vw;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .correct-data-biometric-form-button:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+
+  .correct-data-biometric-form-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 
   .correct-data-profile-container-panel-button{
     position: relative;

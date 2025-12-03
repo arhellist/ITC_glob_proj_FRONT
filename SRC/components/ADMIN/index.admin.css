@@ -1,0 +1,606 @@
+.root-nav-item-admin {
+    position: relative;
+    width: 5vw;
+    height: 5vw;
+    border-radius: 50%;
+    transition: 0.3s ease;
+    gap: 0.1vw;
+    z-index: 3;
+  }
+  
+  .root-nav-item-admin:hover {
+    transform: scale(1.2);
+    background-color: #aa4848;
+    box-shadow: 0 0 0.8vw 0.2vw #c01515;
+  }
+  
+  .admin-button-icons {
+    width: 0.8vw;
+    height: 0.8vw;
+    border-radius: 50%;
+  }
+  
+  .admin-button-icons.a {
+    background-image: url("../../IMG/admin/icon-a.png");
+  }
+  
+  .admin-button-icons.d {
+    background-image: url("../../IMG/admin/icon-d.png");
+  }
+  
+  .admin-button-icons.m {
+    background-image: url("../../IMG/admin/icon-m.png");
+  }
+  
+  .admin-button-icons.i {
+    background-image: url("../../IMG/admin/icon-i.png");
+  }
+  
+  .admin-button-icons.n {
+    background-image: url("../../IMG/admin/icon-n.png");
+  }
+  
+  /* CRM Button Styles */
+  .root-nav-item-crm {
+    position: relative;
+    width: 4.5vw;
+    height: 4.5vw;
+    border-radius: 50%;
+    transition: 0.3s ease;
+    gap: 0.08vw;
+    z-index: 3;
+  }
+  
+  .root-nav-item-crm:hover {
+    transform: scale(1.2);
+    background-color: #4a8b48;
+    box-shadow: 0 0 0.8vw 0.2vw #15c015;
+  }
+  
+  .crm-button-icons {
+    width: 0.7vw;
+    height: 0.7vw;
+    border-radius: 50%;
+  }
+  
+  .crm-button-icons.c {
+    background-image: url("../../IMG/admin/icon-c.png");
+  }
+  
+  .crm-button-icons.r {
+    background-image: url("../../IMG/admin/icon-r.png");
+  }
+  
+  .crm-button-icons.m {
+    background-image: url("../../IMG/admin/icon-m.png");
+  }
+  
+  .crm-panel-nav {
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    background-color: #141414;
+    height: 37vw;
+    border-radius: 0 1vw 1vw 0;
+    -webkit-border-radius: 0 1vw 1vw 0;
+    -moz-border-radius: 0 1vw 1vw 0;
+    -ms-border-radius: 0 1vw 1vw 0;
+    -o-border-radius: 0 1vw 1vw 0;
+    justify-content: start;
+  }
+  
+  .crm-panel-nav-active {
+    animation: crm-move 0.8s linear forwards;
+    -webkit-animation: crm-move 1.8s linear forwards;
+  }
+  
+  .admin-nav {
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    background-color: #141414;
+    height: 37vw;
+    border-radius: 0 1vw 1vw 0;
+    -webkit-border-radius: 0 1vw 1vw 0;
+    -moz-border-radius: 0 1vw 1vw 0;
+    -ms-border-radius: 0 1vw 1vw 0;
+    -o-border-radius: 0 1vw 1vw 0;
+    justify-content: start;
+  }
+  
+  .admin-nav-active {
+    animation: admin-move 0.8s linear forwards;
+    -webkit-animation: admin-move 1.8s linear forwards;
+  }
+
+  /* Стили для формы входа администратора */
+  .admin-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    padding: 2rem;
+  }
+
+  .admin-login-form {
+    background-color: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .admin-login-form h2 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .admin-login-field {
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-login-field label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-login-field input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  .admin-login-field input:focus {
+    outline: none;
+    border-color: #aa4848;
+    box-shadow: 0 0 0 2px rgba(170, 72, 72, 0.2);
+  }
+
+  .admin-login-field input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .admin-login-error {
+    background-color: #4a1a1a;
+    border: 1px solid #aa4848;
+    color: #ff6b6b;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-login-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #aa4848;
+    border: none;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .admin-login-button:hover:not(:disabled) {
+    background-color: #c01515;
+  }
+
+  .admin-login-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .admin-login-info {
+    background-color: #2a4a2a;
+    border: 1px solid #4a8a4a;
+    color: #90ee90;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .admin-login-info p {
+    margin: 0.25rem 0;
+  }
+  
+  @keyframes admin-move {
+    from {
+      left: -150%;
+      box-shadow: 0 0 .8vw .2vw rgba(255, 0, 0, 0.589);
+    }
+    to {
+      left: 0;
+      box-shadow: none;
+    }
+  }
+  
+  @keyframes crm-move {
+    from {
+      left: -150%;
+      box-shadow: 0 0 .8vw .2vw rgba(21, 192, 21, 0.589);
+    }
+    to {
+      left: 0;
+      box-shadow: none;
+    }
+  }
+  
+  .admin-nav-button {
+    width: 3.5vw;
+    height: 3.5vw;
+    border-radius: 50%;
+    transition: 0.3s ease;
+    margin-top: 1vw;
+  }
+  
+  .admin-nav-button:hover {
+    transform: scale(1.25);
+    background-color: #aa4848;
+    box-shadow: 0 0 0.8vw 0.2vw #c01515;
+    -webkit-transform: scale(1.25);
+    -moz-transform: scale(1.25);
+    -ms-transform: scale(1.25);
+    -o-transform: scale(1.25);
+  }
+  .admin-nav-button.active{
+    transform: scale(1.25);
+    background-color: #aa4848;
+    box-shadow: 0 0 0.8vw 0.2vw #c01515;
+  }
+  
+  .activeAdmBtn{
+    transform: scale(1.4);
+    background-color: #aa4848;
+    box-shadow: 0 0 0.8vw 0.2vw #c01515;
+    -webkit-transform: scale(1.4);
+    -moz-transform: scale(1.4);
+    -ms-transform: scale(1.4);
+    -o-transform: scale(1.4);
+  }
+  
+  
+  .admin-nav-button-icon {
+    width: 2.5vw;
+    height: 2.5vw;
+  }
+  
+  .admin-btn-userslist-icon {
+    background-image: url("../../IMG/admin/icon-users.png");
+  }
+
+  .admin-nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ff3232;
+    border: 2px solid #1a1f2e;
+    box-shadow: 0 0 8px rgba(255, 50, 50, 0.8), 0 0 4px rgba(255, 50, 50, 0.5);
+    z-index: 100;
+    pointer-events: none;
+    display: block;
+  }
+  
+  .admin-btn-requests-icon {
+    background-image: url("../../IMG/admin/icon-addtolist.png");
+  }
+  
+  .admin-btn-security-icon {
+    background-image: url("../../IMG/admin/icon-lockalt-keyhole.png");
+  }
+  
+  .admin-btn-monitoring-icon {
+    background-image: url("../../IMG/admin/icon-calculator.png");
+  }
+  
+  .admin-btn-profitability-icon {
+    background-image: url("../../IMG/admin/icon-value-coins.png");
+  }
+  
+  .crm-letters {
+    gap: 0.1vw;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .crm-letter-icon {
+    width: 0.9vw;
+    height: 0.9vw;
+    border-radius: 50%;
+  }
+  
+  .crm-letter-icon.c {
+    background-image: url("../../IMG/admin/icon-c.png");
+  }
+  
+  .crm-letter-icon.r {
+    background-image: url("../../IMG/admin/icon-r.png");
+  }
+  
+  .crm-letter-icon.m {
+    background-image: url("../../IMG/admin/icon-m.png");
+  }
+  
+  /* Стили для MAIL иконок */
+  .mail-letters {
+    gap: 0.1vw;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .mail-letter-icon {
+    width: 0.9vw;
+    height: 0.9vw;
+    border-radius: 50%;
+  }
+  
+  .mail-letter-icon.m {
+    background-image: url("../../IMG/admin/icon-m.png");
+  }
+  
+  .mail-letter-icon.a {
+    background-image: url("../../IMG/admin/icon-a.png");
+  }
+  
+  .mail-letter-icon.i {
+    background-image: url("../../IMG/admin/icon-i.png");
+  }
+  
+  .mail-letter-icon.l {
+    background-image: url("../../IMG/admin/icon-l.png");
+  }
+  
+  /* Специальные стили для CRM кнопки */
+  .admin-btn-crm:hover {
+    background-color: #4a8b48;
+    box-shadow: 0 0 0.8vw 0.2vw #15c015;
+  }
+  
+  .admin-btn-crm.active {
+    background-color: #4a8b48;
+    box-shadow: 0 0 0.8vw 0.2vw #15c015;
+  }
+
+  /* Бейдж непрочитанных сообщений на кнопке CRM в навигации */
+  .crm-nav-unread-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 20px;
+    z-index: 10;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    }
+  }
+  
+  .admin-dashboard-users-list-container {
+    width: 98%;
+    height: 98%;
+  
+    justify-content: start;
+  }
+  
+  .admin-dashboard-users-list-container-header {
+    margin-top: 0.5vw;
+    font-size: 1.5vw;
+    text-transform: uppercase;
+    width: 90%;
+    text-align: left;
+  }
+  
+  .admin-dashboard-users-list-container-search {
+    width: 98%;
+    justify-content: start;
+    gap: 1vw;
+  }
+  
+  .admin-dashboard-users-list-container-search-box {
+    padding: 0.2vw;
+    padding-right: 0.5vw;
+    gap: 0.5vw;
+  }
+  
+  .admin-dashboard-users-list-container-search-box-icon {
+    width: 2.5vw;
+    height: 2.5vw;
+    background-image: url("../../IMG/admin/search-icon.png");
+  }
+  
+  .admin-dashboard-users-list-container-search-box label {
+    font-size: 0.8vw;
+    text-transform: uppercase;
+  }
+  
+  .admin-dashboard-users-list-container-search-box input {
+    width: 12vw;
+    border-radius: 50vw;
+    padding: 0.2vw 0.5vw;
+    -webkit-border-radius: 50vw;
+    -moz-border-radius: 50vw;
+    -ms-border-radius: 50vw;
+    -o-border-radius: 50vw;
+  }
+  
+  .admin-dashboard-users-list-container-table {
+    width: 98%;
+    height: 100%;
+    overflow: hidden;
+    margin-top: 0.5vw;
+    justify-content: start;
+  }
+  .admin-dashboard-users-list-container-table-items {
+    padding-top: 0.5vw;
+    width: 100%;
+    height: 80%;
+    max-height: 60vh;
+    justify-content: start;
+    margin-top: 0.5vw;
+    gap: 0.3vw;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Полностью стандартное поведение браузера без кастомных стилей */
+  }
+  .admin-dashboard-users-list-container-table-header,
+  .admin-dashboard-users-list-container-table-item {
+    width: 98%;
+    font-size: 1vw;
+    text-transform: uppercase;
+    justify-content: start;
+  }
+  
+  .admin-dashboard-users-list-container-table-item-el {
+    text-align: center;
+    height: 1.5vw;
+  }
+  
+  .admin-dashboard-users-list-container-table-items .admin-dashboard-users-list-container-table-item:hover {
+    background-color: #fdf6959d;
+  }
+  
+  .table-item-el-id {
+    min-width: 5vw;
+    border-right: 1px solid rgba(0, 0, 0, 0.438);
+  }
+  
+  .table-item-el-name {
+    min-width: 30vw;
+    border-right: 1px solid rgba(0, 0, 0, 0.438);
+  }
+  
+  .table-item-el-email {
+    min-width: 18vw;
+    border-right: 1px solid rgba(0, 0, 0, 0.438);
+  }
+
+  .admin-dashboard-users-list-container-table-items .table-item-el-email {
+    font-size: 0.7vw;
+  }
+
+  .admin-dashboard-users-list-container-table-items .table-item-el-namel {
+    text-align: left;
+  }
+
+
+  .table-item-el-docs {
+    min-width: 15vw;
+    gap: 0.2vw;
+    border-right: 1px solid rgba(0, 0, 0, 0.438);
+  }
+  .table-item-el-active {
+    min-width: 10vw;
+  }
+  
+  .table-item-el-docs span {
+    font-size: 0.9vw;
+    height: 1vw;
+    width: 1vw;
+    padding: 0.2vw;
+    border-radius: 0.1vw;
+    -webkit-border-radius: 0.1vw;
+    -moz-border-radius: 0.1vw;
+    -ms-border-radius: 0.1vw;
+    -o-border-radius: 0.1vw;
+    border: 1px solid rgba(0, 0, 0, 0.438);
+  }
+  
+  .activeDoc {
+    background: linear-gradient(90deg, #9eec9b 0%, #a3d68b 50%, #0caf53 100%) !important;
+  }
+  
+  .approved {
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    -ms-border-radius: 50% !important;
+    -o-border-radius: 50% !important;
+    border: 2px solid rgb(2, 6, 255) !important;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #1565C0 100%) !important; /* Синий градиент для утверждённых документов */
+  }
+
+  .unApproved {
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    -ms-border-radius: 50% !important;
+    -o-border-radius: 50% !important;
+    border: 2px solid rgb(255, 2, 2) !important;
+  }
+  
+  .table-item-el-active-icon {
+    width: 1.5vw;
+    height: 1.5vw;
+  }
+  
+  .table-item-el-activeInactive {
+    background-image: url("../../IMG/profiles/black/Close.png");
+
+  }
+  .table-item-el-activeActive {
+    background-image: url("../../IMG/check.png");
+  }
+
+  /* Анимации для кнопки АДМИН */
+  .admin-button-container {
+    position: relative;
+    z-index: 20;
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+    pointer-events: none;
+  }
+
+  .admin-button-container.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+  }
+
+  .admin-button-container.hidden {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+    pointer-events: none;
+  }
+  

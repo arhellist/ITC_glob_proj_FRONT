@@ -1,0 +1,262 @@
+/* Оверлей */
+.profitability-edit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10001;
+  padding: 2vw;
+}
+
+/* Модальное окно */
+.profitability-edit-modal {
+  background: #ffffff;
+  border-radius: 1vw;
+  box-shadow: 0 1vw 3vw rgba(0, 0, 0, 0.3);
+  width: 45vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Заголовок */
+.profitability-edit-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5vw 2vw;
+  background: #f39c12;
+  color: #ffffff;
+}
+
+.profitability-edit-modal-header h3 {
+  margin: 0;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+}
+
+.loading-section {
+  padding: 3vw;
+  text-align: center;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #7f8c8d;
+}
+
+/* Форма */
+.profitability-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vw;
+  padding: 2vw;
+  overflow-y: auto;
+  flex: 1;
+  max-height: calc(85vh - 10vw);
+}
+
+/* Секция информации */
+.form-info-section {
+  background: #ecf0f1;
+  padding: 1.5vw;
+  border-radius: 0.5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5vw 0;
+  border-bottom: 1px solid #bdc3c7;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-top: 1vw;
+  margin-top: 0.5vw;
+  border-top: 2px solid #f39c12;
+}
+
+.info-label {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1vw;
+  color: #2c3e50;
+}
+
+.info-value {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+  color: #34495e;
+}
+
+.info-value.balance {
+  font-family: "Raleway-Bold", monospace;
+  font-size: 1.2vw;
+  color: #27ae60;
+}
+
+/* Секция редактирования */
+.form-edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vw;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+}
+
+.form-field label {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  color: #2c3e50;
+}
+
+.form-field input {
+  padding: 0.8vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  border: 0.15vw solid #ced4da;
+  border-radius: 0.5vw;
+  transition: all 0.3s ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #f39c12;
+  box-shadow: 0 0 0 0.3vw rgba(243, 156, 18, 0.2);
+}
+
+.form-field small {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.9vw;
+  color: #7f8c8d;
+}
+
+/* Предпросмотр расчета */
+.calc-preview {
+  background: #fff3e0;
+  padding: 1.5vw;
+  border-radius: 0.5vw;
+  border: 0.15vw solid #f39c12;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+}
+
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+  color: #2c3e50;
+}
+
+.calc-row.highlight {
+  border-top: 2px solid #f39c12;
+  padding-top: 0.8vw;
+  margin-top: 0.5vw;
+}
+
+.calc-value {
+  font-family: "Raleway-Bold", monospace;
+  font-size: 1.2vw;
+  color: #e67e22;
+}
+
+.calc-row.highlight .calc-value {
+  font-size: 1.4vw;
+  color: #d35400;
+}
+
+/* Предупреждение */
+.warning-note {
+  background: #fff3cd;
+  border: 0.15vw solid #ffc107;
+  border-radius: 0.5vw;
+  padding: 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.95vw;
+  color: #856404;
+}
+
+/* Футер */
+.profitability-edit-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1vw;
+  padding: 1.5vw 2vw;
+  background: #f8f9fa;
+  border-top: 0.1vw solid #dee2e6;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 0.8vw 2vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: #95a5a6;
+  color: #ffffff;
+}
+
+.cancel-btn:hover {
+  background: #7f8c8d;
+  transform: translateY(-0.2vw);
+}
+
+.submit-btn {
+  background: #f39c12;
+  color: #ffffff;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #e67e22;
+  transform: translateY(-0.2vw);
+  box-shadow: 0 0.5vw 1vw rgba(243, 156, 18, 0.3);
+}
+
+.submit-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Скроллбар для формы */
+.profitability-edit-form::-webkit-scrollbar {
+  width: 10px;
+}
+
+.profitability-edit-form::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+.profitability-edit-form::-webkit-scrollbar-thumb {
+  background: #f39c12;
+  border-radius: 5px;
+}
+
+.profitability-edit-form::-webkit-scrollbar-thumb:hover {
+  background: #e67e22;
+}
+

@@ -1,0 +1,313 @@
+/* Оверлей модального окна детализации */
+.calc-details-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* Контейнер модального окна */
+.calc-details-modal-container {
+  width: 60vw;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 1vw;
+  box-shadow: 0 1vw 3vw rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Заголовок */
+.calc-details-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5vw 2vw;
+  background: #2c3e50;
+  border-bottom: 0.2vw solid #457b9d;
+}
+
+.calc-details-modal-title {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ffffff;
+  margin: 0;
+}
+
+.calc-details-modal-close-btn {
+  width: 2.5vw;
+  height: 2.5vw;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 2vw;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.calc-details-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+/* Тело модального окна */
+.calc-details-modal-body {
+  flex: 1;
+  padding: 2vw;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vw;
+}
+
+/* Секция */
+.calc-details-section {
+  padding: 1vw;
+  background: #f8f9fa;
+  border-radius: 0.5vw;
+  border-left: 0.3vw solid #457b9d;
+}
+
+.calc-details-section-title {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  color: #2c3e50;
+  margin: 0 0 1vw 0;
+  text-transform: uppercase;
+}
+
+/* Сетка информации */
+.calc-details-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8vw;
+}
+
+.calc-details-info-item {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5vw;
+}
+
+.calc-details-label {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1vw;
+  color: #7f8c8d;
+}
+
+.calc-details-value {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+  color: #2c3e50;
+}
+
+/* Расчет баланса */
+.calc-details-balance-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+}
+
+.calc-details-balance-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5vw;
+  background: #ffffff;
+  border-radius: 0.3vw;
+}
+
+.calc-details-balance-row.profitability-row {
+  background: #fff3e0;
+}
+
+.calc-details-balance-row.profitability-row .calc-details-value-numeric {
+  color: #e65100;
+  font-weight: bold;
+}
+
+.calc-details-balance-row.total-row {
+  background: #e8f5e9;
+  margin-top: 0.5vw;
+  padding: 0.8vw;
+  border: 0.1vw solid #4caf50;
+}
+
+.calc-details-balance-row.total-row .calc-details-value-numeric {
+  color: #2e7d32;
+  font-weight: bold;
+  font-size: 1.2vw;
+}
+
+.calc-details-value-numeric {
+  font-family: "Raleway-Regular", monospace;
+  font-size: 1vw;
+  color: #2c3e50;
+}
+
+/* Список транзакций */
+.calc-details-transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  max-height: 20vh;
+  overflow-y: auto;
+}
+
+.calc-details-transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6vw;
+  background: #ffffff;
+  border-radius: 0.3vw;
+  border-left: 0.2vw solid #457b9d;
+}
+
+.transaction-date {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.9vw;
+  color: #7f8c8d;
+  min-width: 12vw;
+}
+
+.transaction-amount {
+  font-family: "Raleway-Bold", monospace;
+  font-size: 1vw;
+  color: #27ae60;
+  min-width: 8vw;
+  text-align: right;
+}
+
+.transaction-amount.withdrawal {
+  color: #e74c3c;
+}
+
+.transaction-amount.profitability-amount {
+  color: #e65100;
+}
+
+.transaction-info {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.9vw;
+  color: #95a5a6;
+  flex: 1;
+  text-align: right;
+}
+
+/* Футер */
+.calc-details-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.5vw 2vw;
+  background: #ecf0f1;
+  border-top: 0.1vw solid #bdc3c7;
+  gap: 1vw;
+}
+
+.calc-details-close-btn {
+  padding: 0.7vw 2vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.2vw;
+  color: #ffffff;
+  background: #457b9d;
+  border: 0.1vw solid #3a6a87;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.calc-details-close-btn:hover {
+  background: #3a6a87;
+  box-shadow: 0 0 0.8vw rgba(69, 123, 157, 0.5);
+  transform: translateY(-0.1vw);
+}
+
+/* Скроллбары */
+.calc-details-modal-body::-webkit-scrollbar,
+.calc-details-transactions-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.calc-details-modal-body::-webkit-scrollbar-track,
+.calc-details-transactions-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.calc-details-modal-body::-webkit-scrollbar-thumb,
+.calc-details-transactions-list::-webkit-scrollbar-thumb {
+  background: #457b9d;
+  border-radius: 4px;
+}
+
+.calc-details-modal-body::-webkit-scrollbar-thumb:hover,
+.calc-details-transactions-list::-webkit-scrollbar-thumb:hover {
+  background: #2c5f7d;
+}
+
+.calc-details-percent-editor {
+  margin-top: 1vw;
+  display: flex;
+  align-items: flex-end;
+  gap: 1vw;
+  flex-wrap: wrap;
+}
+
+.calc-details-percent-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4vw;
+}
+
+.calc-details-percent-input {
+  width: 12vw;
+  padding: 0.5vw 0.7vw;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.4vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+}
+
+.calc-details-percent-apply {
+  padding: 0.6vw 1.4vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1vw;
+  color: #ffffff;
+  background: #27ae60;
+  border: 0.1vw solid #1f8d4e;
+  border-radius: 0.4vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.calc-details-percent-apply:hover {
+  background: #1f8d4e;
+  box-shadow: 0 0 0.6vw rgba(39, 174, 96, 0.45);
+}
+
+.calc-details-percent-apply:disabled {
+  background: #95a5a6;
+  border-color: #95a5a6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.calc-details-error {
+  margin-top: 0.6vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.95vw;
+  color: #c0392b;
+}
+

@@ -1,0 +1,604 @@
+/* Контейнер компонента расчета доходности */
+.profitability-calculation-container {
+  width: 98%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a2e;
+  padding: 1vw;
+  box-sizing: border-box;
+  min-height: 0; /* Важно для flex-элементов */
+  border-radius: 2vw; /* Максимально скругленные края */
+  position: relative;
+}
+
+.profitability-queue-preloader {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 25, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2vw;
+  z-index: 30;
+  border-radius: 2vw;
+  color: #ecf0f1;
+  font-family: "Raleway-Bold", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.2vw;
+}
+
+.profitability-queue-spinner {
+  width: 3.2vw;
+  height: 3.2vw;
+  border: 0.35vw solid rgba(236, 240, 241, 0.25);
+  border-top-color: #27ae60;
+  border-radius: 50%;
+  animation: profitability-queue-spin 0.9s linear infinite;
+}
+
+@keyframes profitability-queue-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Заголовок */
+.profitability-calculation-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5vw;
+  margin-bottom: .5vw;
+}
+
+.profitability-calculation-title {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.5vw;
+  color: #ecf0f1;
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.2vw;
+}
+
+/* Контейнер для элементов управления */
+.profitability-calculation-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5vw;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Кнопка очереди */
+.profitability-queue-btn {
+  padding: 0.8vw 2vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ffffff;
+  background: #e74c3c;
+  border: 0.1vw solid #c0392b;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+}
+
+.profitability-queue-btn:hover {
+  background: #c0392b;
+  border-color: #a93226;
+  transform: translateY(-0.1vw);
+  box-shadow: 0 0.3vw 0.6vw rgba(231, 76, 60, 0.3);
+}
+
+/* Кнопка открытия модального окна */
+.profitability-calculation-open-btn {
+  padding: 0.8vw 2vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ffffff;
+  background: #457b9d;
+  border: 0.1vw solid #3a6a87;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.profitability-calculation-open-btn:hover {
+  background: #3a6a87;
+  box-shadow: 0 0 1vw rgba(69, 123, 157, 0.5);
+  transform: translateY(-0.2vw);
+}
+
+/* Контент */
+.profitability-calculation-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 1vw;
+  padding: .5vw;
+  box-shadow: 0 0.5vw 2vw rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0; /* Важно для flex-элементов */
+}
+
+.profitability-calculation-description {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #7f8c8d;
+  text-align: center;
+  max-width: 50vw;
+  line-height: 1.8;
+}
+
+/* Обертка результатов */
+.profitability-results-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  min-height: 0; /* Важно для flex-элементов */
+}
+
+.profitability-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2vw;
+}
+
+.profitability-results-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+}
+
+/* Чекбокс утверждения расчетов (в заголовке на темном фоне) */
+.profitability-calculation-controls .profitability-approve-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  color: #ecf0f1;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5vw 1vw;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5vw;
+  transition: all 0.3s ease;
+}
+
+.profitability-calculation-controls .profitability-approve-checkbox:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.profitability-calculation-controls .profitability-approve-checkbox input[type="checkbox"] {
+  width: 1.2vw;
+  height: 1.2vw;
+  cursor: pointer;
+  accent-color: #457b9d;
+}
+
+.profitability-calculation-controls .profitability-approve-checkbox span {
+  cursor: pointer;
+}
+
+/* Чекбокс утверждения расчетов (общий, для использования в других местах) */
+.profitability-approve-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  color: #2c3e50;
+  cursor: pointer;
+  user-select: none;
+}
+
+.profitability-approve-checkbox input[type="checkbox"] {
+  width: 1.2vw;
+  height: 1.2vw;
+  cursor: pointer;
+}
+
+.profitability-approve-checkbox span {
+  cursor: pointer;
+}
+
+/* Кнопка формирования очереди отчетов */
+.profitability-send-reports-btn {
+  padding: 0.8vw 2vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ffffff;
+  background: #27ae60;
+  border: 0.1vw solid #229954;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.profitability-send-reports-btn:hover:not(:disabled) {
+  background: #229954;
+  box-shadow: 0 0 1vw rgba(39, 174, 96, 0.5);
+  transform: translateY(-0.2vw);
+}
+
+.profitability-send-reports-btn:disabled {
+  background: #95a5a6;
+  border-color: #7f8c8d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.profitability-results-header-original {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1vw;
+  background: #ecf0f1;
+  border-radius: 0.5vw;
+}
+
+.profitability-results-title {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.profitability-results-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.profitability-results-filter label {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+}
+
+/* Кастомный dropdown для фильтра */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-toggle {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  min-width: 12vw;
+  justify-content: space-between;
+}
+
+.custom-dropdown-toggle:hover {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+.dropdown-arrow {
+  font-size: 0.8vw;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.3vw;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.custom-dropdown-item {
+  width: 100%;
+  padding: 0.7vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.custom-dropdown-item:hover {
+  background: rgba(69, 123, 157, 0.1);
+}
+
+.custom-dropdown-item.active {
+  background: rgba(69, 123, 157, 0.2);
+  font-weight: bold;
+}
+
+/* Скролл для таблицы результатов */
+.profitability-results-table-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1; /* Растягивается на всю доступную высоту */
+  min-height: 0; /* Важно для flex-элементов */
+}
+
+/* Таблица результатов */
+.profitability-results-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.9vw;
+}
+
+.profitability-results-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.profitability-results-table th {
+  background: #2c3e50;
+  color: #ffffff;
+  font-family: "Raleway-Bold", sans-serif;
+  padding: 0.8vw;
+  border: 1px solid #34495e;
+  text-align: center;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.profitability-results-table th.sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  background: #2c3e50;
+  color: #ffffff;
+}
+
+.profitability-results-table tbody tr {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profitability-results-table tbody tr.even {
+  background: #ffffff;
+}
+
+.profitability-results-table tbody tr.odd {
+  background: #f8f9fa;
+}
+
+.profitability-results-table tbody tr:hover {
+  background: #e3f2fd;
+  transform: scale(1.002);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profitability-results-table tbody tr.clickable-row:active {
+  transform: scale(0.998);
+}
+
+.profitability-results-table td {
+  padding: 0.6vw 0.8vw;
+  border: 1px solid #dee2e6;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.profitability-results-table td.sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: inherit;
+}
+
+.profitability-results-table td.numeric {
+  text-align: right;
+  font-family: "Raleway-Regular", monospace;
+}
+
+.profitability-results-table td.profitability {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.profitability-results-table td.balance {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* Стили для модального окна списка очередей */
+.queues-list-modal {
+  width: 60vw;
+  max-width: 800px;
+  max-height: 80vh;
+  background: #1a1a2e;
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.queues-list-modal .modal-header {
+  background: #2c2c54;
+  padding: 1.5vw;
+  border-bottom: 0.1vw solid #40407a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.queues-list-modal .modal-header h3 {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.5vw;
+  color: #ecf0f1;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+}
+
+.queues-list-modal .modal-close-btn {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  font-size: 2vw;
+  cursor: pointer;
+  padding: 0;
+  width: 2vw;
+  height: 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.queues-list-modal .modal-close-btn:hover {
+  background: #40407a;
+}
+
+.queues-list-modal .modal-body {
+  padding: 1.5vw;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.no-queues-message {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.2vw;
+  margin: 2vw 0;
+}
+
+.queues-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+}
+
+.queue-item {
+  background: #2c2c54;
+  border: 0.1vw solid #40407a;
+  border-radius: 0.5vw;
+  padding: 1.5vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.queue-item:hover {
+  background: #40407a;
+  border-color: #706fd3;
+  transform: translateY(-0.1vw);
+}
+
+.queue-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5vw;
+}
+
+.queue-item-header h4 {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ecf0f1;
+  margin: 0;
+}
+
+.queue-status {
+  padding: 0.3vw 0.8vw;
+  border-radius: 0.3vw;
+  font-size: 0.9vw;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.queue-status.pending {
+  background: #f39c12;
+  color: #ffffff;
+}
+
+.queue-status.sending {
+  background: #3498db;
+  color: #ffffff;
+}
+
+.queue-status.paused {
+  background: #e67e22;
+  color: #ffffff;
+}
+
+.queue-status.completed {
+  background: #27ae60;
+  color: #ffffff;
+}
+
+.queue-status.cancelled {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+.queue-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3vw;
+}
+
+.queue-item-details p {
+  font-size: 1vw;
+  color: #bdc3c7;
+  margin: 0;
+}
+
+/* Скроллбары для таблицы результатов */
+.profitability-results-table-scroll::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.profitability-results-table-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.profitability-results-table-scroll::-webkit-scrollbar-thumb {
+  background: #457b9d;
+  border-radius: 6px;
+}
+
+.profitability-results-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2c5f7d;
+}
+

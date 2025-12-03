@@ -1,0 +1,521 @@
+/* Интерфейс очереди отчетов - темная тема */
+.report-queue-interface-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 1.5vw;
+  padding: 1vw;
+  box-sizing: border-box;
+  background: #1e1e1e;
+  border-radius: 1vw;
+  box-shadow: 0 0.5vw 2vw rgba(0, 0, 0, 0.5);
+  min-height: 0;
+}
+
+/* Левая панель - Карточка очереди (30% ширины) */
+.queue-summary-card {
+  flex: 0 0 30%;
+  background: #2c2c2c;
+  border-radius: 1vw;
+  padding: 1.1vw 1.25vw;
+  color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55vw;
+  box-shadow: 0 0.3vw 1vw rgba(0, 0, 0, 0.3);
+  border: 1px solid #444;
+}
+
+.queue-summary-card h3 {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  margin: 0;
+  text-align: center;
+  color: #4caf50;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.4vw;
+}
+
+.queue-info-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75vw;
+  padding: 0.18vw 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  line-height: 1.25;
+}
+
+.queue-info-item:last-of-type {
+  border-bottom: none;
+}
+
+.queue-info-item span {
+  font-family: "Raleway-Regular", sans-serif;
+  color: #bdc3c7;
+}
+
+.queue-info-item strong {
+  font-family: "Raleway-Bold", sans-serif;
+  color: #ffffff;
+}
+
+.queue-status {
+  padding: 0.2vw 0.6vw;
+  border-radius: 0.3vw;
+  font-size: 0.9vw;
+  font-weight: bold;
+}
+
+.queue-status.pending { background: #f39c12; color: #ffffff; }
+.queue-status.sending { background: #3498db; color: #ffffff; }
+.queue-status.paused { background: #e67e22; color: #ffffff; }
+.queue-status.sent { background: #27ae60; color: #ffffff; }
+.queue-status.delivered { background: #2ecc71; color: #ffffff; }
+.queue-status.failed { background: #e74c3c; color: #ffffff; }
+.queue-status.cancelled { background: #95a5a6; color: #ffffff; }
+
+.queue-progress-bar-wrapper {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.45vw;
+  height: 0.6vw;
+  margin-top: 0.35vw;
+  overflow: hidden;
+}
+
+.queue-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #2ecc71);
+  border-radius: 0.5vw;
+  transition: width 0.5s ease-in-out;
+}
+
+.queue-progress-text {
+  font-size: 0.6vw;
+  text-align: center;
+  margin: 0.22vw 0 0.28vw;
+  color: #bdc3c7;
+  letter-spacing: 0.03vw;
+}
+
+.queue-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4vw;
+  margin-top: 0.4vw;
+  padding-top: 0.5vw;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.queue-action-btn {
+  padding: 0.45vw 0.65vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 0.72vw;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.32vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.18vw;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.queue-action-btn.start { background: #27ae60; }
+.queue-action-btn.start:hover:not(:disabled) { background: #229954; box-shadow: 0 0 0.5vw rgba(39, 174, 96, 0.5); }
+
+.queue-action-btn.pause { background: #f39c12; }
+.queue-action-btn.pause:hover:not(:disabled) { background: #e67e22; box-shadow: 0 0 0.5vw rgba(243, 156, 18, 0.5); }
+
+.queue-action-btn.cancel { background: #e74c3c; }
+.queue-action-btn.cancel:hover:not(:disabled) { background: #c0392b; box-shadow: 0 0 0.5vw rgba(231, 76, 60, 0.5); }
+
+.queue-action-btn.view-calculations { background: #9b59b6; }
+.queue-action-btn.view-calculations:hover:not(:disabled) { background: #8e44ad; box-shadow: 0 0 0.5vw rgba(155, 89, 182, 0.5); }
+
+.queue-action-btn.repeat { background: #ff9800; }
+.queue-action-btn.repeat:hover:not(:disabled) { background: #f57c00; box-shadow: 0 0 0.5vw rgba(255, 152, 0, 0.5); }
+
+.queue-action-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Правая панель - Список счетов (70% ширины) */
+.account-list-panel {
+  flex: 1; /* Остальные 70% */
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  min-height: 0;
+  background: #2c2c2c;
+  border-radius: 1vw;
+  box-shadow: 0 0.3vw 1vw rgba(0, 0, 0, 0.3);
+  border: 1px solid #444;
+  overflow: hidden;
+}
+
+.account-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8vw 1vw;
+  background: #333;
+  border-bottom: 1px solid #444;
+  gap: 1vw;
+}
+
+.select-all-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1vw;
+  color: #ecf0f1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.select-all-checkbox input[type="checkbox"] {
+  width: 1.1vw;
+  height: 1.1vw;
+  cursor: pointer;
+  accent-color: #4caf50;
+}
+
+/* Поиск по счетам */
+.account-search-filter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.5vw 0.8vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.9vw;
+  color: #ecf0f1;
+  background: #444;
+  border: 1px solid #555;
+  border-radius: 0.4vw;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #4caf50;
+  background: #555;
+}
+
+.search-input::placeholder {
+  color: #7f8c8d;
+}
+
+/* Кнопка ГОТОВО с чекбоксом */
+.ready-checkbox-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  padding: 0.5vw 0.8vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 0.9vw;
+  color: #ffffff;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.4vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.ready-checkbox-btn:hover:not(:disabled) {
+  background: #45a049;
+  box-shadow: 0 0 0.5vw rgba(76, 175, 80, 0.5);
+}
+
+.ready-checkbox-btn input[type="checkbox"] {
+  width: 1vw;
+  height: 1vw;
+  cursor: pointer;
+  accent-color: #ffffff;
+}
+
+.ready-checkbox-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Скрытие чекбоксов после готовности */
+.hide-checkboxes .select-all-checkbox {
+  display: none;
+}
+
+.hide-checkboxes .account-card-left input[type="checkbox"] {
+  display: none;
+}
+
+.account-cards-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1vw;
+  min-height: 0;
+}
+
+.account-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #3c3c3c;
+  border: 1px solid #555;
+  border-radius: 0.6vw;
+  padding: 0.8vw 1.2vw;
+  margin-bottom: 0.8vw;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.account-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: #4caf50;
+}
+
+.account-card.selected {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.account-card-left {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+.account-card-left input[type="checkbox"] {
+  width: 1.1vw;
+  height: 1.1vw;
+  accent-color: #4caf50;
+  cursor: pointer;
+}
+
+.account-details p {
+  margin: 0;
+  font-size: 0.95vw;
+  color: #ecf0f1;
+}
+
+.account-details p strong {
+  font-family: "Raleway-Bold", sans-serif;
+  color: #ffffff;
+}
+
+.account-card-right {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+.status-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3vw;
+  font-size: 0.85vw;
+  color: #bdc3c7;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3vw;
+}
+
+.status-icon {
+  font-size: 0.9vw;
+}
+
+.status-icon.pending { color: #f39c12; }
+.status-icon.sending { color: #3498db; }
+.status-icon.paused { color: #e67e22; }
+.status-icon.sent { color: #27ae60; }
+.status-icon.delivered { color: #2ecc71; }
+.status-icon.failed { color: #e74c3c; }
+.status-icon.cancelled { color: #95a5a6; }
+.status-icon.success { color: #27ae60; }
+.status-icon.error { color: #e74c3c; }
+
+/* Таймеры */
+.timer-item {
+  margin-top: 0.2vw;
+  font-weight: bold;
+}
+
+.timer-icon {
+  font-size: 0.8vw;
+  margin-right: 0.2vw;
+}
+
+.timer-text {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 0.85vw;
+  color: #f39c12;
+  background: rgba(243, 156, 18, 0.1);
+  padding: 0.1vw 0.3vw;
+  border-radius: 0.2vw;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.preview-report-btn {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 0.9vw;
+  color: #ffffff;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.4vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3vw;
+}
+
+.preview-report-btn:hover {
+  background: #45a049;
+  box-shadow: 0 0 0.5vw rgba(76, 175, 80, 0.5);
+}
+
+.no-accounts-message {
+  text-align: center;
+  font-size: 1.1vw;
+  color: #7f8c8d;
+  margin-top: 2vw;
+}
+
+/* Скроллбары для account-cards-scroll */
+.account-cards-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.account-cards-scroll::-webkit-scrollbar-track {
+  background: #333;
+  border-radius: 4px;
+}
+
+.account-cards-scroll::-webkit-scrollbar-thumb {
+  background: #4caf50;
+  border-radius: 4px;
+}
+
+.account-cards-scroll::-webkit-scrollbar-thumb:hover {
+  background: #45a049;
+}
+
+/* Модалка подтверждения отмены */
+.cancel-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.cancel-confirm-modal {
+  background: #2c2c54;
+  border-radius: 0.8vw;
+  padding: 2vw;
+  min-width: 25vw;
+  max-width: 40vw;
+  border: 1px solid #706fd3;
+  box-shadow: 0 0.5vw 2vw rgba(0, 0, 0, 0.5);
+}
+
+.cancel-confirm-header {
+  margin-bottom: 1.5vw;
+}
+
+.cancel-confirm-header h3 {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.2vw;
+  color: #ecf0f1;
+  margin: 0;
+  text-align: center;
+}
+
+.cancel-confirm-body {
+  margin-bottom: 2vw;
+}
+
+.cancel-confirm-body p {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+  color: #bdc3c7;
+  margin: 0 0 0.5vw 0;
+  text-align: center;
+}
+
+.cancel-confirm-body .warning-text {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.cancel-confirm-actions {
+  display: flex;
+  gap: 1vw;
+  justify-content: center;
+}
+
+.cancel-confirm-btn {
+  padding: 0.8vw 1.5vw;
+  border: none;
+  border-radius: 0.4vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 0.9vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 6vw;
+}
+
+.cancel-confirm-btn.cancel-btn {
+  background: #95a5a6;
+  color: #ffffff;
+}
+
+.cancel-confirm-btn.cancel-btn:hover {
+  background: #7f8c8d;
+}
+
+.cancel-confirm-btn.confirm-btn {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+.cancel-confirm-btn.confirm-btn:hover {
+  background: #c0392b;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .report-queue-interface-container {
+    flex-direction: column;
+  }
+  
+  .queue-summary-card {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}

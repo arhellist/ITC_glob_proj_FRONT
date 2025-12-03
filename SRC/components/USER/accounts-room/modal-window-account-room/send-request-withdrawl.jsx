@@ -82,10 +82,22 @@ function ModalWindowSendRequestWithdrawl({ onClose }) {
     const fee = computeCommission(num);
     const available = balance - pendingForSelected;
 
-    // Проверяем только критичные ошибки, которые блокируют операцию
+    console.log('=== ВАЛИДАЦИЯ ВЫВОДА НА ФРОНТЕНДЕ ===');
+    console.log('Баланс счета:', balance);
+    console.log('Ожидающие выводы:', pendingForSelected);
+    console.log('Доступно:', available);
+    console.log('Запрошено:', num);
+    console.log('Комиссия:', fee);
+
+    // ГЛАВНАЯ ВАЛИДАЦИЯ: проверяем достаточность средств
     if (available <= 0) {
-      document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'error', text: 'Ошибка запроса' } }));
-      document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'attention', text: 'Дождитесь решения по вашим оставленным ранее заявкам' } }));
+      document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'error', text: 'Недостаточно средств на счете' } }));
+      return;
+    }
+
+    // Проверяем, что запрошенная сумма НЕ превышает доступный баланс
+    if (num > available) {
+      document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'error', text: 'Недостаточно средств на счете. Запрошено: ' + num.toFixed(2) + '$, доступно: ' + available.toFixed(2) + '$' } }));
       return;
     }
 

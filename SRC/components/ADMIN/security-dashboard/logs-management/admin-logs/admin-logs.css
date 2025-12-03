@@ -1,0 +1,423 @@
+.admin-logs {
+  width: 100%;
+  color: #fff;
+}
+
+.admin-logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #444;
+}
+
+.admin-logs-header h4 {
+  margin: 0;
+  color: #aa4848;
+  font-size: 1.5rem;
+}
+
+.admin-logs-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-logs-clear-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #dc2626;
+  color: white;
+}
+
+.admin-logs-clear-btn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.admin-logs-clear-btn:active {
+  transform: translateY(0);
+}
+
+.admin-logs-refresh-btn {
+  background-color: #aa4848;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.admin-logs-refresh-btn:hover {
+  background-color: #c01515;
+}
+
+.admin-logs-error {
+  background-color: #4a1a1a;
+  border: 1px solid #aa4848;
+  color: #ff6b6b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Фильтры */
+.admin-logs-filters {
+  background-color: #333;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-logs-filter-form {
+  width: 100%;
+}
+
+.admin-logs-filter-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-logs-search-input,
+.admin-logs-date-input,
+.admin-logs-action-select {
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.admin-logs-search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.admin-logs-date-input {
+  min-width: 150px;
+}
+
+.admin-logs-action-select {
+  min-width: 150px;
+}
+
+.admin-logs-search-btn,
+.admin-logs-clear-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.admin-logs-search-btn {
+  background-color: #4a8a4a;
+  color: white;
+}
+
+.admin-logs-search-btn:hover {
+  background-color: #5a9a5a;
+}
+
+.admin-logs-clear-btn {
+  background-color: #666;
+  color: white;
+}
+
+.admin-logs-clear-btn:hover {
+  background-color: #777;
+}
+
+/* Таблица */
+.admin-logs-table-wrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  background-color: #2a2a2a;
+}
+
+.admin-logs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-logs-th {
+  text-align: left;
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #444;
+  background-color: #333;
+  color: #aa4848;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.admin-logs-row {
+  border-bottom: 1px solid #333;
+}
+
+.admin-logs-row:hover {
+  background-color: #333;
+}
+
+.admin-logs-td {
+  padding: 0.75rem;
+  vertical-align: top;
+}
+
+.admin-logs-time {
+  font-size: 0.9rem;
+  color: #ccc;
+  white-space: nowrap;
+}
+
+.admin-logs-admin {
+  color: #fff;
+}
+
+.admin-logs-admin-name {
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.admin-logs-admin-email {
+  font-size: 0.9rem;
+  color: #4a9eff;
+  margin-bottom: 0.25rem;
+}
+
+.admin-logs-admin-id {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.admin-logs-action {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.admin-logs-severity {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.admin-logs-id {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.admin-logs-role {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.admin-logs-risk {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.admin-logs-actions {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  justify-content: center;
+}
+
+.admin-logs-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-logs-export-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.admin-logs-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.admin-logs-export-excel {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.admin-logs-export-excel:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.admin-logs-export-json {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.admin-logs-export-json:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.export-icon {
+  font-size: 16px;
+}
+
+.export-text {
+  font-size: 14px;
+}
+
+.admin-logs-ip {
+  font-family: monospace;
+  color: #ccc;
+}
+
+.admin-logs-details {
+  max-width: 250px;
+}
+
+.admin-logs-details-text {
+  font-size: 0.9rem;
+  color: #ccc;
+  word-break: break-word;
+  margin-bottom: 0.25rem;
+}
+
+.admin-logs-target-user {
+  font-size: 0.8rem;
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+/* Пустое состояние */
+.admin-logs-empty {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+}
+
+/* Пагинация */
+.admin-logs-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.admin-logs-page-btn {
+  background-color: #aa4848;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.admin-logs-page-btn:hover:not(:disabled) {
+  background-color: #c01515;
+}
+
+.admin-logs-page-btn:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.admin-logs-page-info {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+/* Загрузка */
+.admin-logs-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .admin-logs-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-logs-search-input,
+  .admin-logs-date-input,
+  .admin-logs-action-select,
+  .admin-logs-search-btn,
+  .admin-logs-clear-btn {
+    width: 100%;
+  }
+  
+  .admin-logs-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .admin-logs-table {
+    min-width: 900px;
+  }
+  
+  .admin-logs-th,
+  .admin-logs-td {
+    padding: 0.5rem;
+  }
+  
+  .admin-logs-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

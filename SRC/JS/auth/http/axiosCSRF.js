@@ -1,19 +1,19 @@
 import axios from 'axios';
-
-// Определяем API URL в зависимости от окружения
-// eslint-disable-next-line no-undef
-const url = typeof __API_URL__ !== 'undefined' ? __API_URL__ :  (typeof __IS_PRODUCTION__ !== 'undefined' && __IS_PRODUCTION__ ? 'https://arhellist.ru' : 'http://localhost:3000');
+import { API_CONFIG } from '../../../config/api.js';
 
 
-console.log('=== Конфигурация axiosCSRF ===');
-console.log('API URL:', url);
-// eslint-disable-next-line no-undef
-console.log('Is Production:', typeof __IS_PRODUCTION__ !== 'undefined' ? __IS_PRODUCTION__ : 'undefined');
-// eslint-disable-next-line no-undef
-console.log('Domain:', typeof __DOMAIN__ !== 'undefined' ? __DOMAIN__ : 'undefined');
+// Динамически получаем BASE_URL при создании экземпляра
+const getBaseURL = () => {
+  const baseUrl = API_CONFIG.BASE_URL;
+  console.log('=== Конфигурация axiosCSRF ===');
+  console.log('API URL:', baseUrl);
+  console.log('Environment:', import.meta.env.MODE);
+  console.log('Window location:', typeof window !== 'undefined' ? window.location.href : 'server');
+  return baseUrl;
+};
 
 const axiosCSRF = axios.create({
-  baseURL: url,
+  baseURL: getBaseURL(), // Вызываем функцию для получения актуального URL
   timeout: 60000, // 60 секунд таймаут
   headers: {
     "Content-Type": "application/json"
@@ -54,7 +54,7 @@ axiosCSRF.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh')) {
       originalRequest._retry = true;
       try {
-        const refreshAxios = axios.create({ baseURL: url, withCredentials: true });
+        const refreshAxios = axios.create({ baseURL: API_CONFIG.BASE_URL, withCredentials: true });
         const { data } = await refreshAxios.get('/auth/refresh');
         console.log('Refresh token data:', data); // Теперь будет выводиться
         if (data.accessToken) {

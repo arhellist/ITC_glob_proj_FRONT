@@ -1,0 +1,319 @@
+/* Оверлей модального окна */
+.calculation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Контейнер модального окна */
+.calculation-modal-container {
+  width: 50vw;
+  max-height: 85vh;
+  background: #ffffff;
+  border-radius: 1vw;
+  box-shadow: 0 1vw 3vw rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Заголовок модального окна */
+.calculation-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5vw 2vw;
+  background: #2c3e50;
+  border-bottom: 0.2vw solid #457b9d;
+}
+
+.calculation-modal-title {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.5vw;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+}
+
+.calculation-modal-close-btn {
+  width: 2.5vw;
+  height: 2.5vw;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 2vw;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.calculation-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+/* Тело модального окна */
+.calculation-modal-body {
+  flex: 1;
+  padding: 2vw;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2vw;
+}
+
+.calculation-modal-loading {
+  text-align: center;
+  padding: 3vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #7f8c8d;
+}
+
+/* Таблица продуктов */
+.calculation-products-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.calculation-products-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+}
+
+.calculation-products-table thead {
+  background: #2c3e50;
+}
+
+.calculation-products-table th {
+  padding: 1vw;
+  color: #ffffff;
+  font-family: "Raleway-Bold", sans-serif;
+  text-align: center;
+  border: 1px solid #34495e;
+}
+
+.calculation-products-table tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.calculation-products-table tbody tr:hover {
+  background: #e3f2fd;
+}
+
+.calculation-products-table td {
+  padding: 0.8vw 1vw;
+  border: 1px solid #dee2e6;
+  text-align: center;
+}
+
+/* Поле ввода доходности */
+.profitability-input {
+  width: 90%;
+  padding: 0.5vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.3vw;
+  outline: none;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.profitability-input:focus {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+/* Фильтры */
+.calculation-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  padding: 1vw;
+  background: #ecf0f1;
+  border-radius: 0.5vw;
+}
+
+.calculation-filter-month,
+.calculation-filter-year {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.calculation-filter-month label,
+.calculation-filter-year label {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+}
+
+/* Кастомный dropdown для месяца */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-toggle {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  min-width: 10vw;
+  justify-content: space-between;
+}
+
+.custom-dropdown-toggle:hover {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+.dropdown-arrow {
+  font-size: 0.8vw;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.3vw;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow-y: auto;
+  max-height: 20vw;
+}
+
+.custom-dropdown-item {
+  width: 100%;
+  padding: 0.7vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.custom-dropdown-item:hover {
+  background: rgba(69, 123, 157, 0.1);
+}
+
+.custom-dropdown-item.active {
+  background: rgba(69, 123, 157, 0.2);
+  font-weight: bold;
+}
+
+/* Поле ввода года */
+.year-input {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  outline: none;
+  text-align: center;
+  width: 8vw;
+  transition: all 0.3s ease;
+}
+
+.year-input:focus {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+/* Футер модального окна */
+.calculation-modal-footer {
+  display: flex;
+  justify-content: center;
+  padding: 1.5vw 2vw;
+  background: #ecf0f1;
+  border-top: 0.1vw solid #bdc3c7;
+}
+
+/* Кнопка расчета */
+.calculation-calculate-btn {
+  padding: 0.8vw 3vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ffffff;
+  background: #27ae60;
+  border: 0.1vw solid #229954;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.calculation-calculate-btn:hover:not(:disabled) {
+  background: #229954;
+  box-shadow: 0 0 1vw rgba(39, 174, 96, 0.5);
+  transform: translateY(-0.2vw);
+}
+
+.calculation-calculate-btn:disabled {
+  background: #95a5a6;
+  border-color: #7f8c8d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Скроллбары */
+.calculation-modal-body::-webkit-scrollbar,
+.custom-dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.calculation-modal-body::-webkit-scrollbar-track,
+.custom-dropdown-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.calculation-modal-body::-webkit-scrollbar-thumb,
+.custom-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #457b9d;
+  border-radius: 4px;
+}
+
+.calculation-modal-body::-webkit-scrollbar-thumb:hover,
+.custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #2c5f7d;
+}
+

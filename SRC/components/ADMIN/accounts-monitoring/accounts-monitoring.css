@@ -1,0 +1,566 @@
+/* Контейнер компонента мониторинга */
+.accounts-monitoring-container {
+  width: 98%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 0; /* Важно для flex-элементов */
+}
+
+/* Заголовок и фильтры */
+.accounts-monitoring-header {
+  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  margin-bottom: .5vw;
+}
+
+.accounts-monitoring-title {
+  font-size: 1.5vw;
+  text-align: left;
+  margin-left: 1vw;
+  text-transform: uppercase;
+}
+
+/* Контейнер фильтров */
+.accounts-monitoring-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1vw;
+  flex-wrap: wrap;
+}
+
+.accounts-monitoring-filters label {
+  color: #2c3e50;
+}
+
+/* Фильтр по году */
+.accounts-monitoring-filter-year {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.accounts-monitoring-filter-year label {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+}
+
+.accounts-monitoring-year-select {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.accounts-monitoring-year-select:hover {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+/* Фильтр по продукту */
+.accounts-monitoring-filter-product {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.accounts-monitoring-filter-product label {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+}
+
+/* Поиск */
+.accounts-monitoring-filter-search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.accounts-monitoring-filter-search label {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+}
+
+.accounts-monitoring-search-input {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 15vw;
+}
+
+.accounts-monitoring-search-input:focus {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+/* Кнопка экспорта в Excel */
+.accounts-monitoring-export-btn {
+  padding: 0.5vw 1.5vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.2vw;
+  color: #ffffff;
+  background: #27ae60;
+  border: 0.1vw solid #229954;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.accounts-monitoring-export-btn:hover:not(:disabled) {
+  background: #229954;
+  box-shadow: 0 0 0.8vw rgba(39, 174, 96, 0.5);
+  transform: translateY(-0.1vw);
+}
+
+.accounts-monitoring-export-btn:disabled {
+  background: #95a5a6;
+  border-color: #7f8c8d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.accounts-monitoring-currency-btn {
+  padding: 0.6vw 1.6vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.1vw;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  border: none;
+  border-radius: 0.6vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+}
+
+.accounts-monitoring-currency-btn:hover {
+  transform: translateY(-0.1vw);
+  box-shadow: 0 14px 24px rgba(79, 70, 229, 0.4);
+}
+
+.accounts-monitoring-currency-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+}
+
+/* Кастомный dropdown */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-toggle {
+  padding: 0.5vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  min-width: 12vw;
+  justify-content: space-between;
+}
+
+.custom-dropdown-toggle:hover {
+  border-color: #457b9d;
+  box-shadow: 0 0 0.5vw rgba(69, 123, 157, 0.3);
+}
+
+.dropdown-arrow {
+  font-size: 0.8vw;
+  transition: transform 0.3s ease;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.3vw;
+  background: #ffffff;
+  border: 0.1vw solid #bdc3c7;
+  border-radius: 0.5vw;
+  box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.custom-dropdown-item {
+  width: 100%;
+  padding: 0.7vw 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.2vw;
+  color: #2c3e50;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.custom-dropdown-item:hover {
+  background: rgba(69, 123, 157, 0.1);
+}
+
+.custom-dropdown-item.active {
+  background: rgba(69, 123, 157, 0.2);
+  font-weight: bold;
+}
+
+/* Контейнер таблицы */
+.accounts-monitoring-table-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 0.5vw 2vw rgba(0, 0, 0, 0.3);
+  position: relative;
+  min-height: 0; /* Важно для flex-элементов */
+}
+
+/* Скролл контейнер */
+.accounts-monitoring-table-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+  flex: 1; /* Растягивается на всю доступную высоту */
+  min-height: 0; /* Важно для flex-элементов */
+}
+
+/* Таблица */
+.accounts-monitoring-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 0.9vw;
+}
+
+/* Заголовки таблицы */
+.accounts-monitoring-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.accounts-monitoring-table th {
+  background: #2c3e50;
+  color: #000000;
+  font-family: "Raleway-Bold", sans-serif;
+  padding: 0.8vw;
+  border: 1px solid #34495e;
+  text-align: center;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.accounts-monitoring-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  background: #ffffff;
+}
+
+.accounts-monitoring-table th.sortable:hover {
+  background: #34495e;
+}
+
+/* Заголовки месяцев */
+.accounts-monitoring-table th.month-header {
+  background: #457b9d;
+  font-size: 0.8vw;
+  font-weight: bold;
+  padding: 0.3vw;
+  height: 1vw;
+}
+
+/* Подзаголовки */
+.accounts-monitoring-table th.sub-header {
+  background: #5a9bc5;
+  font-size: 0.85vw;
+  padding: 0.5vw;
+}
+
+.accounts-monitoring-table th.profitability-header {
+  background: #ff9800;
+}
+
+.accounts-monitoring-table th.balance-header {
+  background: #4caf50;
+}
+
+/* Закрепленная колонка ФИО */
+.accounts-monitoring-table .sticky-col-1 {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  min-width: 250px;
+}
+
+.accounts-monitoring-table thead .sticky-col-1 {
+  background: #ffffff;
+}
+
+.accounts-monitoring-table tbody .sticky-col-1 {
+  background: inherit;
+}
+
+/* Узкая колонка для счета */
+.accounts-monitoring-table th:nth-child(3),
+.accounts-monitoring-table td:nth-child(3) {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+/* Тело таблицы */
+.accounts-monitoring-table tbody tr:hover {
+  background: #e3f2fd;
+}
+
+.accounts-monitoring-table tbody tr.even-row {
+  background: #ffffff;
+}
+
+.accounts-monitoring-table tbody tr.odd-row {
+  background: #f8f9fa;
+}
+
+.accounts-monitoring-table tbody tr.even-row:hover,
+.accounts-monitoring-table tbody tr.odd-row:hover {
+  background: #e3f2fd;
+}
+
+.accounts-monitoring-table td {
+  padding: 0.6vw 0.8vw;
+  border: 1px solid #dee2e6;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.accounts-monitoring-table td.numeric-cell {
+  text-align: right;
+  font-family: "Raleway-Regular", monospace;
+}
+
+.accounts-monitoring-table td.balance-cell {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.accounts-monitoring-table td.profitability-cell {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+/* Состояния загрузки */
+.accounts-monitoring-loading,
+.accounts-monitoring-error,
+.accounts-monitoring-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 3vw;
+}
+
+.accounts-monitoring-loading p,
+.accounts-monitoring-error p,
+.accounts-monitoring-empty p {
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.5vw;
+  color: #95a5a6;
+  text-align: center;
+}
+
+.accounts-monitoring-error button {
+  margin-top: 1vw;
+  padding: 0.7vw 2vw;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.2vw;
+  color: #ffffff;
+  background: #457b9d;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.accounts-monitoring-error button:hover {
+  box-shadow: 0 0 1vw rgba(69, 123, 157, 0.5);
+  transform: translateY(-0.1vw);
+}
+
+.accounts-monitoring-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2vw;
+  text-align: center;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.4vw;
+  color: #607d8b;
+}
+
+.accounts-monitoring-infinite-loader,
+.accounts-monitoring-infinite-hint,
+.accounts-monitoring-end-of-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 1.1vw;
+  color: #607d8b;
+}
+
+.accounts-monitoring-infinite-loader {
+  color: #457b9d;
+  font-weight: 600;
+}
+
+.accounts-monitoring-end-of-list {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* Кликабельные ячейки с данными */
+.accounts-monitoring-table td.clickable-cell {
+  cursor: pointer;
+  position: relative;
+}
+
+.accounts-monitoring-table td.clickable-cell:hover {
+  background: #b3e5fc !important;
+  outline: 2px solid #0288d1;
+}
+
+/* Всплывающая подсказка */
+.monitoring-tooltip {
+  background: #ffffff;
+  border: 2px solid #457b9d;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  font-family: "Raleway-Regular", sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  pointer-events: none;
+}
+
+.tooltip-content {
+  color: #2c3e50;
+}
+
+.tooltip-content strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #457b9d;
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 14px;
+}
+
+.tooltip-item {
+  margin: 4px 0;
+  padding-left: 8px;
+}
+
+/* Скроллбары */
+.accounts-monitoring-table-scroll::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.accounts-monitoring-table-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.accounts-monitoring-table-scroll::-webkit-scrollbar-thumb {
+  background: #457b9d;
+  border-radius: 6px;
+}
+
+.accounts-monitoring-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2c5f7d;
+}
+
+.accounts-monitoring-table-scroll::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* Стили для штрафов в tooltip */
+.tooltip-penalty {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.tooltip-statistics {
+  margin-top: 12px;
+  padding-top: 8px;
+}
+
+.tooltip-statistics hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 8px 0;
+}
+
+.tooltip-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px 0;
+  padding: 2px 8px;
+}
+
+.tooltip-stat-row span:first-child {
+  color: #666;
+}
+
+.tooltip-stat-row span:last-child {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.tooltip-stat-row strong {
+  color: #457b9d;
+}

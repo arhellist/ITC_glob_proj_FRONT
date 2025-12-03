@@ -1,259 +1,713 @@
-import io from 'socket.io-client';
-import axiosAPI from '../../JS/auth/http/axios.js';
+import io from 'socket.io-client'; // Импорт Socket.IO клиента для WebSocket соединений
+import envConfig from '../../config/environment-config'; // Импорт конфигурации окружения для получения URL сервера
 
-class SecureWebSocketService {
-  constructor() {
-    this.socket = null;
-    this.isConnected = false;
-    this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
-    this.reconnectDelay = 1000;
-    this.heartbeatInterval = null;
-    this.connectionCheckInterval = null;
-  }
+// Глобальные переменные для состояния WebSocket
+let socket = null; // Глобальная переменная для хранения экземпляра WebSocket соединения
+let isConnected = false; // Флаг состояния подключения к WebSocket серверу (true/false)
+let reconnectAttempts = 0; // Счетчик попыток переподключения при разрыве соединения
+const maxReconnectAttempts = 5; // Максимальное количество попыток переподключения перед остановкой
+const reconnectDelay = 1000; // Задержка между попытками переподключения в миллисекундах
+let heartbeatInterval = null; // Интервал для отправки heartbeat пакетов для поддержания соединения
+let connectionCheckInterval = null; // Интервал для проверки состояния соединения
+let lastSessionEvent = null; // Время последнего события сессии для отслеживания активности
+let sessionEventTimeout = null; // Таймаут для ожидания событий сессии
+let isConnecting = false; // Флаг для предотвращения множественных одновременных подключений (защита от React StrictMode)
 
   // Подключение к WebSocket серверу
-  async connect() {
-    try {
-      // Получаем свежий токен
-      const token = await this.getValidToken();
+export async function connect() {
+  try {
+    // console.log('🔌 WebSocket: Начинаем подключение...'); // Отключено - спам
+    
+    // Проверяем, не идет ли уже подключение (защита от React StrictMode и множественных вызовов)
+    if (isConnecting) {
+      // console.log('🔌 WebSocket: Подключение уже в процессе, пропускаем'); // Отключено - спам
+      return false; // Возвращаем false, так как подключение уже в процессе
+    }
+    
+    // Если уже подключены, возвращаем успех без повторного подключения
+    if (socket && socket.connected) {
+      // console.log('🔌 WebSocket: Уже подключены, возвращаем успех'); // Отключено - спам
+      return true; // Возвращаем true, так как соединение уже установлено
+    }
+    
+    isConnecting = true; // Устанавливаем флаг подключения для предотвращения дублирования
+    
+    // Получаем токен из localStorage напрямую для быстрого подключения (без дополнительных API запросов)
+    const token = localStorage.getItem('accessToken'); // Извлекаем JWT токен из локального хранилища браузера
       
       if (!token) {
-        console.warn('No valid token available for WebSocket connection');
-        return false;
-      }
+      // console.log('🔌 WebSocket: Токен не найден, пропускаем подключение'); // Отключено - спам
+      isConnecting = false; // Сбрасываем флаг подключения при отсутствии токена
+      return false; // Возвращаем false, так как без токена подключение невозможно
+    }
 
-      // Подключаемся к серверу
-      this.socket = io(process.env.REACT_APP_WS_URL || 'ws://localhost:5000', {
-        auth: { token },
-        transports: ['websocket', 'polling'],
-        timeout: 10000,
-        forceNew: true,
-        reconnection: true,
-        reconnectionAttempts: this.maxReconnectAttempts,
-        reconnectionDelay: this.reconnectDelay
+    // Если есть старый socket, отключаемся от него перед созданием нового
+    if (socket && !socket.connected) {
+      // console.log('🔌 WebSocket: Отключаем старое соединение...'); // Отключено - спам
+      disconnect(); // Вызываем функцию отключения для очистки старого соединения
+    }
+
+    // console.log('✅ WebSocket: Подключение...'); // Отключено - спам
+    
+    // Получаем конфигурацию для подключения из настроек окружения
+    const socketConfig = envConfig.getSocketIOConfig(); // Получаем URL и параметры подключения
+    // console.log('🔌 WebSocket: SocketConfig:', socketConfig); // Отключено - спам
+           
+           // Получаем WebSocket CSRF токен из куков браузера для безопасности соединения
+           const getWebSocketCSRFToken = () => { // Функция для извлечения CSRF токена из куков
+             const cookies = document.cookie.split(';'); // Разделяем строку куков по символу ';' на массив
+             for (let cookie of cookies) { // Перебираем каждый кук в массиве
+               const [name, value] = cookie.trim().split('='); // Разделяем кук на имя и значение по символу '='
+               if (name === 'wsCSRFToken') { // Проверяем, является ли это WebSocket CSRF токеном
+                 return value; // Возвращаем значение CSRF токена
+               }
+             }
+             return null; // Возвращаем null, если CSRF токен не найден
+           };
+           
+           let wsCSRFToken = getWebSocketCSRFToken(); // Получаем CSRF токен из куков
+           console.log('WebSocket: WebSocket CSRF токен:', wsCSRFToken ? 'есть' : 'отсутствует'); // Логируем наличие CSRF токена
+           
+           // Если WebSocket CSRF токен отсутствует, пытаемся его получить через API запрос
+           if (!wsCSRFToken) { // Проверяем, есть ли CSRF токен
+             console.log('WebSocket: WebSocket CSRF токен отсутствует, пытаемся получить...'); // Логируем попытку получения токена
+             try { // Начинаем блок обработки ошибок
+               const { fetchWebSocketCSRFToken } = await import('../auth/store/store.js'); // Динамически импортируем функцию получения CSRF токена
+               await fetchWebSocketCSRFToken(); // Вызываем функцию получения CSRF токена с сервера
+               console.log('WebSocket: WebSocket CSRF токен запрошен, проверяем куки...'); // Логируем успешный запрос токена
+               
+               // Проверяем куки снова после запроса на наличие нового CSRF токена
+               const newWSCSRFToken = getWebSocketCSRFToken(); // Получаем обновленный CSRF токен из куков
+               console.log('WebSocket: WebSocket CSRF токен после запроса:', newWSCSRFToken ? 'есть' : 'отсутствует'); // Логируем результат проверки
+               
+               if (newWSCSRFToken) { // Если новый CSRF токен получен
+                 console.log('WebSocket: Используем новый WebSocket CSRF токен'); // Логируем использование нового токена
+                 wsCSRFToken = newWSCSRFToken; // Присваиваем новый CSRF токен переменной
+               }
+             } catch (csrfError) { // Обрабатываем ошибки при получении CSRF токена
+               console.error('WebSocket: Ошибка получения WebSocket CSRF токена:', csrfError); // Логируем ошибку получения CSRF токена
+             }
+           }
+
+           // Создаем новое подключение с автоматически определенным URL из конфигурации
+           console.log('🔌 WebSocket: Создаем Socket.IO соединение с URL:', socketConfig.url); // Логируем URL для подключения
+           console.log('🔌 WebSocket: Опции подключения:', { // Логируем параметры подключения для отладки
+             auth: { // Объект аутентификации для WebSocket соединения
+               token: token ? 'токен есть' : 'токена нет', // Логируем наличие JWT токена
+               csrfToken: wsCSRFToken ? 'CSRF токен есть' : 'CSRF токена нет' // Логируем наличие CSRF токена
+             },
+             ...socketConfig.options // Распаковываем дополнительные опции из конфигурации
+           });
+           
+           // Создаем socket с правильными опциями для безопасного подключения
+           const socketOptions = { // Объект с настройками для Socket.IO соединения
+             auth: { // Объект аутентификации для передачи на сервер
+               token: token, // JWT токен для идентификации пользователя
+               csrfToken: wsCSRFToken // CSRF токен для защиты от атак
+             },
+             transports: ['websocket', 'polling'], // Список транспортов для соединения (WebSocket приоритетный)
+             timeout: 10000, // Таймаут подключения в миллисекундах
+             forceNew: true, // Принудительно создавать новое соединение
+             autoConnect: false // Отключаем автоматическое подключение, чтобы контролировать его вручную
+           };
+           
+           socket = io(socketConfig.url, socketOptions); // Создаем экземпляр Socket.IO клиента с URL и опциями
+
+           console.log('🔌 WebSocket: Socket.IO объект создан:', socket ? 'успешно' : 'ошибка'); // Логируем результат создания socket объекта
+           console.log('🔌 WebSocket: Socket объект:', socket); // Логируем сам socket объект для отладки
+
+           // Подключаемся вручную после создания объекта
+           socket.connect(); // Инициируем подключение к WebSocket серверу
+
+    // Ждем подключения и возвращаем Promise для асинхронного ожидания
+    return new Promise((resolve) => { // Создаем Promise для асинхронного ожидания результата подключения
+      const timeout = setTimeout(() => { // Устанавливаем таймаут для ограничения времени ожидания
+        console.error('🔌 WebSocket: Таймаут подключения'); // Логируем ошибку таймаута
+        isConnecting = false; // Сбрасываем флаг подключения при таймауте
+        resolve(false); // Возвращаем false при неудачном подключении
+      }, 5000); // Уменьшаем таймаут до 5 секунд для быстрого отклика
+
+      socket.on('connect', () => { // Обработчик успешного подключения к WebSocket серверу
+        clearTimeout(timeout); // Отменяем таймаут, так как подключение успешно
+        isConnected = true; // Устанавливаем флаг успешного подключения
+        isConnecting = false; // Сбрасываем флаг процесса подключения
+        reconnectAttempts = 0; // Сбрасываем счетчик попыток переподключения
+        console.log('✅ WebSocket: Подключено'); // Минимальный лог
+        // console.log('🔌 WebSocket: Socket ID:', socket.id); // Отключено - спам
+        // console.log('🔌 WebSocket: Подключен к URL:', socket.io?.uri); // Отключено - спам
+        // console.log('🔌 WebSocket: Транспорт:', socket.io?.engine?.transport?.name); // Отключено - спам
+        
+        // НЕ присоединяемся к комнате админов автоматически - сервер сам добавит клиента
+        // в нужную комнату после получения события 'authenticated'
+        // socket.emit('join_room', 'admins_room'); // Убрано - клиент будет добавлен в комнату автоматически
+        
+        // Запускаем heartbeat для поддержания соединения
+        startHeartbeat(); // Запускаем периодическую отправку heartbeat пакетов
+        
+        // Настраиваем обработчики событий после подключения
+        setupEventHandlers(); // Настраиваем обработчики для различных WebSocket событий
+        
+        resolve(true); // Возвращаем true при успешном подключении
       });
 
-      this.setupEventHandlers();
-      this.startHeartbeat();
-      
-      return true;
+      socket.on('connect_error', async (error) => { // Обработчик ошибок подключения к WebSocket
+        clearTimeout(timeout); // Отменяем таймаут подключения
+        isConnecting = false; // Сбрасываем флаг процесса подключения
+        console.error('🔌 WebSocket: Ошибка подключения:', error.message); // Логируем сообщение об ошибке
+        console.error('🔌 WebSocket: Детали ошибки:', error); // Логируем полные детали ошибки
+        
+        // Обрабатываем ошибки аутентификации с попыткой refresh токена
+        if (error.message.includes('Token expired')) { // Если токен истёк
+          console.log('🔌 WebSocket: Токен истёк, пытаемся обновить через refresh...'); // Логируем попытку refresh
+          
+          try { // Начинаем блок обработки ошибок refresh
+            // Импортируем axios для выполнения refresh запроса
+            const axios = (await import('axios')).default; // Динамический импорт axios
+            const { API_CONFIG } = await import('../../config/api.js'); // Импорт конфигурации API
+            
+            // Создаем новый экземпляр axios для refresh запроса
+            const refreshAxios = axios.create({ // Создание экземпляра axios
+              baseURL: API_CONFIG.BASE_URL, // Установка базового URL
+              withCredentials: true // Включение отправки куков с refresh токеном
+            });
+            
+            console.log('🔌 WebSocket: Отправляем запрос на /auth/refresh...'); // Логируем запрос refresh
+            const { data } = await refreshAxios.get('/auth/refresh'); // Выполняем GET запрос на refresh
+            
+            if (data && data.accessToken) { // Если получен новый access токен
+              console.log('🔌 WebSocket: Получен новый accessToken, сохраняем в localStorage'); // Логируем получение токена
+              localStorage.setItem('accessToken', data.accessToken); // Сохраняем новый токен
+              console.log('🔌 WebSocket: Токен обновлен, переподключаемся...'); // Логируем переподключение
+              
+              // Переподключаемся с новым токеном
+              setTimeout(() => connect(), 500); // Переподключаемся через 500мс с новым токеном
+              resolve(false); // Возвращаем false для текущей попытки (новая попытка будет через 500мс)
+              return; // Выходим из обработчика
+            }
+            
+            // Если refresh не вернул токен
+            console.log('🔌 WebSocket: Refresh не вернул accessToken, очищаем токены'); // Логируем очистку
+            localStorage.removeItem('accessToken'); // Удаляем access токен
+            
+          } catch (refreshError) { // Обработка ошибок refresh
+            console.error('🔌 WebSocket: Ошибка refresh токена:', refreshError); // Логируем ошибку refresh
+            console.log('🔌 WebSocket: Refresh не удался, очищаем токены'); // Логируем очистку
+            localStorage.removeItem('accessToken'); // Удаляем access токен
+          }
+        } else if (error.message.includes('Invalid token') || error.message.includes('Token is required')) { // Для других ошибок токена
+          console.log('🔌 WebSocket: Невалидный токен, очищаем'); // Логируем очистку
+          localStorage.removeItem('accessToken'); // Удаляем невалидный токен
+        }
+        
+        resolve(false); // Возвращаем false при ошибке подключения
+      });
+    });
     } catch (error) {
-      console.error('WebSocket connection failed:', error);
-      this.handleReconnect();
+    console.error('WebSocket: Ошибка подключения:', error);
+    isConnecting = false;
       return false;
     }
   }
 
+// Отключение от WebSocket сервера
+export function disconnect() {
+  console.log('🔌 WebSocket: Отключаемся от сервера');
+  
+  if (socket) {
+    console.log('🔌 WebSocket: Вызываем socket.disconnect()');
+    socket.disconnect();
+    socket = null;
+  } else {
+    console.log('🔌 WebSocket: socket уже null, пропускаем disconnect');
+  }
+  
+  isConnected = false;
+  isConnecting = false;
+  
+  // Очищаем интервалы
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+  }
+  
+  if (connectionCheckInterval) {
+    clearInterval(connectionCheckInterval);
+    connectionCheckInterval = null;
+  }
+  
+  if (sessionEventTimeout) {
+    clearTimeout(sessionEventTimeout);
+    sessionEventTimeout = null;
+    }
+  }
+
   // Получение валидного токена
-  async getValidToken() {
+export async function getValidToken() {
     try {
-      // Проверяем и обновляем токен если нужно
-      const response = await axiosAPI.get('/auth/checkAuth');
-      return response.data.accessToken;
+ //   console.log('🔌 WebSocket: Получаем валидный токен...');
+    
+      // Сначала проверяем токен из localStorage
+      const storedToken = localStorage.getItem('accessToken');
+ //   console.log('🔌 WebSocket: Токен из localStorage:', storedToken ? 'есть' : 'отсутствует');
+    
+      if (storedToken) {
+   //   console.log('🔌 WebSocket: Используем токен из localStorage');
+        return storedToken;
+      }
+
+      // Если токена нет, проверяем аутентификацию через store
+   // console.log('🔌 WebSocket: Токена в localStorage нет, проверяем store...');
+      const { useAuthStore } = await import('../auth/store/store.js');
+      const { isAuth, token } = useAuthStore.getState();
+    
+    //console.log('🔌 WebSocket: Состояние store - isAuth:', isAuth, 'token:', token ? 'есть' : 'отсутствует');
+      
+      if (isAuth && token) {
+      console.log('🔌 WebSocket: Используем токен из store');
+        return token;
+      }
+
+      // Если пользователь не аутентифицирован, не подключаемся к WebSocket
+    console.log('🔌 WebSocket: Пользователь не аутентифицирован, WebSocket не подключается');
+      return null;
     } catch (error) {
-      console.error('Failed to get valid token:', error);
+    console.error('🔌 WebSocket: Ошибка получения токена:', error);
       return null;
     }
   }
 
   // Настройка обработчиков событий
-  setupEventHandlers() {
-    this.socket.on('connect', () => {
-      this.isConnected = true;
-      this.reconnectAttempts = 0;
-      console.log('WebSocket securely connected');
-      
-      // Уведомляем о подключении
-      document.dispatchEvent(new CustomEvent('websocket-connected'));
-    });
-
-    this.socket.on('authenticated', (data) => {
-      console.log('WebSocket authenticated:', data);
-      
-      // Сохраняем информацию о пользователе
-      this.userInfo = data;
-      
-      // Уведомляем о аутентификации
-      document.dispatchEvent(new CustomEvent('websocket-authenticated', { 
-        detail: data 
-      }));
-    });
-
-    this.socket.on('notification', (notification) => {
-      console.log('Received notification:', notification);
-      this.handleSecureNotification(notification);
-    });
-
-    this.socket.on('disconnect', (reason) => {
-      this.isConnected = false;
-      console.log('WebSocket disconnected:', reason);
-      
-      // Уведомляем об отключении
-      document.dispatchEvent(new CustomEvent('websocket-disconnected', { 
-        detail: { reason } 
-      }));
-      
-      if (reason === 'io server disconnect') {
-        // Сервер принудительно отключил, переподключаемся
-        this.handleReconnect();
-      }
-    });
-
-    this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
-      this.handleReconnect();
-    });
-
-    this.socket.on('reconnect', (attemptNumber) => {
-      console.log(`WebSocket reconnected after ${attemptNumber} attempts`);
-      this.reconnectAttempts = 0;
-    });
-
-    this.socket.on('reconnect_error', (error) => {
-      console.error('WebSocket reconnection error:', error);
-    });
-
-    this.socket.on('reconnect_failed', () => {
-      console.error('WebSocket reconnection failed');
-      this.handleReconnect();
-    });
+function setupEventHandlers() {
+  if (!socket) {
+    console.log('🔌 WebSocket: setupEventHandlers - socket не создан');
+    return;
   }
 
-  // Обработка безопасного уведомления
-  handleSecureNotification(notification) {
+  console.log('🔌 WebSocket: setupEventHandlers - настраиваем обработчики событий');
+
+  // Обработчик успешного подключения уже настроен в connect()
+  // Здесь настраиваем только дополнительные обработчики
+
+  // Обработчик heartbeat ответа
+  socket.on('heartbeat_response', (data) => {
+    console.log('🔌 WebSocket: Получен heartbeat_response:', data); // Отключено - слишком много логов
+  });
+
+  // Обработчик отключения
+  socket.on('disconnect', (reason) => {
+    isConnected = false;
+    console.log('⚠️ WebSocket отключен:', reason); // Минимальный лог
+    
+    // Очищаем интервалы
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+    }
+    
+    // Пытаемся переподключиться
+    handleReconnect();
+  });
+
+  // Обработчик ошибок подключения уже настроен в connect()
+  // Здесь настраиваем только дополнительные обработчики
+
+  // Обработчик уведомлений
+  socket.on('notification', (notification) => {
+    console.log('📬 WebSocket: Получено событие "notification":', notification.type);
+    handleSecureNotification(notification);
+  });
+
+  // Обработчик принудительного логаута
+  socket.on('force_logout', async (data) => {
+    console.log('🔐 WebSocket: Получено событие "force_logout":', data);
     try {
-      // Валидация полученного уведомления
-      if (!notification || !notification.type || !notification.description) {
-        console.warn('Invalid notification received:', notification);
-        return;
-      }
-
-      // Проверяем тип уведомления
-      const validTypes = ['INFO', 'POST', 'SUCCESS', 'ERROR', 'ATTENTION'];
-      if (!validTypes.includes(notification.type)) {
-        console.warn('Invalid notification type:', notification.type);
-        return;
-      }
-
-      // Отправляем событие для ContainerNotification
-      document.dispatchEvent(new CustomEvent('main-notify', { 
-        detail: { 
-          type: notification.type.toLowerCase(), 
-          text: notification.description,
-          header: notification.header,
-          id: notification.id,
-          timestamp: notification.timestamp
-        } 
-      }));
+      // Импортируем store для вызова logout
+      const { useAuthStore } = await import('../auth/store/store.js');
+      const logout = useAuthStore.getState().logout;
       
-      // Если это INFO или POST, обновляем список
-      if (notification.type === 'INFO' || notification.type === 'POST') {
-        document.dispatchEvent(new CustomEvent('main-notify', { 
-          detail: { type: 'info' } 
-        }));
+      if (logout) {
+        console.log('🔐 WebSocket: Выполняем принудительный логаут');
+        await logout();
+        
+        // Отключаемся от WebSocket
+        disconnect();
+        
+        // Перенаправляем на страницу входа
+        window.location.href = '/login';
       }
-
-      // Логируем получение уведомления
-      console.log(`Notification received: ${notification.type} - ${notification.header}`);
-
     } catch (error) {
-      console.error('Error handling notification:', error);
+      console.error('🔐 WebSocket: Ошибка принудительного логаута:', error);
+      // В случае ошибки все равно перенаправляем на страницу входа
+      window.location.href = '/login';
     }
+  });
+
+  // Обработчик новых сообщений в поддержке
+  socket.on('support_new_message', (data) => {
+    console.log('💬 WebSocket: Получено событие "support_new_message":', data);
+    const event = new CustomEvent('support-new-message', { detail: data });
+    document.dispatchEvent(event);
+    console.log('✅ WS: Событие support-new-message задиспатчено');
+  });
+
+  // Обработчик новых бесед в поддержке
+  socket.on('support_new_conversation', (data) => {
+    console.log('📬 WebSocket: Получено событие "support_new_conversation":', data);
+    const event = new CustomEvent('crm-new-conversation', { detail: data });
+    document.dispatchEvent(event);
+    console.log('✅ WS: Событие crm-new-conversation задиспатчено');
+  });
+
+  socket.on('admin:document_status_updated', (data) => {
+    console.log('📄 WebSocket: Получено событие "admin:document_status_updated":', data);
+    const event = new CustomEvent('admin-document-status-updated', { detail: data });
+    document.dispatchEvent(event);
+  });
+
+  socket.on('admin:document_uploaded', (data) => {
+    console.log('📄 WebSocket: Получено событие "admin:document_uploaded":', data);
+    const event = new CustomEvent('admin-document-uploaded', { detail: data });
+    document.dispatchEvent(event);
+  });
+
+  // Обработчик успешной аутентификации
+  socket.on('authenticated', (data) => {
+    console.log('✅ WebSocket: Получено событие "authenticated":', data);
+    if (data.userType === 'user') {
+      console.log(`✅ WebSocket: Пользователь ${data.userId} успешно аутентифицирован, находится в комнате user_${data.userId}`);
+    } else if (data.userType === 'admin') {
+      console.log(`✅ WebSocket: Администратор ${data.userId} успешно аутентифицирован`);
+    }
+  });
+
+  // Обработчик обновления статуса документа для пользователя
+  console.log('🔌 WebSocket: Регистрируем обработчик "user:document_status_updated"');
+  socket.on('user:document_status_updated', (data) => {
+    console.log('📄 WebSocket: Получено событие "user:document_status_updated":', data);
+    console.log('📄 WebSocket: Отправляем CustomEvent "user-document-status-updated" на документ');
+    const event = new CustomEvent('user-document-status-updated', { detail: data });
+    document.dispatchEvent(event);
+    console.log('📄 WebSocket: CustomEvent "user-document-status-updated" отправлен');
+  });
+  console.log('✅ WebSocket: Обработчик "user:document_status_updated" зарегистрирован');
+
+  // Обработчик обновления файла инвестиционных правил продукта
+  console.log('🔌 WebSocket: Регистрируем обработчик "product:investment_rules_updated"');
+  socket.on('product:investment_rules_updated', (data) => {
+    console.log('📄 WebSocket: Получено событие "product:investment_rules_updated":', data);
+    console.log('📄 WebSocket: Отправляем CustomEvent "product-investment-rules-updated" на документ');
+    const event = new CustomEvent('product-investment-rules-updated', { detail: data });
+    document.dispatchEvent(event);
+    console.log('📄 WebSocket: CustomEvent "product-investment-rules-updated" отправлен');
+    
+    // Также отправляем событие для админки (если это событие из комнаты admins_room)
+    const adminEvent = new CustomEvent('admin-product-investment-rules-updated', { detail: data });
+    document.dispatchEvent(adminEvent);
+    console.log('📄 WebSocket: CustomEvent "admin-product-investment-rules-updated" отправлен для админки');
+  });
+  console.log('✅ WebSocket: Обработчик "product:investment_rules_updated" зарегистрирован');
+
+  // Обработчик новых сообщений в поддержке убран - используется прямая подписка в компонентах
+
+  // Обработчики для обновления активных сессий
+  socket.on('session_connected', async (sessionData) => {
+    // console.log('WebSocket: Новая сессия подключена:', sessionData); // Отключено
+    
+    // Фильтруем события для текущего пользователя, чтобы избежать ложных срабатываний
+    // при переподключении WebSocket
+    const currentUserId = await getCurrentUserId();
+    if (currentUserId && sessionData.id === currentUserId && sessionData.type === 'user') {
+      console.log('WebSocket: Игнорируем событие подключения для текущего пользователя');
+        return;
+      }
+
+    // Используем дебаунс для предотвращения множественных событий
+    debounceSessionEvent('session-connected', sessionData);
+  });
+
+  socket.on('session_disconnected', async (sessionData) => {
+    // console.log('WebSocket: Сессия отключена:', sessionData); // Отключено
+    
+    // Фильтруем события для текущего пользователя, чтобы избежать ложных срабатываний
+    // при переподключении WebSocket
+    const currentUserId = await getCurrentUserId();
+    if (currentUserId && sessionData.id === currentUserId && sessionData.type === 'user') {
+      console.log('WebSocket: Игнорируем событие отключения для текущего пользователя');
+        return;
+      }
+
+    // Используем дебаунс для предотвращения множественных событий
+    debounceSessionEvent('session-disconnected', sessionData);
+  });
+
+         // Обработчик принудительного завершения сессии
+         socket.on('session_terminated', async (data) => { // Слушаем событие 'session_terminated' от сервера
+           console.log('WebSocket: Получено событие session_terminated:', data); // Логируем полученные данные о завершении сессии
+           
+           // ВАЖНО: Проверяем, предназначено ли это событие для текущего пользователя
+           try { // Начинаем блок обработки ошибок
+             const { useAuthStore } = await import('../auth/store/store.js'); // Динамически импортируем store
+             const { user, admin } = useAuthStore.getState(); // Получаем текущего пользователя и админа из store
+             
+             // Получаем ID текущего пользователя
+             const currentUserId = user?.id || null; // ID текущего пользователя (может быть null)
+             const currentAdminId = admin?.id || null; // ID текущего админа (может быть null)
+             
+             console.log('WebSocket: Проверка получателя события:'); // Логируем начало проверки
+             console.log('  - Текущий userId:', currentUserId); // Логируем ID текущего пользователя
+             console.log('  - Текущий adminId:', currentAdminId); // Логируем ID текущего админа
+             console.log('  - Целевой userId:', data.targetUserId); // Логируем целевой ID пользователя из события
+             console.log('  - Целевой adminId:', data.targetAdminId); // Логируем целевой ID админа из события
+             console.log('  - Тип целевой сессии:', data.userType); // Логируем тип завершаемой сессии
+             
+             // Проверяем, является ли текущий пользователь целью завершения сессии
+             const isTargetUser = data.userType === 'user' && data.targetUserId === currentUserId; // Проверка для обычного пользователя
+             const isTargetAdmin = data.userType === 'admin' && data.targetAdminId === currentAdminId; // Проверка для администратора
+             
+             if (!isTargetUser && !isTargetAdmin) { // Если событие НЕ для текущего пользователя
+               console.log('WebSocket: Событие session_terminated предназначено для другого пользователя, игнорируем'); // Логируем игнорирование
+               return; // Выходим из обработчика без действий
+             }
+             
+             console.log('WebSocket: Событие session_terminated предназначено для текущего пользователя, обрабатываем'); // Логируем обработку
+             
+             // Определяем причину завершения и показываем соответствующее сообщение
+             let message = 'Ваша сессия была завершена'; // Сообщение по умолчанию
+             if (data.reason === 'new_login') { // Если причина - новый вход
+               message = 'Вы были выведены из системы, так как произошел повторный вход в вашу учетную запись'; // Сообщение о повторном входе
+             } else if (data.reason === 'admin_terminated') { // Если причина - завершение администратором
+               message = 'Ваша сессия была завершена администратором'; // Сообщение о завершении админом
+             }
+             
+             // Показываем уведомление пользователю через alert
+             // Показываем SUCCESS-уведомление
+             document.dispatchEvent(new CustomEvent('main-notify', {
+               detail: {
+                 type: 'success',
+                 text: message
+               }
+             }));
+             
+             // Очищаем токены из localStorage
+             localStorage.removeItem('accessToken'); // Удаляем access токен
+             localStorage.removeItem('refreshToken'); // Удаляем refresh токен
+             
+             // Очищаем состояние аутентификации в store
+             const { logout } = useAuthStore.getState(); // Получаем функцию logout из store
+             await logout(); // Вызываем logout для очистки состояния
+             console.log('WebSocket: Состояние аутентификации очищено'); // Логируем успешную очистку
+             
+             // Уведомляем приложение о завершении сессии через кастомное событие
+             document.dispatchEvent(new CustomEvent('session-terminated', { // Создаем и отправляем событие
+               detail: { ...data, message } // Передаем все данные и сообщение в detail
+             }));
+             
+             // Отключаем WebSocket соединение
+             disconnect(); // Вызываем функцию отключения WebSocket
+             
+           } catch (error) { // Обработка ошибок при проверке получателя
+             console.error('WebSocket: Ошибка при обработке session_terminated:', error); // Логируем ошибку
+             // В случае ошибки проверки - НЕ завершаем сессию (безопаснее)
+           }
+         });
+}
+
+// Получение ID текущего пользователя
+export function getCurrentUserId() {
+  try {
+    // Используем динамический import для браузера
+    return import('../auth/store/store.js').then(({ useAuthStore }) => {
+      const { user } = useAuthStore.getState();
+      return user?.id || null;
+    }).catch(error => {
+      console.error('WebSocket: Ошибка получения ID пользователя:', error);
+      return null;
+    });
+    } catch (error) {
+    console.error('WebSocket: Ошибка получения ID пользователя:', error);
+    return null;
+  }
+}
+
+// Дебаунс для событий сессий
+function debounceSessionEvent(eventType, sessionData, delay = 500) {
+  // Очищаем предыдущий таймер
+  if (sessionEventTimeout) {
+    clearTimeout(sessionEventTimeout);
   }
 
-  // Heartbeat для поддержания соединения
-  startHeartbeat() {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-    }
-
-    this.heartbeatInterval = setInterval(() => {
-      if (this.socket && this.isConnected) {
-        this.socket.emit('ping');
-      }
-    }, 30000); // Ping каждые 30 секунд
+  // Создаем уникальный ключ для события
+  const eventKey = `${eventType}_${sessionData.id}_${sessionData.type}`;
+  
+  // Проверяем, не было ли недавно такого же события
+  const now = Date.now();
+  if (lastSessionEvent && 
+      lastSessionEvent.key === eventKey && 
+      (now - lastSessionEvent.timestamp) < delay) {
+    console.log(`WebSocket: Игнорируем дублирующее событие ${eventType} для ${sessionData.email}`);
+    return;
   }
 
-  // Проверка соединения
-  startConnectionCheck() {
-    if (this.connectionCheckInterval) {
-      clearInterval(this.connectionCheckInterval);
-    }
+  // Сохраняем информацию о событии
+  lastSessionEvent = {
+    key: eventKey,
+    timestamp: now
+  };
 
-    this.connectionCheckInterval = setInterval(async () => {
-      if (!this.isConnected) {
-        console.log('Connection lost, attempting to reconnect...');
-        await this.connect();
-      }
-    }, 60000); // Проверяем каждую минуту
+  // Устанавливаем таймер для отправки события
+  sessionEventTimeout = setTimeout(() => {
+    document.dispatchEvent(new CustomEvent(eventType, { 
+      detail: sessionData 
+    }));
+  }, delay);
+}
+
+// Обработка безопасных уведомлений
+function handleSecureNotification(notification) { // Функция обработки уведомлений полученных через WebSocket
+  // console.log('WebSocket: Обрабатываем безопасное уведомление:', notification); // Отключено - спам
+  
+  try { // Начинаем блок обработки ошибок
+    // Проверяем, что уведомление содержит необходимые поля
+    if (!notification || !notification.type) { // Если уведомление пустое или без типа
+      console.warn('WebSocket: Уведомление не содержит необходимых полей:', notification); // Логируем предупреждение
+      return; // Выходим из функции
+    }
+    
+    // Отправляем событие для отображения INFO-уведомления через систему нотификаций
+    if (notification.type === 'INFO') { // Если это INFO уведомление
+      // console.log('WebSocket: INFO уведомление'); // Отключено
+      document.dispatchEvent(new CustomEvent('main-notify-info-refresh'));
+    } else if (notification.type === 'POST') { // Если это POST уведомление (отчет)
+      // console.log('WebSocket: POST уведомление'); // Отключено
+      document.dispatchEvent(new CustomEvent('main-notify-post-refresh'));
+    } else if (notification.type === 'NEW_SUPPORT_CONVERSATION') { // Новое обращение в поддержку для админов
+      console.log('📬 CRM: Новое обращение #' + notification.conversationId + ' (' + notification.priority + ')');
+      document.dispatchEvent(new CustomEvent('crm-new-conversation', { detail: notification }));
+    } else if (notification.type === 'NEW_SUPPORT_MESSAGE') { // Новое сообщение в обращении для клиента
+      console.log('💬 Новое сообщение в обращении #' + notification.conversationId);
+      console.log('📤 WS: Диспатчим событие support-new-message');
+      const event = new CustomEvent('support-new-message', { detail: notification });
+      document.dispatchEvent(event);
+      console.log('✅ WS: Событие support-new-message задиспатчено');
+    } else { // Для других типов уведомлений
+      // console.log('WebSocket: Уведомление типа', notification.type); // Отключено
+    }
+  } catch (error) { // Обработка ошибок
+    console.error('WebSocket: Ошибка обработки уведомления:', error); // Логируем ошибку
+  }
   }
 
   // Обработка переподключения
-  handleReconnect() {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-      
-      setTimeout(async () => {
-        console.log(`Reconnecting... attempt ${this.reconnectAttempts}`);
-        await this.connect();
-      }, delay);
-    } else {
-      console.error('Max reconnection attempts reached');
-      this.startConnectionCheck();
-    }
+function handleReconnect() {
+  if (reconnectAttempts < maxReconnectAttempts) {
+    reconnectAttempts++;
+    console.log(`🔌 WebSocket: Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts}`);
+    
+    setTimeout(() => {
+      connect();
+    }, reconnectDelay * reconnectAttempts);
+        } else {
+    console.error('🔌 WebSocket: Максимальное количество попыток переподключения достигнуто');
   }
+}
 
-  // Отправка сообщения (если нужно)
-  sendMessage(event, data) {
-    if (this.socket && this.isConnected) {
-      this.socket.emit(event, data);
-      return true;
-    }
-    return false;
+// Запуск heartbeat
+function startHeartbeat() {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
   }
+  
+  heartbeatInterval = setInterval(() => {
+    if (socket && isConnected) {
+      console.log('🔌 WebSocket: Отправляем heartbeat...');
+      socket.emit('heartbeat', { 
+        timestamp: new Date().toISOString(),
+        userId: socket.userId || socket.adminId 
+      });
+    }
+  }, 20000); // Heartbeat каждые 20 секунд (меньше чем pingInterval сервера 25 сек)
+}
 
-  // Получение статуса соединения
-  getConnectionStatus() {
-    return {
-      isConnected: this.isConnected,
-      reconnectAttempts: this.reconnectAttempts,
-      userInfo: this.userInfo
-    };
+// Уведомление сервера о смене роли (выход из админки)
+export function switchToUserRole() {
+  if (socket && isConnected) {
+    console.log('WebSocket: Переключаемся на пользовательскую роль');
+    socket.emit('role_switch', { 
+      userType: 'user',
+      timestamp: new Date().toISOString()
+    });
   }
+}
 
-  // Отключение
-  disconnect() {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-      this.heartbeatInterval = null;
-    }
-
-    if (this.connectionCheckInterval) {
-      clearInterval(this.connectionCheckInterval);
-      this.connectionCheckInterval = null;
-    }
-
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-      this.isConnected = false;
+// Уведомление сервера о входе в админку
+export function switchToAdminRole() {
+  if (socket && isConnected) {
+    console.log('WebSocket: Переключаемся на административную роль');
+    socket.emit('role_switch', { 
+      userType: 'admin',
+      timestamp: new Date().toISOString()
+    });
     }
   }
 
   // Переподключение при смене пользователя
-  async reconnect() {
-    this.disconnect();
-    await this.connect();
+export async function reconnect() {
+  disconnect();
+  await connect();
+}
+
+// Отправка сообщения пользователю
+export function sendToUser(userId, message) {
+  if (socket && isConnected) {
+    socket.emit('send_to_user', { userId, message });
   }
 }
 
-// Создаем единственный экземпляр
-const websocketService = new SecureWebSocketService();
+// Отправка сообщения всем пользователям
+export function sendToAllUsers(message) {
+  if (socket && isConnected) {
+    socket.emit('broadcast_message', { message });
+  }
+}
 
-// Экспортируем сервис
+// Получение состояния подключения
+export function getConnectionStatus() {
+  return {
+    isConnected,
+    reconnectAttempts,
+    socket: !!socket
+  };
+}
+
+// Получение socket объекта
+export function getSocket() {
+  return socket;
+}
+
+// Создаем объект с экспортированными функциями для обратной совместимости
+const websocketService = {
+  connect,
+  disconnect,
+  getValidToken,
+  getCurrentUserId,
+  switchToUserRole,
+  switchToAdminRole,
+  reconnect,
+  sendToUser,
+  sendToAllUsers,
+  getConnectionStatus,
+  getSocket,
+  // Добавляем методы для подписки на события
+  on: (event, callback) => {
+    if (socket && isConnected) {
+      socket.on(event, callback);
+    }
+  },
+  off: (event, callback) => {
+    if (socket) {
+      socket.off(event, callback);
+    }
+  }
+};
+
 export default websocketService;
-
-// Экспортируем также класс для тестирования
-export { SecureWebSocketService };

@@ -1,0 +1,121 @@
+.crm-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+/* Навигация CRM - строка под хедером */
+.crm-nav {
+  display: flex !important;
+  gap: 0;
+  background: #1e1e1e !important;
+  border-bottom: 2px solid #333;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  justify-content: flex-start !important;
+}
+
+.crm-nav-item {
+  padding: 15px 30px !important;
+  background: transparent !important;
+  border: none !important;
+  color: #999 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border-bottom: 3px solid transparent !important;
+  position: relative !important;
+  display: block !important;
+}
+
+.crm-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.crm-nav-item.active {
+  color: #4caf50;
+  border-bottom-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+/* Контент CRM */
+.crm-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #1e1e1e;
+  min-height: 0;
+}
+
+/* Убираем прокрутку для вкладки ПРОДАЖИ */
+.crm-content.no-scroll {
+  overflow: visible;
+}
+
+/* Стилизация скроллбара для контента CRM */
+.crm-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.crm-content::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.crm-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.crm-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* Для Firefox */
+.crm-content {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2a;
+}
+
+/* Счетчик непрочитанных сообщений на кнопке ОБЩЕНИЕ */
+.crm-nav-unread-count {
+  display: inline-block;
+  background: #ff6b6b;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+  line-height: 1.3;
+  box-shadow: 0 2px 6px rgba(255, 107, 107, 0.4);
+  flex-shrink: 0;
+  margin-left: .5vw;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+}
+

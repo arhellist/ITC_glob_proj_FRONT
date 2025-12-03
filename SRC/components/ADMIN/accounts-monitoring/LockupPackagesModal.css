@@ -1,0 +1,450 @@
+.lockup-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.lockup-modal-content {
+  width: 90vw !important;
+  max-width: none;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.lockup-modal-footer {
+  background-color: #2d2d2d;
+  border-top: 2px solid #3d3d3d;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.lockup-modal-footer .lockup-btn-secondary {
+  padding: 10px 30px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: #4a5568;
+  color: #ffffff;
+}
+
+.lockup-modal-footer .lockup-btn-secondary:hover {
+  background-color: #5a6678;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.lockup-modal-header {
+  background-color: #2d2d2d;
+  border-bottom: 2px solid #3d3d3d;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lockup-modal-header h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.lockup-close-button {
+  background-color: #d32f2f;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockup-close-button:hover {
+  background-color: #c62828;
+  transform: scale(1.1);
+}
+
+.lockup-modal-body {
+  padding: 20px;
+  background-color: #1e1e1e;
+  overflow-y: auto;
+}
+
+.lockup-account-info {
+  background-color: #2d2d2d;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #3d3d3d;
+}
+
+.lockup-account-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+.lockup-account-info strong {
+  color: #ffffff;
+}
+
+.lockup-total-balance {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 20px;
+  color: #ffffff;
+  border: 2px solid #4a5568;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.lockup-total-balance strong {
+  font-weight: 700;
+}
+
+.lockup-packages-table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  border: 2px solid #3d3d3d;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+}
+
+.lockup-packages-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lockup-packages-table thead {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.lockup-packages-table th {
+  padding: 15px 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid #3d3d3d;
+}
+
+.lockup-packages-table th:last-child {
+  border-right: none;
+}
+
+.lockup-packages-table td {
+  padding: 12px;
+  border-bottom: 1px solid #3d3d3d;
+  font-size: 13px;
+  text-align: center;
+  color: #e0e0e0;
+}
+
+.lockup-packages-table tbody tr {
+  background-color: #252525;
+  transition: background-color 0.2s ease;
+}
+
+.lockup-packages-table tbody tr:hover {
+  background-color: #2d2d2d;
+}
+
+.lockup-packages-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.lockup-numeric-cell {
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+.lockup-balance-cell {
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.lockup-end-date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.lockup-end-date {
+  font-size: 13px;
+  color: #e0e0e0;
+}
+
+.lockup-end-date-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lockup-end-date-badge.lockup-open {
+  background-color: #2e7d32;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(46, 125, 50, 0.3);
+}
+
+.lockup-end-date-badge.lockup-closed {
+  background-color: #c62828;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(198, 40, 40, 0.3);
+}
+
+.lockup-status-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.lockup-status-badge.lockup-active {
+  background-color: #2e7d32;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(46, 125, 50, 0.3);
+}
+
+.lockup-status-badge.lockup-closed {
+  background-color: #c62828;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(198, 40, 40, 0.3);
+}
+
+.lockup-zero-balance {
+  background-color: #2d2d2d;
+  opacity: 0.5;
+}
+
+.lockup-zero-balance-cell {
+  color: #999;
+  font-style: italic;
+}
+
+.lockup-initial-deposit {
+  color: #64b5f6;
+  font-weight: 600;
+}
+
+.lockup-balance-cell-operations {
+  min-width: 200px;
+}
+
+.lockup-balance-value {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.lockup-operations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #3d3d3d;
+}
+
+.lockup-operation-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+.lockup-operation-type {
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lockup-operation-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-grow: 1;
+}
+
+.lockup-operation-date {
+  color: #999;
+  font-size: 10px;
+}
+
+.lockup-operation-amount {
+  font-weight: 600;
+}
+
+.lockup-operation-amount.lockup-positive {
+  color: #66bb6a;
+}
+
+.lockup-operation-amount.lockup-negative {
+  color: #ef5350;
+}
+
+.lockup-operation-item.lockup-operation-profitability {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #4caf50;
+}
+
+.lockup-operation-item.lockup-operation-withdrawal {
+  background-color: rgba(211, 47, 47, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #d32f2f;
+}
+
+.lockup-operation-item.lockup-operation-transfer {
+  background-color: rgba(156, 39, 176, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #9c27b0;
+}
+
+.lockup-operation-item.lockup-operation-deposit {
+  background-color: rgba(33, 150, 243, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #2196f3;
+}
+
+.lockup-operation-item.lockup-operation-fine {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #ff9800;
+}
+
+.lockup-operation-item.lockup-operation-commission {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #ff9800;
+}
+
+.lockup-operation-item.lockup-operation-debiting {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #ff9800;
+}
+
+.lockup-no-packages {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.lockup-no-packages p {
+  font-size: 16px;
+}
+
+/* Скроллбар для темной темы */
+.lockup-packages-table-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.lockup-packages-table-container::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.lockup-packages-table-container::-webkit-scrollbar-thumb {
+  background: #3d3d3d;
+  border-radius: 5px;
+}
+
+.lockup-packages-table-container::-webkit-scrollbar-thumb:hover {
+  background: #4d4d4d;
+}
+
+@media (min-width: 1920px) {
+  .lockup-modal-content {
+    width: 1728px !important; /* 90% от 1920px */
+  }
+}
+
+@media (max-width: 768px) {
+  .lockup-modal-content {
+    width: 95vw !important;
+    max-height: 90vh;
+  }
+  
+  .lockup-modal-body {
+    padding: 15px;
+  }
+  
+  .lockup-account-info {
+    padding: 12px;
+  }
+  
+  .lockup-total-balance {
+    padding: 15px;
+    font-size: 16px;
+  }
+  
+  .lockup-packages-table-container {
+    max-height: 300px;
+  }
+  
+  .lockup-packages-table {
+    font-size: 11px;
+  }
+  
+  .lockup-packages-table th,
+  .lockup-packages-table td {
+    padding: 8px 6px;
+  }
+  
+  .lockup-balance-cell-operations {
+    min-width: 150px;
+  }
+  
+  .lockup-balance-value {
+    font-size: 13px;
+  }
+  
+  .lockup-operation-item {
+    font-size: 10px;
+  }
+}

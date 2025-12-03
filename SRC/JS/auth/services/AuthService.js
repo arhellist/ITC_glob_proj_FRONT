@@ -1,32 +1,39 @@
-import axiosAPI from "../http/axios.js";
-import axiosCSRF from "../http/axiosCSRF.js";
+import axiosAPI from "../http/axios.js"; // Импорт настроенного HTTP клиента с авторизацией
+import axiosCSRF from "../http/axiosCSRF.js"; // Импорт HTTP клиента с CSRF защитой
+import axiosWebSocket from "../http/axiosWebSocket.js"; // Импорт HTTP клиента для WebSocket запросов
 
-export async function login(email, password, recaptchaToken = null) {
-  try {
-    console.log('=== Попытка входа ===');
-    console.log('Email:', email);
-    console.log('CSRF-токен в window.csrfToken:', window.csrfToken);
+export async function login(email, password, recaptchaToken = null, deviceInfo = null) { // Функция входа пользователя принимает email, пароль и опциональный reCAPTCHA токен
+  try { // Начинаем блок обработки ошибок
+    console.log('=== Попытка входа ==='); // Логирование начала процесса входа
+    console.log('Email:', email); // Логирование email пользователя
+    console.log('CSRF-токен в window.csrfToken:', window.csrfToken); // Логирование CSRF токена
     
-    const requestData = { email, password };
+    const requestData = { email, password }; // Создаем объект с данными для входа
     
-    // Добавляем reCAPTCHA токен если он есть
-    if (recaptchaToken) {
-      requestData.recaptcha_token = recaptchaToken;
-      console.log('reCAPTCHA токен добавлен');
+    // Добавляем reCAPTCHA токен если он есть для защиты от ботов
+    if (recaptchaToken) { // Проверяем наличие reCAPTCHA токена
+      requestData.recaptcha_token = recaptchaToken; // Добавляем токен в данные запроса
+      console.log('reCAPTCHA токен добавлен'); // Логируем добавление токена
+    }
+    
+    // Добавляем информацию об устройстве и отпечаток
+    if (deviceInfo) {
+      requestData.deviceInfo = deviceInfo;
+      console.log('DeviceInfo добавлен в запрос');
     }
     
     // CSRF-токен автоматически добавляется в axiosCSRF interceptor
-    console.log('Отправляем запрос на /auth/login с данными:', requestData);
+    console.log('Отправляем запрос на /auth/login с данными:', requestData); // Логирование данных запроса
     
-    const response = await axiosCSRF.post("/auth/login", requestData);
+    const response = await axiosCSRF.post("/auth/login", requestData); // Отправляем POST запрос на сервер для входа
 
-    console.log(`response in LOGIN: `); console.log(response);
-    if (!response.data.token) {
-      throw new Error("No accessToken in response");
+    console.log(`response in LOGIN: `); console.log(response); // Логирование ответа сервера
+    if (!response.data.token) { // Проверяем наличие токена в ответе
+      throw new Error("No accessToken in response"); // Выбрасываем ошибку если токен отсутствует
     }
 
-    console.log(`return response in LOGIN: `);
-    return response;
+    console.log(`return response in LOGIN: `); // Логирование возврата ответа
+    return response; // Возвращаем ответ сервера с токеном
   } catch (error) {
     console.error('Ошибка в login:', error);
     throw error;
@@ -89,10 +96,26 @@ export async function getCSRF() {
   }
 }
 
+export async function getWebSocketCSRF() {
+  try {
+    console.log('=== Получение WebSocket CSRF-токена ===');
+    const response = await axiosWebSocket.get("/auth/ws-csrf");
+    console.log('WebSocket CSRF ответ от сервера:', response.data);
+    
+    // Сервер должен установить httpOnly куку с WebSocket CSRF токеном
+    console.log('WebSocket CSRF кука должна быть установлена сервером');
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при получении WebSocket CSRF-токена:', error);
+    throw error;
+  }
+}
+
 // Экспортируем по умолчанию объект с функциями для совместимости
 export default {
   login,
   registration,
   logout,
   getCSRF,
+  getWebSocketCSRF,
 };

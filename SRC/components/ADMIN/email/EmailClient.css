@@ -1,0 +1,576 @@
+/* Основной контейнер Email клиента */
+.email-container {
+    display: flex;
+    flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #1e1e1e;
+}
+
+/* Навигация Email клиента */
+.email-nav {
+  display: flex !important;
+  gap: 0;
+  background: #1e1e1e !important;
+  border-bottom: 2px solid #333;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
+
+
+.email-nav-item {
+  padding: 15px 30px !important;
+  background: transparent !important;
+  border: none !important;
+  color: #999 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border-bottom: 3px solid transparent !important;
+  position: relative !important;
+  display: block !important;
+}
+
+.email-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.email-nav-item.active {
+  color: #4caf50;
+  border-bottom-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.email-nav-spacer {
+    flex: 1;
+}
+
+.email-nav-compose {
+  height: 40px !important;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 15px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  margin-left: auto !important;
+  margin-right: 20px !important;
+  flex-shrink: 0 !important;
+}
+
+.email-nav-compose:hover {
+  background: #45a049 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.email-nav-queue {
+  height: 40px !important;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 15px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  margin-right: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+.email-nav-queue:hover {
+  background: #1976D2 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.email-nav-queue.disabled {
+  background: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.email-nav-queue.disabled:hover {
+  background: #ccc !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Бейдж непрочитанных писем */
+.email-nav-unread-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ff6b6b;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  max-width: 12px;
+  max-height: 12px;
+  z-index: 10;
+  animation: pulse 2s infinite;
+  box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: white;
+  font-weight: bold;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+}
+
+/* Контент Email клиента */
+.email-content {
+    flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1e1e1e;
+  min-height: 0;
+}
+
+/* Основная панель (папки + список писем) */
+.email-main-panel {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Боковая панель с папками */
+.email-sidebar {
+  width: 250px;
+  min-width: 250px;
+  background: #2a2a2a;
+  border-right: 1px solid #333;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Панель списка писем */
+.email-list-panel {
+  flex: 1;
+  background: #1e1e1e;
+  overflow: hidden;
+    display: flex;
+  flex-direction: column;
+}
+
+/* Панель просмотра письма */
+.email-viewer-panel {
+  width: 50%;
+  min-width: 400px;
+  background: #1e1e1e;
+  border-left: 1px solid #333;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Стилизация скроллбаров */
+.email-sidebar::-webkit-scrollbar,
+.email-viewer-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.email-sidebar::-webkit-scrollbar-track,
+.email-viewer-panel::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.email-sidebar::-webkit-scrollbar-thumb,
+.email-viewer-panel::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.email-sidebar::-webkit-scrollbar-thumb:hover,
+.email-viewer-panel::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* Для Firefox */
+.email-sidebar,
+.email-viewer-panel {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2a;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .email-viewer-panel {
+    width: 45%;
+    min-width: 350px;
+  }
+}
+
+@media (max-width: 992px) {
+  .email-sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+  
+  .email-viewer-panel {
+    width: 40%;
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .email-main-panel {
+    flex-direction: column;
+  }
+  
+  .email-sidebar {
+    width: 100%;
+    min-width: auto;
+    height: 150px;
+    border-right: none;
+    border-bottom: 1px solid #333;
+  }
+  
+  .email-viewer-panel {
+    width: 100%;
+    min-width: auto;
+    border-left: none;
+    border-top: 1px solid #333;
+  }
+  
+  
+  .email-nav-compose {
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+  }
+  
+  .email-nav-queue {
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* Анимации */
+.email-container * {
+  transition: all 0.2s ease;
+}
+
+/* Состояния загрузки */
+.email-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+    font-size: 14px;
+}
+
+.email-loading::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #333;
+  border-top: 2px solid #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Пустые состояния */
+.email-empty-state {
+    display: flex;
+    flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+  text-align: center;
+  padding: 20px;
+}
+
+.email-empty-state h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #999;
+}
+
+.email-empty-state p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Кнопки действий */
+.email-action-button {
+  background: #4caf50;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.email-action-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.email-action-button.secondary {
+  background: #666;
+}
+
+.email-action-button.secondary:hover {
+  background: #777;
+}
+
+.email-action-button.danger {
+  background: #f44336;
+}
+
+.email-action-button.danger:hover {
+  background: #d32f2f;
+}
+
+/* Стили для модального окна EmailModal */
+.email-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+    display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+    padding: 20px;
+}
+
+.email-modal {
+  background: #2d2d2d;
+  border-radius: 8px;
+  width: 95%;
+  max-width: 95%;
+  max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.email-modal-header {
+    display: flex;
+  justify-content: space-between;
+    align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #444;
+  background: #333;
+}
+
+.email-modal-title h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.email-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.email-modal-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  font-size: 12px;
+    font-weight: 500;
+  transition: all 0.2s;
+}
+
+.email-modal-btn-reply {
+  background: #4caf50;
+    color: white;
+}
+
+.email-modal-btn-reply:hover {
+  background: #45a049;
+}
+
+.email-modal-btn-forward {
+  background: #2196f3;
+    color: white;
+}
+
+.email-modal-btn-forward:hover {
+  background: #1976d2;
+}
+
+.email-modal-btn-delete {
+  background: #f44336;
+    color: white;
+}
+
+.email-modal-btn-delete:hover {
+  background: #d32f2f;
+}
+
+.email-modal-btn-close {
+  background: #666;
+    color: white;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-modal-btn-close:hover {
+  background: #888;
+}
+
+.email-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.email-modal-info {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.email-info-row {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.email-info-row:last-child {
+  margin-bottom: 0;
+}
+
+.email-info-label {
+  font-weight: 600;
+  color: #999;
+  min-width: 60px;
+  margin-right: 10px;
+}
+
+.email-info-value {
+  color: #fff;
+  flex: 1;
+  word-break: break-word;
+}
+
+.email-modal-body {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.email-content {
+  color: #fff;
+  line-height: 1.6;
+}
+
+.email-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.email-modal-attachments {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.email-modal-attachments h4 {
+  margin: 0 0 15px 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.attachments-list {
+  display: flex;
+        flex-direction: column;
+  gap: 8px;
+}
+
+.attachment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #333;
+  border-radius: 4px;
+}
+
+.attachment-name {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.attachment-size {
+  color: #999;
+  font-size: 12px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .email-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .email-modal-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .email-modal-actions {
+    justify-content: center;
+  }
+
+  .email-modal-btn {
+    flex: 1;
+  }
+}

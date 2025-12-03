@@ -1,0 +1,409 @@
+.email-templates {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+}
+
+/* Заголовок шаблонов */
+.email-templates-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #333;
+  background: #2a2a2a;
+  flex-shrink: 0;
+}
+
+.email-templates-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.email-templates-title h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.email-templates-count {
+  background: #666;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Список шаблонов */
+.email-templates-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  align-content: start;
+}
+
+/* Элемент шаблона */
+.email-template-item {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.email-template-item:hover {
+  background: #333;
+  border-color: #555;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.email-template-item.selected {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.email-template-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.email-template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.email-template-name {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+.email-template-date {
+  color: #999;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.email-template-subject {
+  color: #4caf50;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+.email-template-preview {
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  max-height: 3.6em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.email-template-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.email-template-type {
+  background: #4caf50;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.email-template-category {
+  background: #666;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.email-template-actions {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.email-template-item:hover .email-template-actions {
+  opacity: 1;
+}
+
+.email-template-action {
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-template-action:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.email-template-action.danger:hover {
+  background: rgba(244, 67, 54, 0.8);
+}
+
+/* Форма создания/редактирования шаблона */
+.email-template-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.email-template-form {
+  background: #2a2a2a;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.email-template-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #333;
+}
+
+.email-template-form-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.email-template-form-close {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.email-template-form-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.email-template-form-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.email-template-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.email-template-form-field label {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.email-template-form-field input,
+.email-template-form-field textarea {
+  background: #333;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.email-template-form-field input:focus,
+.email-template-form-field textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.email-template-form-field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.email-template-form-field input::placeholder,
+.email-template-form-field textarea::placeholder {
+  color: #999;
+}
+
+.email-template-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid #333;
+}
+
+/* Стилизация скроллбара */
+.email-templates-list::-webkit-scrollbar,
+.email-template-form-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.email-templates-list::-webkit-scrollbar-track,
+.email-template-form-content::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.email-templates-list::-webkit-scrollbar-thumb,
+.email-template-form-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.email-templates-list::-webkit-scrollbar-thumb:hover,
+.email-template-form-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* Для Firefox */
+.email-templates-list,
+.email-template-form-content {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2a;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .email-templates-header {
+    padding: 15px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .email-templates-list {
+    padding: 15px;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .email-template-item {
+    padding: 15px;
+  }
+  
+  .email-template-form-overlay {
+    padding: 10px;
+  }
+  
+  .email-template-form-content {
+    padding: 15px;
+  }
+  
+  .email-template-form-actions {
+    padding: 15px;
+    flex-direction: column;
+  }
+  
+  .email-template-actions {
+    opacity: 1;
+    position: static;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+}
+
+/* Анимации */
+.email-template-item {
+  transition: all 0.2s ease;
+}
+
+.email-template-action {
+  transition: all 0.2s ease;
+}
+
+/* Состояния загрузки */
+.email-template-form-actions button:disabled {
+  position: relative;
+}
+
+.email-template-form-actions button:disabled::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}

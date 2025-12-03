@@ -298,6 +298,8 @@
       width: 98%;
       height: 100%;
       overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
       gap: .2vw;
       align-items: center;
       justify-content: start;
@@ -376,9 +378,24 @@
     z-index: 1001;
     background: white;
     border-radius: 12px;
-    padding: 20px;
+    padding: 15px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
+    max-width: 450px;
     width: 90%;
+    box-sizing: border-box;
+  }
+  
+  .calendar-modal-window .date-range-picker-custom .calendar-grid {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .calendar-modal-window .date-range-picker-custom .date-inputs {
+    margin-bottom: 8px;
+  }
+  
+  .calendar-modal-window .date-range-picker-custom .calendar-header {
+    margin-bottom: 8px;
   }
   

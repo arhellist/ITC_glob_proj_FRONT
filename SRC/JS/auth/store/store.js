@@ -1,7 +1,9 @@
 import axiosAPI from '../http/axios.js'
-import { login as authLogin, registration as authRegistration, logout as authLogout, getCSRF } from "../services/AuthService.js"
+import { login as authLogin, registration as authRegistration, logout as authLogout, getCSRF, getWebSocketCSRF } from "../services/AuthService.js"
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { API_CONFIG } from '../../../config/api.js'
+import defaultAvatarUrl from '../../../IMG/male/ava.png'
 
 // Zustand store (с сохранением API совместимости)
 export const useAuthStore = create()(
@@ -21,7 +23,7 @@ export const useAuthStore = create()(
         setHydrated: () => {
           set({ hydrated: true });
           // Обновляем аватары при восстановлении состояния с задержкой для DOM
-          setTimeout(() => {
+          setTimeout(async () => {
             const state = get();
             console.log('setHydrated: проверяем состояние после восстановления:', {
               isAuth: state.isAuth,
@@ -36,7 +38,7 @@ export const useAuthStore = create()(
               // Проверяем, является ли avatar уже полным URL или относительным путем
               if (avatarUrl !== 'noAvatar' && !avatarUrl.startsWith('http')) {
                 // Если это относительный путь, добавляем базовый URL
-                avatarUrl = `http://localhost:3000${avatarUrl}`;
+                avatarUrl = `${API_CONFIG.BASE_URL}${avatarUrl}`;
               }
               
               state.updateAvatarsInDOM(avatarUrl);
@@ -49,13 +51,20 @@ export const useAuthStore = create()(
           set((state) => {
             const updatedUser = { ...state.user, ...updatedUserData };
             
+            console.log('updateUser: Обновляем пользователя:', {
+              oldUser: state.user,
+              newData: updatedUserData,
+              updatedUser,
+              avatar: updatedUser?.avatar
+            });
+            
             // Обновляем аватары в DOM
             if (updatedUser?.avatar !== undefined) {
               let avatarUrl;
               if (updatedUser.avatar === 'noAvatar' || !updatedUser.avatar) {
                 avatarUrl = 'noAvatar'; // Передаем 'noAvatar' для обработки в updateAvatarsInDOM
               } else {
-                avatarUrl = updatedUser.avatar.startsWith('http') ? updatedUser.avatar : `${axiosAPI.defaults.baseURL}${updatedUser.avatar}`;
+                avatarUrl = updatedUser.avatar.startsWith('http') ? updatedUser.avatar : `${API_CONFIG.BASE_URL}${updatedUser.avatar}`;
               }
               // Используем setTimeout чтобы DOM обновился после setState
               setTimeout(() => {
@@ -82,6 +91,19 @@ export const useAuthStore = create()(
           }
         },
 
+        // WebSocket CSRF management - получение специального токена для WebSocket
+        fetchWebSocketCSRFToken: async () => {
+          try {
+            console.log('Запрашиваем WebSocket CSRF токен у сервера...');
+            const response = await getWebSocketCSRF();
+            console.log('WebSocket CSRF токен получен, сервер должен установить httpOnly куку');
+            return response;
+          } catch (error) {
+            console.error('Ошибка получения WebSocket CSRF токена:', error);
+            throw error;
+          }
+        },
+
         // Получение полных данных пользователя
         fetchUserProfile: async () => {
           try {
@@ -94,6 +116,9 @@ export const useAuthStore = create()(
             }
             
             const response = await axiosAPI.get('/profile/user-data');
+            
+            console.log('fetchUserProfile: Получены данные пользователя:', response.data);
+            console.log('fetchUserProfile: Аватар пользователя:', response.data?.user?.avatar);
             
             if (response.data?.user) {
               get().updateUser(response.data.user);
@@ -198,11 +223,13 @@ export const useAuthStore = create()(
           try {
             console.log('updateAvatarsInDOM: обновляем аватары с URL:', avatarUrl);
             console.log('updateAvatarsInDOM: DOM готов?', document.readyState);
+            console.log('updateAvatarsInDOM: Тип avatarUrl:', typeof avatarUrl);
+            console.log('updateAvatarsInDOM: avatarUrl начинается с http?', avatarUrl?.startsWith('http'));
             
             // Проверяем, что аватар не равен 'noAvatar'
             if (avatarUrl === 'noAvatar' || !avatarUrl) {
               console.log('updateAvatarsInDOM: аватар равен noAvatar или пустой, используем дефолтную картинку');
-              avatarUrl = './SRC/IMG/male/ava.png'; // Дефолтная картинка
+              avatarUrl = defaultAvatarUrl; // Дефолтная картинка
             }
             
             // Обновляем аватар в профиле
@@ -241,6 +268,8 @@ export const useAuthStore = create()(
           const user = response?.data?.user ?? get().user
           if (!token) throw new Error('Invalid auth response')
           console.log('handleAuthResponse: обновляем токен в localStorage:', token)
+          console.log('handleAuthResponse: пользователь из ответа:', user)
+          console.log('handleAuthResponse: аватар пользователя:', user?.avatar)
           localStorage.setItem('accessToken', token)
           if (refreshToken) {
             localStorage.setItem('refreshToken', refreshToken)
@@ -256,7 +285,7 @@ export const useAuthStore = create()(
             if (user.avatar === 'noAvatar' || !user.avatar) {
               avatarUrl = 'noAvatar'; // Передаем 'noAvatar' для обработки в updateAvatarsInDOM
             } else {
-              avatarUrl = user.avatar.startsWith('http') ? user.avatar : `${axiosAPI.defaults.baseURL}${user.avatar}`;
+              avatarUrl = user.avatar.startsWith('http') ? user.avatar : `${API_CONFIG.BASE_URL}${user.avatar}`;
             }
             get().updateAvatarsInDOM(avatarUrl);
           }
@@ -270,8 +299,8 @@ export const useAuthStore = create()(
         },
 
         // actions
-        login: async (email, password) => {
-          const response = await authLogin(email, password)
+        login: async (email, password, deviceInfo = null) => {
+          const response = await authLogin(email, password, null, deviceInfo)
           get().handleAuthResponse(response)
           await get().checkAuth()
           // После успешного логина загружаем полные данные пользователя
@@ -281,7 +310,7 @@ export const useAuthStore = create()(
 
         registration: async (email, password, name, surname, patronymic, phone, captcha) => {
           let referralCode = '';
-          try { referralCode = localStorage.getItem('itc_ref_link_partner') || ''; } catch {}
+          try { referralCode = localStorage.getItem('itc_ref_link_partner') || ''; } catch(error) {console.error('registration: ошибка при получении referralCode:', error)}
           const response = await authRegistration(email, password, name, surname, patronymic, phone, captcha, referralCode)
           get().handleAuthResponse(response)
           await get().checkAuth()
@@ -312,18 +341,37 @@ export const useAuthStore = create()(
             
             const token = localStorage.getItem('accessToken')
             console.log('checkAuth: токен из localStorage:', token)
-            if (token) {
-              axiosAPI.defaults.headers.Authorization = `Bearer ${token}`
-              console.log('checkAuth: установлен заголовок Authorization')
-            } else {
-              console.log('checkAuth: токен не найден в localStorage')
+            
+            // Если токена нет, сразу возвращаем false без API запроса для оптимизации
+            if (!token) { // Проверяем наличие токена в localStorage
+              console.log('checkAuth: токен не найден в localStorage, пропускаем API запрос') // Логируем отсутствие токена
+              get().resetAuth() // Сбрасываем состояние аутентификации в store
+              return false // Возвращаем false, так как пользователь не аутентифицирован
             }
             
+            // Проверяем, не истек ли токен локально перед отправкой запроса
+            try {
+              const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+              const isExpired = tokenPayload.exp * 1000 < Date.now();
+              if (isExpired) {
+                console.log('checkAuth: токен истек локально, пропускаем API запрос');
+                get().resetAuth();
+                return false;
+              }
+            } catch (tokenError) {
+              console.log('checkAuth: токен невалиден, пропускаем API запрос');
+              get().resetAuth();
+              return false;
+            }
+            
+            axiosAPI.defaults.headers.Authorization = `Bearer ${token}`
+            console.log('checkAuth: установлен заголовок Authorization')
             console.log('checkAuth: отправляем запрос на /auth/checkAuth')
             const response = await axiosAPI.get('/auth/checkAuth')
             console.log('checkAuth: получен ответ от сервера:', response.data)
             if (response?.data?.token) {
               console.log('checkAuth: получен новый токен от сервера:', response.data.token)
+              console.log('checkAuth: пользователь из ответа checkAuth:', response.data.user)
               get().handleAuthResponse(response)
               // После успешной проверки аутентификации загружаем полные данные пользователя
               await get().fetchUserProfile()
@@ -334,7 +382,11 @@ export const useAuthStore = create()(
             return false
           } catch (error) {
             console.error('checkAuth: ошибка при проверке аутентификации:', error)
-            get().resetAuth()
+            // Не сбрасываем аутентификацию при ошибке сети, только при ошибке токена
+            if (error.response?.status === 401) {
+              console.log('checkAuth: получена ошибка 401, сбрасываем аутентификацию');
+              get().resetAuth();
+            }
             return false
           } finally {
             set({ isCheckingAuth: false })
@@ -374,7 +426,8 @@ export const login = async (email, password) => useAuthStore.getState().login(em
 export const registration = async (email, password, name, surname, patronymic, phone, captcha) => useAuthStore.getState().registration(email, password, name, surname, patronymic, phone, captcha)
 export const logout = async () => useAuthStore.getState().logout()
 export const checkAuth = async () => useAuthStore.getState().checkAuth()
-export const fetchCSRFToken = async () => useAuthStore.getState().fetchCSRFToken()
+export const fetchCSRFToken = async () => useAuthStore.getState().fetchCSRFToken
+export const fetchWebSocketCSRFToken = async () => useAuthStore.getState().fetchWebSocketCSRFToken
 
 // Default export совместимый с прежним импортом
 export default {
@@ -388,4 +441,5 @@ export default {
   logout,
   checkAuth,
   fetchCSRFToken,
+  fetchWebSocketCSRFToken,
 }

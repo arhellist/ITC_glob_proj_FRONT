@@ -71,7 +71,7 @@
 
 /* INPUTS & LABELS */
 .form-login-container div label {
-  width: 85%;
+  width: 80%;
 }
 
 .form-login-container div input {
@@ -110,7 +110,7 @@
 
 .form-disclame {
   position: relative;
-  width: 85% !important;
+  width: 80% !important;
   margin-top: 0.8vw;
   flex-direction: row-reverse;
   gap: 1vw;
@@ -130,14 +130,32 @@
   text-decoration: underline;
 }
 
-.form-login-container .button {
-  width: 82% !important;
+.form-login-container .button,
+.form-login-container button,
+.button-biometric,
+.form-registration-container .button,
+.form-registration-container button,
+.form-login-buttons .button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.form-login-container .button,
+.form-login-container button {
+  width: 90% !important;
   height: 2vw !important;
   line-height: 2vw !important;
 }
 
+.form-login-buttons {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 .form-login-redirect-registration {
-  width: 74%;
+  width: 80%;
 }
 
 .form-login-redirect-registration-link {

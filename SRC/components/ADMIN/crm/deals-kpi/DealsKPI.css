@@ -1,0 +1,731 @@
+/* Основной контейнер для сделок KPI */
+.deals-kpi-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1a1a1a;
+}
+
+/* Навигация по подразделам */
+.deals-kpi-navigation {
+  display: flex;
+  gap: 8px;
+  padding: 16px 20px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #444;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.deals-kpi-nav-item {
+  padding: 10px 16px;
+  background: #3a3a3a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.deals-kpi-nav-item:hover {
+  background: #4a4a4a;
+  border-color: #666;
+  color: #fff;
+}
+
+.deals-kpi-nav-item.active {
+  background: #4CAF50;
+  border-color: #4CAF50;
+  color: #fff;
+}
+
+/* Контент подраздела */
+.deals-kpi-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Список сделок менеджера */
+.manager-deals-list {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.deals-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.deals-header h2 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.deals-subtitle {
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Загрузка */
+.deals-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #444;
+  border-top: 3px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Ошибка */
+.deals-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #f44336;
+  text-align: center;
+}
+
+.retry-button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #45a049;
+}
+
+/* Нет сделок */
+.no-deals {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.no-deals p {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+.no-deals-subtitle {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Сетка сделок */
+.deals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+/* Карточка сделки */
+.deal-card {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.deal-card:hover {
+  border-color: #555;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Заголовок сделки */
+.deal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.deal-client-info h4 {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.client-email {
+  color: #999;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Статус сделки */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: #ff9800;
+  color: #fff;
+}
+
+.status-approved {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.status-rejected {
+  background: #f44336;
+  color: #fff;
+}
+
+/* Суммы сделки */
+.deal-amounts {
+  margin-bottom: 16px;
+}
+
+.amount-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.amount-item:last-child {
+  margin-bottom: 0;
+}
+
+.amount-label {
+  color: #ccc;
+  font-size: 14px;
+}
+
+.amount-value {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Описание сделки */
+.deal-description {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #1e1e1e;
+  border-radius: 6px;
+  border-left: 3px solid #4CAF50;
+}
+
+.deal-description strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.deal-description p {
+  color: #ccc;
+  font-size: 14px;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+/* Мета информация */
+.deal-meta {
+  margin-bottom: 16px;
+}
+
+.deal-date,
+.deal-type {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.deal-date strong,
+.deal-type strong {
+  color: #ccc;
+  font-size: 13px;
+}
+
+.deal-date span,
+.deal-type span {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Документы сделки */
+.deal-documents {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #1e1e1e;
+  border-radius: 6px;
+  border-left: 3px solid #2196F3;
+}
+
+.deal-documents strong {
+  color: #fff;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.document-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.document-name {
+  color: #ccc;
+  font-size: 13px;
+  flex: 1;
+}
+
+.btn-download {
+  padding: 4px 8px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-download:hover {
+  background: #1976D2;
+}
+
+/* Отклонение сделки */
+.deal-rejection {
+  padding: 12px;
+  background: #2e1e1e;
+  border-radius: 6px;
+  border-left: 3px solid #f44336;
+}
+
+.deal-rejection strong {
+  color: #f44336;
+  font-size: 14px;
+}
+
+.deal-rejection p {
+  color: #ccc;
+  font-size: 14px;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+/* Стили для загрузки документов */
+.no-documents {
+  color: #999;
+  font-size: 13px;
+  margin: 8px 0;
+  font-style: italic;
+}
+
+.upload-document-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #444;
+}
+
+.document-upload-input {
+  display: none;
+}
+
+.btn-upload-document {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-upload-document:hover {
+  background: #1976D2;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .deals-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .deals-kpi-navigation {
+    padding: 12px 16px;
+  }
+  
+  .deals-kpi-nav-item {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .deals-kpi-content {
+    padding: 16px;
+  }
+  
+  .deal-card {
+    padding: 16px;
+  }
+  
+  .deal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Стили для компонента AllDealsList */
+.all-deals-list {
+  padding: 20px;
+}
+
+.all-deals-list h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.deals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.deal-management {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.edit-form {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.edit-form .form-group {
+  margin-bottom: 15px;
+}
+
+.edit-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.edit-form select,
+.edit-form textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.edit-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-save {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-save:hover {
+  background-color: #45a049;
+}
+
+.btn-cancel {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-cancel:hover {
+  background-color: #da190b;
+}
+
+.status-controls select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.admin-comments {
+  background-color: #e3f2fd;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  border-left: 4px solid #2196f3;
+}
+
+.admin-comments strong {
+  color: #1976d2;
+}
+
+.no-deals {
+  text-align: center;
+  color: #666;
+  padding: 40px;
+  font-size: 16px;
+}
+
+/* Стили для сумм в строку */
+.deal-amounts {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.deal-amounts .amount-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.deal-amounts .amount-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.deal-amounts .amount-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+/* Стили для управления статусом */
+.status-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.status-select,
+.quick-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.status-select label,
+.quick-comment label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+}
+
+.status-select select,
+.quick-comment textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.quick-comment textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+/* Стили для кнопки удаления */
+.deal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-delete-deal {
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.btn-delete-deal:hover {
+  background: #d32f2f;
+}
+
+/* Стили для модалки подтверждения удаления */
+.delete-confirm-modal {
+  max-width: 500px;
+  width: 90vw;
+  min-height: 300px;
+  text-align: center;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.delete-confirm-modal h3 {
+  color: #f44336;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.delete-confirm-modal p {
+  margin: 0;
+  padding: 0;
+  color: #fff;
+  font-size: 16px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-confirm-delete {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-confirm-delete:hover {
+  background: #d32f2f;
+}
+
+/* Стили для фильтров */
+.deals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.deals-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.deals-filters {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
+  transition: border-color 0.2s;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: #1976d2;
+}

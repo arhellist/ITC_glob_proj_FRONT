@@ -44,13 +44,68 @@
 
 }
 
-.partners-program-reflink-link-button{
+.partners-program-reflink-link-button-container{
     position: absolute;
     right: 0;
     top: 0;
     width: 3vw;
     height: 3vw;
+}
+
+.partners-program-reflink-link-button{
+    position: relative;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    z-index: 1;
+}
+
+.partners-program-reflink-link-button-tooltip{
+    position: absolute;
+    top: -3.5vw;
+    right: 0;
+    background: #141F33;
+    color: #ffffff;
+    padding: 0.5vw 1vw;
+    border-radius: 0.5vw;
+    font-size: 0.9vw;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 10;
+    animation: fadeInOut 2s ease-in-out;
+    pointer-events: none;
+}
+
+.partners-program-reflink-link-button-tooltip::after{
+    content: '';
+    position: absolute;
+    bottom: -0.5vw;
+    right: 1vw;
+    width: 0;
+    height: 0;
+    border-left: 0.5vw solid transparent;
+    border-right: 0.5vw solid transparent;
+    border-top: 0.5vw solid #141F33;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(0.5vw);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(0.5vw);
+    }
 }
 
 .partners-program-reflink-link-button-img{

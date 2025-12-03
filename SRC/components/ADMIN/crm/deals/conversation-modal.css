@@ -1,0 +1,115 @@
+/* Модальное окно создания беседы */
+.conversation-modal {
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+}
+
+.conversation-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #333;
+}
+
+.conversation-modal .modal-header h3 {
+  margin: 0;
+  color: #4CAF50;
+  font-size: 18px;
+}
+
+.conversation-modal .modal-close {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.conversation-modal .modal-close:hover {
+  background: #444;
+  color: #fff;
+}
+
+.conversation-modal .modal-body {
+  padding: 20px;
+}
+
+.conversation-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.conversation-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ccc;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.conversation-modal .form-input,
+.conversation-modal .form-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.conversation-modal .form-input:focus,
+.conversation-modal .form-textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.conversation-modal .form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.conversation-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid #333;
+}
+
+.conversation-modal .btn-cancel {
+  padding: 10px 20px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.conversation-modal .btn-cancel:hover {
+  background: #777;
+}
+
+.conversation-modal .btn-primary {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.conversation-modal .btn-primary:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  transform: translateY(-1px);
+}

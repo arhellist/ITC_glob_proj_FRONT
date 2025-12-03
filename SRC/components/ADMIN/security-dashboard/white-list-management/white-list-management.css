@@ -1,0 +1,345 @@
+.wl-management {
+  width: 100%;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.wl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.wl-header h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #aa4848;
+}
+
+.wl-refresh-btn {
+  background-color: #aa4848;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.wl-refresh-btn:hover {
+  background-color: #c01515;
+}
+
+.wl-error {
+  background-color: #4a1a1a;
+  border: 1px solid #aa4848;
+  color: #ff6b6b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Форма добавления */
+.wl-add-form {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.wl-add-form h4 {
+  margin: 0 0 1rem 0;
+  color: #aa4848;
+}
+
+.wl-form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wl-email-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem;
+  border: 1px solid #555;
+  border-radius: 0.5rem;
+  background-color: #333;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.wl-email-input:focus {
+  outline: none;
+  border-color: #aa4848;
+  box-shadow: 0 0 0 2px rgba(170, 72, 72, 0.2);
+}
+
+.wl-role-select {
+  padding: 0.75rem;
+  border: 1px solid #555;
+  border-radius: 0.5rem;
+  background-color: #333;
+  color: #fff;
+  font-size: 1rem;
+  min-width: 150px;
+}
+
+.wl-add-btn {
+  background-color: #4a8a4a;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.wl-add-btn:hover:not(:disabled) {
+  background-color: #5a9a5a;
+}
+
+.wl-add-btn:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+/* Поиск */
+.wl-search {
+  margin-bottom: 1rem;
+}
+
+.wl-search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+  border: 1px solid #555;
+  border-radius: 0.5rem;
+  background-color: #333;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.wl-search-input:focus {
+  outline: none;
+  border-color: #aa4848;
+  box-shadow: 0 0 0 2px rgba(170, 72, 72, 0.2);
+}
+
+/* Список */
+.wl-list h4 {
+  color: #aa4848;
+  margin-bottom: 1rem;
+}
+
+.wl-table-wrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  background-color: #2a2a2a;
+}
+
+.wl-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wl-th {
+  text-align: left;
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #444;
+  background-color: #333;
+  color: #aa4848;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.wl-row {
+  border-bottom: 1px solid #333;
+}
+
+.wl-row:hover {
+  background-color: #333;
+}
+
+.wl-td {
+  padding: 1rem 0.75rem;
+  vertical-align: top;
+}
+
+.wl-email {
+  font-weight: 500;
+  color: #fff;
+}
+
+.wl-user-note {
+  font-size: 0.8rem;
+  color: #4a9eff;
+  margin-top: 0.25rem;
+}
+
+.wl-user-info {
+  color: #ccc;
+}
+
+.wl-user-name {
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.wl-user-id {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.wl-no-info {
+  color: #666;
+  font-style: italic;
+}
+
+.wl-role-select-small {
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background-color: #333;
+  color: #fff;
+  font-size: 0.9rem;
+  min-width: 120px;
+}
+
+.wl-role-select-small:focus {
+  outline: none;
+  border-color: #aa4848;
+}
+
+.wl-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.wl-status.active {
+  background-color: #2d5a2d;
+  color: #4ade80;
+}
+
+.wl-status.inactive {
+  background-color: #5a2d2d;
+  color: #f87171;
+}
+
+.wl-date {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.wl-added-by {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 0.25rem;
+}
+
+.wl-remove-btn {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.wl-remove-btn:hover {
+  background-color: #ff6666;
+}
+
+.wl-empty {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+}
+
+.wl-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .wl-management {
+    padding: 0.5rem;
+  }
+  
+  .wl-form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .wl-email-input,
+  .wl-role-select,
+  .wl-add-btn {
+    width: 100%;
+  }
+  
+  .wl-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .wl-table {
+    min-width: 600px;
+  }
+  
+  .wl-th,
+  .wl-td {
+    padding: 0.5rem;
+  }
+}
+
+/* Стили для защищенных элементов */
+.wl-protected-badge {
+  display: inline-block;
+  background-color: #ffc107;
+  color: #000;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.wl-role-select-small:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.wl-remove-btn:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.wl-remove-btn:hover:not(:disabled) {
+  background-color: #ff6666;
+}

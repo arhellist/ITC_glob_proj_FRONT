@@ -1,0 +1,967 @@
+/* Страница задач */
+.tasks-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+}
+
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  border-bottom: 2px solid #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  flex-shrink: 0; /* Не сжимается */
+  z-index: 10;
+}
+
+.tasks-header h1 {
+  margin: 0;
+  color: #4CAF50;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.btn-add-task {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-add-task:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+/* Загрузка */
+.tasks-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #999;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #333;
+  border-top: 4px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Доска задач */
+.tasks-board {
+  display: flex;
+  gap: 20px;
+  padding: 20px 30px;
+  flex: 1;
+  overflow-x: auto;
+  min-height: 0;
+}
+
+/* Колонки статусов */
+.task-column {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 200px); /* Фиксированная высота */
+  flex-shrink: 0;
+  transition: border-color 0.3s ease;
+}
+
+.column-header {
+  padding: 20px;
+  border-top: 4px solid #333;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+}
+
+.column-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4CAF50;
+}
+
+.task-count {
+  background: rgba(0,0,0,0.3);
+  color: #999;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.column-content {
+  flex: 1;
+  padding: 15px 10px 30px 15px; /* Добавляем отступ снизу для удобства прокрутки */
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease;
+}
+
+.column-content.drag-over {
+  background-color: rgba(76, 175, 80, 0.2);
+  border: 2px dashed #4CAF50;
+  border-radius: 8px;
+}
+
+/* Стилизация скроллбара для столбцов */
+.column-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.column-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.column-content::-webkit-scrollbar-thumb {
+  background: rgba(76, 175, 80, 0.6);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.column-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.8);
+}
+
+/* Для Firefox */
+.column-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76, 175, 80, 0.6) rgba(255, 255, 255, 0.1);
+}
+
+/* Карточки задач */
+
+
+.task-card-wrapper:last-child {
+  margin-bottom: 50px; /* Убираем отступ у последнего элемента, так как у нас есть padding у родителя */
+}
+
+.task-card-draggable {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.task-card-draggable:active {
+  cursor: grabbing;
+}
+
+.task-card-draggable:hover {
+  transform: translateY(-2px);
+}
+
+/* Просроченные задачи */
+.overdue-card {
+  cursor: not-allowed !important;
+}
+
+.overdue-card:hover {
+  transform: none !important;
+}
+
+.overdue-card .task-card {
+  border: 2px solid #F44336 !important;
+  background: linear-gradient(135deg, #4a2a2a 0%, #3a1a1a 100%) !important;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3) !important;
+}
+
+.overdue-card .task-card:hover {
+  border-color: #F44336 !important;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4) !important;
+  transform: none !important;
+}
+
+/* Неактивная кнопка удаления для просроченных задач */
+.btn-delete.disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.btn-delete.disabled:hover {
+  background: #333 !important;
+  transform: none !important;
+}
+
+.task-card {
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.task-card:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.task-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.task-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-details,
+.btn-delete {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.btn-details:hover {
+  background: rgba(33, 150, 243, 0.1);
+}
+
+.btn-delete:hover {
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.task-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.task-priority {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.priority-indicator {
+  font-size: 12px;
+}
+
+.priority-text {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.task-due-date,
+.task-reminder,
+.task-documents-count {
+  font-size: 11px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-details {
+  border-top: 1px solid #444;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.task-description {
+  margin-bottom: 12px;
+}
+
+.task-description strong {
+  font-size: 12px;
+  color: #fff;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.task-description p {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+  line-height: 1.4;
+}
+
+.task-info {
+  margin-bottom: 12px;
+}
+
+.task-client,
+.task-created,
+.task-completed {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.task-client strong,
+.task-created strong,
+.task-completed strong {
+  color: #fff;
+}
+
+.task-documents {
+  margin-top: 12px;
+}
+
+.task-documents strong {
+  font-size: 12px;
+  color: #fff;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.document-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.document-item span {
+  color: #999;
+  flex: 1;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-download {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  font-size: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-download:hover {
+  background: rgba(76, 175, 80, 0.1);
+}
+
+/* Модальные окна */
+.create-task-modal {
+  width: 700px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.task-details-modal {
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.task-details-modal .modal-content {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.task-details-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #333;
+}
+
+.task-details-modal .modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #4CAF50;
+}
+
+.task-details-modal .close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.task-details-modal .close-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+/* Форма в модальном окне детализации задач */
+.task-details-modal form {
+  padding: 24px;
+}
+
+.task-details-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.task-details-modal .form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.task-details-modal .form-row .form-group {
+  flex: 1;
+}
+
+.task-details-modal .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.task-details-modal .form-group input,
+.task-details-modal .form-group select,
+.task-details-modal .form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 14px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.task-details-modal .form-group input:focus,
+.task-details-modal .form-group select:focus,
+.task-details-modal .form-group textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.task-details-modal .form-group input::placeholder,
+.task-details-modal .form-group textarea::placeholder {
+  color: #999;
+}
+
+.task-details-modal .form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.task-details-modal .form-group small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+/* Список файлов в модальном окне детализации задач */
+.task-details-modal .files-list {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  border: 1px solid #444;
+}
+
+.task-details-modal .files-list h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #fff;
+}
+
+.task-details-modal .file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid #555;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.task-details-modal .file-item span {
+  color: #999;
+  flex: 1;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-details-modal .btn-remove-file {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #f44336;
+  transition: all 0.2s ease;
+}
+
+.task-details-modal .btn-remove-file:hover {
+  background: rgba(244, 67, 54, 0.1);
+}
+
+/* Дополнительные стили для модального окна детализации */
+.task-details-modal .task-info-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.task-details-modal .task-info-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #4CAF50;
+}
+
+.task-details-modal .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.task-details-modal .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-details-modal .info-item label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.task-details-modal .info-item span {
+  font-size: 14px;
+  color: #fff;
+}
+
+.task-details-modal .current-priority {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.task-details-modal .existing-documents {
+  margin-bottom: 20px;
+}
+
+.task-details-modal .existing-documents h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* Сетка для карточек документов задач в модальном окне */
+.task-details-modal .task-documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Карточка документа задачи в модальном окне */
+.task-details-modal .task-document-card {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.task-details-modal .task-document-card:hover {
+  border-color: #666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Превью документа задачи в модальном окне */
+.task-details-modal .task-document-preview {
+  width: 100%;
+  height: 150px;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.task-details-modal .task-document-preview img,
+.task-details-modal .task-document-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.task-details-modal .task-document-preview video {
+  background: #000;
+}
+
+.task-details-modal .document-icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 48px;
+}
+
+.task-details-modal .task-document-info {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-details-modal .task-document-name {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-details-modal .task-document-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.task-details-modal .task-document-actions .btn-download,
+.task-details-modal .task-document-actions .btn-delete {
+  flex: 1;
+  padding: 6px 10px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-details-modal .task-document-actions .btn-download:hover {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.task-details-modal .task-document-actions .btn-delete:hover {
+  background: #f44336;
+  border-color: #f44336;
+}
+
+/* Кнопки действий в модальном окне детализации */
+.task-details-modal .form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+}
+
+.task-details-modal .btn-save {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-details-modal .btn-save:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.task-details-modal .btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.task-details-modal .btn-cancel {
+  background: rgba(255,255,255,0.1);
+  color: #999;
+  border: 1px solid #555;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-details-modal .btn-cancel:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border-color: #666;
+}
+
+.task-details-modal .btn-delete {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-details-modal .btn-delete:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
+.task-details-modal .btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .tasks-board {
+    flex-direction: column;
+    padding: 15px;
+  }
+  
+  .task-column {
+    width: 100% !important;
+    margin-bottom: 20px;
+  }
+  
+  .task-column {
+    height: calc(100vh - 300px); /* Уменьшаем высоту на мобильных */
+  }
+  
+  .tasks-header {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .tasks-header h1 {
+    font-size: 24px;
+    text-align: center;
+  }
+  
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .create-task-modal {
+    width: 95vw;
+    margin: 20px;
+  }
+}
+
+/* Полноэкранный вьювер документов */
+.client-doc-viewer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.client-doc-viewer-container {
+  width: min(1200px, 96vw);
+  max-height: 94vh;
+  background: #111;
+  border: 1px solid #2f2f2f;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.client-doc-viewer-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.client-doc-viewer-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.client-doc-viewer-meta {
+  color: #a0a0a0;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.client-doc-viewer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.client-doc-viewer-actions .btn-download,
+.client-doc-viewer-actions .btn-close {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.client-doc-viewer-actions .btn-download {
+  background: linear-gradient(135deg, #4CAF50, #3f9142);
+  color: #fff;
+}
+
+.client-doc-viewer-actions .btn-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.client-doc-viewer-actions .btn-download:hover,
+.client-doc-viewer-actions .btn-close:hover {
+  transform: translateY(-1px);
+}
+
+.client-doc-viewer-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050505;
+}
+
+.client-doc-viewer-content img,
+.client-doc-viewer-content iframe,
+.client-doc-viewer-content video {
+  width: 100%;
+  height: 70vh;
+  border: none;
+  border-radius: 12px;
+  object-fit: contain;
+  background: #000;
+}
+
+.client-doc-viewer-fallback {
+  text-align: center;
+  color: #d0d0d0;
+}
+
+.client-doc-viewer-ext {
+  font-size: 32px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.btn-download-large {
+  background: linear-gradient(135deg, #4CAF50, #3f9142);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  margin-top: 16px;
+}
+
+.btn-download-large:hover {
+  transform: translateY(-1px);
+}

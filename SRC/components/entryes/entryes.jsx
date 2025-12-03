@@ -1,43 +1,50 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useAuthStore } from "../../JS/auth/store/store";
-import ContainerNotification from "../USER/accounts-room/modal-window-account-room/container-notification.jsx";
+import { useLocation, useNavigate } from "react-router-dom"; // Импорт хуков React Router для навигации
+import { useEffect, useState } from "react"; // Импорт React хуков для побочных эффектов и состояния
+import { useAuthStore } from "../../JS/auth/store/store"; // Импорт Zustand store для управления аутентификацией
+import ContainerNotification from "../USER/accounts-room/modal-window-account-room/container-notification.jsx"; // Импорт компонента уведомлений
 
-import "./entryes.css";
+import "./entryes.css"; // Импорт CSS стилей для компонента входа
 
-import Login from "./forms/login";
-import Registration from "./forms/registration";
+import Login from "./forms/login"; // Импорт компонента формы входа
+import Registration from "./forms/registration"; // Импорт компонента формы регистрации
 
-function Entryes() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [isChecking, setIsChecking] = useState(true);
+function Entryes() { // Главный компонент страницы входа/регистрации
+  const location = useLocation(); // Хук для получения текущего маршрута
+  const navigate = useNavigate(); // Хук для программной навигации
+  const [isChecking, setIsChecking] = useState(true); // Состояние проверки аутентификации пользователя
+  const [csrfRequested, setCsrfRequested] = useState(false); // Флаг для предотвращения множественных запросов CSRF токена
 
-  const showRegistration = location.pathname.endsWith("/registration");
+  const showRegistration = location.pathname.endsWith("/registration"); // Определяем, показывать ли форму регистрации
 
-  // Получаем методы стора
-  const isAuth = useAuthStore((s) => s.isAuth);
+  // Получаем методы стора для работы с аутентификацией
+  const isAuth = useAuthStore((s) => s.isAuth); // Получаем состояние аутентификации из store
+  const fetchCSRFToken = useAuthStore((s) => s.fetchCSRFToken); // Получаем функцию для запроса CSRF токена
 
-  // Проверяем аутентификацию при загрузке компонента
+  // Получаем CSRF токен при загрузке страницы логина/регистрации
   useEffect(() => {
-    const checkUserAuth = () => {
-      console.log("Entryes: Проверяем состояние аутентификации...");
-
-      if (isAuth) {
-        console.log(
-          "Entryes: Пользователь аутентифицирован, перенаправляем в личный кабинет"
-        );
-        navigate("/personal-room");
+    const initializeCSRF = async () => {
+      console.log("Entryes: Инициализация CSRF токена для страницы логина/регистрации...");
+      
+      // Запрашиваем CSRF токен один раз для всей страницы
+      if (!csrfRequested) {
+        try {
+          console.log("Entryes: Запрашиваем CSRF токен...");
+          setCsrfRequested(true);
+          await fetchCSRFToken();
+          console.log("Entryes: CSRF токен получен успешно");
+        } catch (error) {
+          console.error("Entryes: Ошибка получения CSRF токена:", error);
+          setCsrfRequested(false); // Сбрасываем флаг при ошибке
+        }
       } else {
-        console.log(
-          "Entryes: Пользователь не аутентифицирован, показываем форму"
-        );
-        setIsChecking(false);
+        console.log("Entryes: CSRF токен уже запрошен, пропускаем");
       }
+      
+      setIsChecking(false);
     };
 
-    checkUserAuth();
-  }, [navigate, isAuth]);
+    initializeCSRF();
+  }, [fetchCSRFToken, csrfRequested]);
 
   if (isChecking) {
     return (
@@ -54,7 +61,7 @@ function Entryes() {
             fontSize: "18px",
           }}
         >
-          Проверка аутентификации...
+          Получение CSRF токена...
         </div>
       </section>
     );
@@ -63,6 +70,7 @@ function Entryes() {
   return (
     <>
       <section className="entryes">
+        {/* ContainerNotification рендерится только для обработки событий, но не загружает уведомления на публичных страницах */}
         <ContainerNotification />
         <div className="entryes-bg"></div>
         <div className="entryes-bg-overlay"></div>

@@ -1,0 +1,419 @@
+.user-logs {
+  width: 100%;
+  color: #fff;
+}
+
+.user-logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #444;
+}
+
+.user-logs-header h4 {
+  margin: 0;
+  color: #aa4848;
+  font-size: 1.5rem;
+}
+
+.user-logs-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.user-logs-clear-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #dc2626;
+  color: white;
+}
+
+.user-logs-clear-btn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user-logs-clear-btn:active {
+  transform: translateY(0);
+}
+
+.user-logs-refresh-btn {
+  background-color: #aa4848;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.user-logs-refresh-btn:hover {
+  background-color: #c01515;
+}
+
+.user-logs-error {
+  background-color: #4a1a1a;
+  border: 1px solid #aa4848;
+  color: #ff6b6b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Фильтры */
+.user-logs-filters {
+  background-color: #333;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.user-logs-filter-form {
+  width: 100%;
+}
+
+.user-logs-filter-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.user-logs-search-input,
+.user-logs-date-input,
+.user-logs-action-select {
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.user-logs-search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.user-logs-date-input {
+  min-width: 150px;
+}
+
+.user-logs-action-select {
+  min-width: 150px;
+}
+
+.user-logs-search-btn,
+.user-logs-clear-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.user-logs-search-btn {
+  background-color: #4a8a4a;
+  color: white;
+}
+
+.user-logs-search-btn:hover {
+  background-color: #5a9a5a;
+}
+
+.user-logs-clear-btn {
+  background-color: #666;
+  color: white;
+}
+
+.user-logs-clear-btn:hover {
+  background-color: #777;
+}
+
+/* Таблица */
+.user-logs-table-wrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  background-color: #2a2a2a;
+}
+
+.user-logs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-logs-th {
+  text-align: left;
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #444;
+  background-color: #333;
+  color: #aa4848;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.user-logs-row {
+  border-bottom: 1px solid #333;
+}
+
+.user-logs-row:hover {
+  background-color: #333;
+}
+
+.user-logs-td {
+  padding: 0.75rem;
+  vertical-align: top;
+}
+
+.user-logs-time {
+  font-size: 0.9rem;
+  color: #ccc;
+  white-space: nowrap;
+}
+
+.user-logs-user {
+  color: #fff;
+}
+
+.user-logs-user-name {
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.user-logs-user-email {
+  font-size: 0.9rem;
+  color: #4a9eff;
+  margin-bottom: 0.25rem;
+}
+
+.user-logs-user-id {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.user-logs-action {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.user-logs-id {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.user-logs-risk {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.user-logs-endpoint {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #6b7280;
+  word-break: break-all;
+}
+
+.user-logs-actions {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  justify-content: center;
+}
+
+.user-logs-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-logs-export-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.user-logs-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.user-logs-export-excel {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.user-logs-export-excel:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.user-logs-export-json {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.user-logs-export-json:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.export-icon {
+  font-size: 16px;
+}
+
+.export-text {
+  font-size: 14px;
+}
+
+.user-logs-ip {
+  font-family: monospace;
+  color: #ccc;
+}
+
+.user-logs-device {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.user-logs-device-os {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 0.25rem;
+}
+
+.user-logs-no-info {
+  color: #666;
+  font-style: italic;
+}
+
+.user-logs-details {
+  max-width: 200px;
+}
+
+.user-logs-details-text {
+  font-size: 0.9rem;
+  color: #ccc;
+  word-break: break-word;
+}
+
+/* Пустое состояние */
+.user-logs-empty {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+}
+
+/* Пагинация */
+.user-logs-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.user-logs-page-btn {
+  background-color: #aa4848;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.user-logs-page-btn:hover:not(:disabled) {
+  background-color: #c01515;
+}
+
+.user-logs-page-btn:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.user-logs-page-info {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+/* Загрузка */
+.user-logs-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .user-logs-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .user-logs-search-input,
+  .user-logs-date-input,
+  .user-logs-action-select,
+  .user-logs-search-btn,
+  .user-logs-clear-btn {
+    width: 100%;
+  }
+  
+  .user-logs-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .user-logs-table {
+    min-width: 800px;
+  }
+  
+  .user-logs-th,
+  .user-logs-td {
+    padding: 0.5rem;
+  }
+  
+  .user-logs-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

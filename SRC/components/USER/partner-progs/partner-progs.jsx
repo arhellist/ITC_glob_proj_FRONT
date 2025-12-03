@@ -6,10 +6,11 @@ import axiosAPI from "../../../JS/auth/http/axios.js";
 function PartnerProgs() {
   const user = useAuthStore(s => s.user);
   const refLink = user?.refLink || "";
-  const fullRefUrl = refLink ? `http://localhost:5173/ref/${refLink}` : "";
+  const fullRefUrl = refLink ? `${window.location.origin}/ref/${refLink}` : "";
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showCopiedTooltip, setShowCopiedTooltip] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -33,8 +34,12 @@ function PartnerProgs() {
     if (!fullRefUrl) return;
     try {
       navigator.clipboard.writeText(fullRefUrl);
+      setShowCopiedTooltip(true);
+      setTimeout(() => {
+        setShowCopiedTooltip(false);
+      }, 2000);
     } catch (e) {
-        console.error("Ошибка при копировании ссылки:", e);
+      console.error("Ошибка при копировании ссылки:", e);
     }
   };
 
@@ -46,8 +51,15 @@ function PartnerProgs() {
 
           <div className="partners-program-reflink-link gradient-border bru flex flex-row">
             <span className="partners-program-reflink-link-text flex">{fullRefUrl || "—"}</span>
-            <div className="partners-program-reflink-link-button flex pointer bru gradient-border" onClick={handleCopy}>
-              <div className="partners-program-reflink-link-button-img img"></div>
+            <div className="partners-program-reflink-link-button-container">
+              <div className="partners-program-reflink-link-button flex pointer bru gradient-border" onClick={handleCopy}>
+                <div className="partners-program-reflink-link-button-img img"></div>
+              </div>
+              {showCopiedTooltip && (
+                <div className="partners-program-reflink-link-button-tooltip">
+                  СКОПИРОВАНО
+                </div>
+              )}
             </div>
           </div>
 

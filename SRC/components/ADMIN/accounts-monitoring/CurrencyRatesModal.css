@@ -1,0 +1,427 @@
+.chart-axis-label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.55vw;
+  fill: #ffffff;
+  opacity: 0.78;
+}
+.currency-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(17, 24, 39, 0.72);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2vw;
+  box-sizing: border-box;
+}
+
+.currency-modal {
+  width: 94vw;
+  max-width: 1400px;
+  height: 80vh;
+  background: #101726;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5vw;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e5ecff;
+}
+
+.currency-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1vw;
+}
+
+.currency-modal__header h3 {
+  font-family: "Inter", sans-serif;
+  font-size: 1.8vw;
+  margin: 0;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.currency-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+.currency-modal__tabs {
+  display: flex;
+  gap: 0.6vw;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.35vw;
+  border-radius: 999px;
+}
+
+.currency-modal__tab {
+  border: none;
+  background: transparent;
+  color: #9badff;
+  padding: 0.6vw 1.4vw;
+  border-radius: 999px;
+  font-size: 0.95vw;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Inter", sans-serif;
+}
+
+.currency-modal__tab.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 18px rgba(79, 70, 229, 0.35);
+}
+
+.currency-modal__tab:not(.active):hover {
+  color: #f8fafc;
+}
+
+.currency-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8vw;
+  height: 2.8vw;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  font-size: 1.2vw;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.currency-modal__close:hover {
+  background: rgba(239, 68, 68, 0.85);
+  color: #ffffff;
+}
+
+.currency-modal__content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 1.5vw;
+  min-height: 0;
+}
+
+.currency-modal__table {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  overflow-y: auto;
+  overflow-x: auto;
+  height: 100%;
+  max-height: 100%;
+  padding: 0.5vw 0;
+  box-sizing: border-box;
+}
+
+.currency-modal__table::-webkit-scrollbar {
+  width: 6px;
+}
+
+.currency-modal__table::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 6px;
+}
+
+.currency-modal__table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9vw;
+}
+
+.currency-modal__table thead {
+  position: sticky;
+  top: 0;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(12px);
+}
+
+.currency-modal__table th,
+.currency-modal__table td {
+  padding: 0.75vw 1vw;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.currency-modal__table th {
+  color: #cbd5f5;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.currency-modal__table td {
+  color: #f1f5f9;
+}
+
+.currency-modal__table tbody tr:nth-child(odd) {
+  background: rgba(100, 116, 139, 0.08);
+}
+
+.currency-modal__placeholder {
+  text-align: center;
+  padding: 2vw 1vw;
+  font-size: 1vw;
+  color: #94a3b8;
+}
+
+.currency-modal__loader,
+.currency-modal__end {
+  padding: 0.9vw;
+  text-align: center;
+  font-size: 0.85vw;
+  color: #a5b4fc;
+}
+
+.currency-modal__end {
+  color: #22d3ee;
+}
+
+.currency-modal__chart {
+  background: rgba(17, 24, 39, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 1.2vw;
+  box-sizing: border-box;
+}
+
+.currency-modal__chart-legend {
+  display: flex;
+  gap: 1.5vw;
+  margin-bottom: 0.8vw;
+  font-size: 0.9vw;
+  color: #cbd5f5;
+}
+
+.legend-item {
+  position: relative;
+  padding-left: 1.8vw;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.legend-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 1.2vw;
+  height: 0.35vw;
+  border-radius: 999px;
+}
+
+.legend-item.spot::before {
+  background: #60a5fa;
+}
+
+.legend-item.deposit::before {
+  background: #34d399;
+}
+
+.legend-item.withdrawal::before {
+  background: #f97316;
+}
+
+.currency-modal__chart-commissions {
+  display: flex;
+  gap: 1.5vw;
+  font-size: 0.85vw;
+  color: #93c5fd;
+  margin-bottom: 1vw;
+}
+
+.currency-modal__chart-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.currency-modal__chart-area svg {
+  width: 100%;
+  height: 100%;
+}
+
+.currency-modal__chart-scroll {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.currency-modal__chart-axis-y {
+  position: relative;
+  width: 80px;
+  min-width: 80px;
+  height: 100%;
+  background: rgba(10, 15, 26, 0.8);
+  border-right: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.chart-axis-label-y {
+  position: absolute;
+  right: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.65vw;
+  color: #ffffff;
+  opacity: 0.9;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+.chart-line.spot {
+  stroke: #60a5fa;
+}
+
+.chart-line.deposit {
+  stroke: #34d399;
+}
+
+.chart-line.withdrawal {
+  stroke: #f97316;
+}
+
+.currency-modal__chart-empty {
+  font-size: 0.95vw;
+  color: #a5b4fc;
+}
+
+.chart-point {
+  fill: currentColor;
+  stroke: rgba(17, 24, 39, 0.9);
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.chart-point.spot {
+  color: #60a5fa;
+}
+
+.chart-point.deposit {
+  color: #34d399;
+}
+
+.chart-point.withdrawal {
+  color: #f97316;
+}
+
+.currency-modal__tooltip {
+  position: fixed;
+  background: rgba(17, 24, 39, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 8px;
+  padding: 0.6vw 0.9vw;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  color: #e2e8f0;
+  font-size: 0.75vw;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8vw;
+  margin-bottom: 0.2vw;
+}
+
+.tooltip-row:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-label {
+  color: #94a3b8;
+}
+
+.currency-modal__date-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.6vw;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.35vw 0.6vw;
+  border-radius: 999px;
+}
+
+.currency-modal__date-filter label {
+  font-size: 0.85vw;
+  color: #cbd5f5;
+}
+
+.currency-modal__date-input {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85vw;
+  padding: 0.35vw 0.6vw;
+  border: none;
+  border-radius: 0.5vw;
+  background: rgba(15, 23, 42, 0.9);
+  color: #f8fafc;
+  outline: none;
+}
+
+.currency-modal__date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.currency-modal__date-clear {
+  border: none;
+  background: rgba(239, 68, 68, 0.85);
+  color: #ffffff;
+  border-radius: 50%;
+  width: 1.8vw;
+  height: 1.8vw;
+  font-size: 0.9vw;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.currency-modal__date-clear:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(239, 68, 68, 0.45);
+}
+
+@media (max-width: 1200px) {
+  .currency-modal__content {
+    grid-template-columns: 1fr;
+  }
+
+  .currency-modal {
+    height: auto;
+    max-height: 90vh;
+  }
+
+  .currency-modal__chart {
+    min-height: 320px;
+  }
+}
+
+

@@ -1,0 +1,1390 @@
+
+.admin-modal-window {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 10, 16, 0.82);
+  backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.admin-user-portfolio-bg {
+  position: relative;
+  width: min(1100px, 95vw);
+  height: min(90vh, 780px);
+  border-radius: 24px;
+  background: linear-gradient(145deg, #121922 0%, #0c121b 38%, #11192a 100%);
+  box-shadow:
+    0 32px 65px rgba(9, 12, 18, 0.78),
+    inset 0 0 0 1px rgba(87, 107, 138, 0.18);
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.admin-user-portfolio-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(111, 126, 151, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.admin-user-portfolio-close:hover {
+  transform: translateY(-1px);
+  border-color: rgba(79, 172, 254, 0.55);
+  background: rgba(24, 32, 45, 0.9);
+}
+
+.admin-user-portfolio-close-icon {
+  width: 18px;
+  height: 18px;
+  mask: url('../../../../IMG/profiles/white/exit.png') no-repeat center / contain;
+  background: #9aa6bf;
+}
+
+.admin-user-portfolio-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 48px;
+}
+
+.admin-user-portfolio-header-name {
+  font-size: 26px;
+  font-weight: 600;
+  color: #f6f9ff;
+  letter-spacing: 0.015em;
+}
+
+.admin-user-portfolio-header-email {
+  font-size: 15px;
+  color: #8f9bb7;
+  letter-spacing: 0.02em;
+}
+
+.admin-user-portfolio-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+  width: 100%;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.admin-user-portfolio-list-nav {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-top: 10px;
+  border-bottom: 1px solid rgba(86, 106, 136, 0.22);
+}
+
+.admin-user-portfolio-list-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(22, 30, 42, 0.8);
+  color: #9aa6bf;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-user-portfolio-list-nav-item:hover {
+  border-color: rgba(79, 172, 254, 0.35);
+  color: #dce4f7;
+}
+
+.admin-user-portfolio-list-nav-item.btnActive {
+  border-color: rgba(79, 172, 254, 0.6);
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.18), rgba(0, 242, 254, 0.18));
+  color: #f5f7fb;
+  box-shadow: 0 10px 20px rgba(18, 28, 40, 0.35);
+}
+
+.admin-user-portfolio-list-nav-item-icon {
+  width: 18px;
+  height: 18px;
+  filter: brightness(1.05);
+}
+
+.admin-user-portfolio-list-item {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+
+.admin-user-portfolio-list-item.active-tab {
+  display: flex;
+}
+
+.admin-user-portfolio-list-item-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  width: 100%;
+}
+
+.admin-user-portfolio-list-item-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-user-portfolio-list-item-content::-webkit-scrollbar-track {
+  background: rgba(17, 24, 35, 0.6);
+  border-radius: 999px;
+}
+
+.admin-user-portfolio-list-item-content::-webkit-scrollbar-thumb {
+  background: rgba(79, 172, 254, 0.35);
+  border-radius: 999px;
+}
+
+.admin-user-portfolio-section {
+  background: rgba(16, 25, 38, 0.85);
+  border-radius: 18px;
+  border: 1px solid rgba(87, 107, 138, 0.18);
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  box-shadow: inset 0 0 0 1px rgba(34, 46, 65, 0.22);
+}
+
+.admin-user-portfolio-section h3 {
+  margin: 0 0 16px;
+  color: #f5f7fb;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-user-portfolio-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.admin-user-portfolio-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-user-portfolio-field label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8290ab;
+}
+
+.admin-user-portfolio-field span,
+.admin-user-portfolio-field input,
+.admin-user-portfolio-field textarea,
+.admin-user-portfolio-field select {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(74, 94, 128, 0.35);
+  background: rgba(14, 21, 32, 0.85);
+  color: #e6edf8;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: none;
+}
+
+.admin-user-portfolio-field span {
+  display: inline-block;
+}
+
+.admin-user-portfolio-field input:focus,
+.admin-user-portfolio-field textarea:focus,
+.admin-user-portfolio-field select:focus {
+  outline: none;
+  border-color: rgba(79, 172, 254, 0.5);
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.15);
+}
+
+.admin-user-portfolio-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-user-portfolio-button {
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(29, 37, 52, 0.85);
+  color: #f5f7fb;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-user-portfolio-button.primary {
+  border-color: rgba(79, 172, 254, 0.55);
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+}
+
+.admin-user-portfolio-button.danger {
+  border-color: rgba(253, 98, 138, 0.55);
+  background: linear-gradient(135deg, rgba(253, 98, 138, 0.18), rgba(255, 109, 165, 0.18));
+  color: #ffc2d8;
+}
+
+.admin-user-portfolio-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(10, 16, 26, 0.35);
+}
+
+.admin-user-portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(74, 94, 128, 0.28);
+}
+
+.admin-user-portfolio-table thead {
+  background: rgba(25, 34, 49, 0.95);
+}
+
+.admin-user-portfolio-table th {
+  padding: 14px 18px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f9bb7;
+  text-align: left;
+  border-bottom: 1px solid rgba(74, 94, 128, 0.25);
+}
+
+.admin-user-portfolio-table td {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #dee5f5;
+  border-bottom: 1px solid rgba(48, 61, 82, 0.35);
+}
+
+.admin-user-portfolio-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.admin-user-portfolio-badge.success {
+  background: rgba(78, 203, 113, 0.16);
+  color: #63f5bf;
+  border: 1px solid rgba(78, 203, 113, 0.4);
+}
+
+.admin-user-portfolio-badge.warning {
+  background: rgba(255, 214, 102, 0.16);
+  color: #ffd666;
+  border: 1px solid rgba(255, 214, 102, 0.4);
+}
+
+.admin-user-portfolio-badge.danger {
+  background: rgba(255, 105, 180, 0.16);
+  color: #ff7ec3;
+  border: 1px solid rgba(255, 105, 180, 0.4);
+}
+
+.document-viewer-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 14, 0.92);
+  backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  z-index: 2100;
+  box-sizing: border-box;
+}
+
+.document-viewer-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: linear-gradient(150deg, #111726 0%, #0d1320 100%);
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow:
+    0 30px 60px rgba(9, 12, 18, 0.8),
+    inset 0 0 0 1px rgba(87, 107, 138, 0.25);
+  overflow: hidden;
+}
+
+.document-viewer-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(17, 24, 35, 0.65);
+  border: 1px solid rgba(79, 172, 254, 0.35);
+  color: #e6eefc;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border 0.2s ease;
+}
+
+.document-viewer-close:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.document-viewer-title {
+  margin: 0 0 18px;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f5f7fb;
+}
+
+.document-viewer-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: calc(90vh - 120px);
+}
+
+.document-viewer-image {
+  max-width: 100%;
+  max-height: calc(90vh - 140px);
+  border-radius: 18px;
+  border: 1px solid rgba(74, 94, 128, 0.25);
+  box-shadow: 0 22px 50px rgba(9, 12, 18, 0.45);
+  cursor: zoom-in;
+  transition: transform 0.25s ease;
+}
+
+.document-viewer-image:active {
+  transform: scale(1.5);
+  cursor: zoom-out;
+}
+
+.admin-user-portfolio-empty {
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(17, 25, 38, 0.78);
+  border: 1px dashed rgba(87, 107, 138, 0.38);
+  color: #8f9bb7;
+  text-align: center;
+}
+
+/* Legacy layout bridge --------------------------------------------------- */
+.admin-modal-window.admin-user-portfolio {
+  padding: 0;
+  background: transparent;
+}
+
+.admin-user-portfolio-bg.gradient-border {
+  border: none;
+}
+
+.admin-user-portfolio-list.bg-color-main {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.admin-user-portfolio-list-nav.flex {
+  display: flex;
+}
+
+.admin-user-portfolio-list-nav-item.flex {
+  display: inline-flex;
+}
+
+.admin-user-portfolio-list-user-profile,
+.admin-user-portfolio-list-user-partner,
+.admin-user-portfolio-list-user-accouns,
+.admin-user-portfolio-list-user-requests {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  background: rgba(16, 24, 37, 0.82);
+  border-radius: 20px;
+  border: 1px solid rgba(74, 94, 128, 0.28);
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.admin-user-portfolio-list-user-profile.first-column {
+  width: 220px;
+  max-width: 220px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-user-portfolio-list-user-profile.second-column,
+.admin-user-portfolio-list-user-profile.thrd-column,
+.admin-user-portfolio-list-user-partner,
+.admin-user-portfolio-list-user-accouns,
+.admin-user-portfolio-list-user-requests {
+  flex: 1;
+}
+
+.user-profile-avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9aa6bf;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.admin-user-portfolio-list-user-profile.second-column label,
+.admin-user-portfolio-list-user-profile.thrd-column label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8290ab;
+  margin-bottom: 6px;
+}
+
+.admin-user-portfolio-list-user-profile.second-column .gradient-border,
+.admin-user-portfolio-list-user-profile.thrd-column .gradient-border {
+  border-radius: 12px;
+  border: 1px solid rgba(74, 94, 128, 0.28);
+  background: rgba(13, 19, 30, 0.75);
+}
+
+.admin-user-portfolio-list-user-profile.second-column input,
+.admin-user-portfolio-list-user-profile.second-column textarea,
+.admin-user-portfolio-list-user-profile.thrd-column input {
+  width: 100%;
+  border: none;
+  background: none;
+  color: #f6f9ff;
+  font-size: 14px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+}
+
+.admin-user-portfolio-list-user-profile.second-column textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.admin-user-portfolio-list-user-profile-button {
+  margin-top: 12px;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+  border-radius: 12px;
+  border: 1px solid rgba(79, 172, 254, 0.45);
+  padding: 12px;
+  color: #f6f9ff;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+.admin-user-portfolio-list-user-profile-button.saving {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.admin-user-portfolio-list-user-partner,
+.admin-user-portfolio-list-user-accouns,
+.admin-user-portfolio-list-user-requests {
+  flex-direction: column;
+}
+
+.admin-user-portfolio-list-user-partner-table,
+.admin-user-portfolio-list-user-accouns-tablelist,
+.admin-user-portfolio-list-user-requests-tablelist {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(74, 94, 128, 0.25);
+  background: rgba(11, 17, 27, 0.65);
+  padding: 12px;
+}
+
+.admin-user-portfolio-list-user-partner-table-item,
+.admin-user-portfolio-list-user-accouns-tablelist-item,
+.admin-user-portfolio-list-user-requests {
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(20, 29, 43, 0.72);
+  color: #d9e3f7;
+  margin-bottom: 10px;
+}
+
+.admin-user-portfolio-document-scroll {
+  width: 100%;
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 6px 12px 2px;
+  box-sizing: border-box;
+}
+
+.admin-user-portfolio-document-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 6px 0 6px;
+}
+
+@media (max-width: 1350px) {
+  .admin-user-portfolio-document-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 880px) {
+  .admin-user-portfolio-document-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.admin-user-portfolio-document-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(74, 94, 128, 0.3);
+  padding: 14px;
+  background: rgba(13, 20, 31, 0.92);
+  min-height: 320px;
+  box-sizing: border-box;
+  color: #f7f9ff;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-user-portfolio-document-item--approved {
+  background: rgba(30, 255, 0, 0.15);
+  border-color: rgba(0, 255, 170, 0.45);
+}
+
+.admin-user-portfolio-document-item--notApprove,
+.admin-user-portfolio-document-item--rejected {
+  background: rgba(248, 0, 38, 0.651);
+  border-color: rgba(255, 50, 80, 0.55);
+  box-shadow: 0 8px 22px rgba(255, 50, 80, 0.15);
+}
+
+.admin-user-portfolio-document-item--outdated {
+  background: rgba(200, 150, 80, 0.2);
+  border-color: rgba(200, 150, 80, 0.5);
+  border-style: dashed;
+  box-shadow: 0 4px 12px rgba(200, 150, 80, 0.2);
+  opacity: 0.85;
+  position: relative;
+}
+
+.admin-user-portfolio-document-item--outdated::before {
+  content: '⚠';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 16px;
+  background: rgba(200, 150, 80, 0.9);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 1;
+}
+
+.admin-user-portfolio-document-item-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-user-portfolio-document-status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.admin-user-portfolio-document-status--approved {
+  background: rgba(76, 175, 80, 0.18);
+  color: #88ffb0;
+  border-color: rgba(76, 175, 80, 0.45);
+}
+
+.admin-user-portfolio-document-status--notApprove,
+.admin-user-portfolio-document-status--rejected {
+  background: rgba(255, 2, 57, 0.521);
+  color: #ff99b3;
+  border-color: rgba(255, 99, 132, 0.4);
+}
+
+.admin-user-portfolio-document-status--pending,
+.admin-user-portfolio-document-status--underReview {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f7fb;
+}
+
+.admin-user-portfolio-document-status--outdated {
+  background: rgba(200, 150, 80, 0.25);
+  color: #d4a574;
+  border-color: rgba(200, 150, 80, 0.6);
+  border-style: dashed;
+  box-shadow: 0 0 4px rgba(200, 150, 80, 0.3);
+}
+
+.admin-user-portfolio-document-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #ffffff;
+}
+
+.admin-user-portfolio-document-meta {
+  font-size: 11px;
+  color: #dfe6ff;
+  text-align: center;
+}
+
+.admin-user-portfolio-document-item-preview {
+  width: 100%;
+  height: 170px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(10, 15, 24, 0.9);
+  display: block;
+  position: relative;
+  border: 1px solid rgba(74, 94, 128, 0.35);
+}
+
+.admin-user-portfolio-document-item-preview img,
+.admin-user-portfolio-document-item-preview .admin-user-portfolio-document-item-view {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-user-portfolio-document-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px dashed rgba(74, 94, 128, 0.4);
+  background: rgba(13, 20, 31, 0.85);
+  color: #f5f7fb;
+}
+
+.admin-user-portfolio-document-item-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.admin-user-portfolio-document-item-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-user-portfolio-document-item-buttons-item {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-user-portfolio-document-item-buttons-item.approve {
+  background: linear-gradient(135deg, rgba(82, 239, 163, 0.22), rgba(78, 203, 113, 0.32));
+  color: #6ef2a4;
+}
+
+.admin-user-portfolio-document-item-buttons-item.unapprove {
+  background: linear-gradient(135deg, rgba(255, 152, 152, 0.24), rgba(255, 114, 135, 0.28));
+  color: #ff6f91;
+}
+
+.admin-user-portfolio-list-item.user-profile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.admin-user-portfolio-list-item-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 24px;
+  width: 100%;
+  height: 100%;
+}
+
+.admin-user-portfolio-list-item-content-grid.two-columns {
+  grid-template-columns: 67% 30%;
+}
+
+.user-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.user-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.user-profile-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-profile-block label,
+.user-profile-grid label,
+.user-profile-side label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8290ab;
+}
+
+.user-profile-block input,
+.user-profile-grid input,
+.user-profile-block textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(74, 94, 128, 0.35);
+  background: rgba(14, 21, 32, 0.85);
+  color: #e6edf8;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.user-profile-block textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.user-profile-save {
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(79, 172, 254, 0.45);
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+  color: #f5f7fb;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-profile-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(10, 16, 26, 0.35);
+}
+
+.user-profile-save.saving {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.user-profile-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.user-profile-avatar {
+  width: 220px;
+  height: 220px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #9aa6bf;
+  overflow: hidden;
+}
+
+.user-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-profile-reset {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-profile-reset button {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 99, 132, 0.55);
+  background: linear-gradient(135deg, rgba(255, 99, 132, 0.16), rgba(255, 99, 132, 0.24));
+  color: #ff6b8f;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-profile-reset button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(36, 12, 24, 0.35);
+}
+
+.admin-user-portfolio-value--mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+
+.partner-referrals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.partner-referrals-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(74, 94, 128, 0.28);
+  background: rgba(15, 23, 34, 0.85);
+}
+
+.partner-referrals-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.28), rgba(125, 204, 248, 0.18));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  color: #0d1117;
+}
+
+.partner-referrals-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.partner-referrals-name {
+  color: #f5f7fb;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.partner-referrals-email {
+  color: #8c9bb4;
+  font-size: 13px;
+}
+
+.user-accounts-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.user-accounts-column--actions {
+  align-self: stretch;
+  position: sticky;
+  top: 0;
+}
+
+.user-accounts-column {
+  min-width: 0;
+}
+
+.admin-user-portfolio-table-wrapper {
+  max-height: 320px;
+  overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(74, 94, 128, 0.16);
+}
+
+.user-accounts-table th,
+.user-accounts-table td {
+  white-space: nowrap;
+}
+
+.user-accounts-table td:last-child {
+  text-align: right;
+}
+
+.user-accounts-requests-table td {
+  vertical-align: top;
+}
+
+.user-accounts-request-account {
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.user-accounts-request-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #e7ecf5;
+  background: rgba(79, 172, 254, 0.18);
+}
+
+.user-accounts-request-type--deposit {
+  background: rgba(110, 242, 164, 0.18);
+  color: #6ef2a4;
+}
+
+.user-accounts-request-type--withdrawal {
+  background: rgba(255, 111, 143, 0.18);
+  color: #ff6f91;
+}
+
+.user-accounts-request-type--transfer {
+  background: rgba(255, 200, 99, 0.22);
+  color: #f7c74e;
+}
+
+.admin-user-portfolio-loading {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(15, 23, 34, 0.85);
+  border: 1px solid rgba(79, 172, 254, 0.2);
+  color: #9aa6bf;
+  font-size: 13px;
+}
+
+.admin-user-portfolio-button.subtle {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(79, 172, 254, 0.3);
+  background: rgba(17, 26, 38, 0.85);
+  color: #7bb2ff;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-user-portfolio-button:disabled,
+.admin-user-portfolio-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1024px) {
+  .admin-modal-window {
+    padding: 24px;
+  }
+
+  .admin-user-portfolio-bg {
+    padding: 20px;
+  }
+
+  .admin-user-portfolio-close {
+    top: 16px;
+    right: 18px;
+  }
+
+  .admin-user-portfolio-list-nav {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-modal-window {
+    padding: 16px;
+  }
+
+  .admin-user-portfolio-bg {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .admin-user-portfolio-header-name {
+    font-size: 20px;
+  }
+
+  .admin-user-portfolio-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-user-portfolio-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 992px) {
+  .admin-user-portfolio-list-item-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-profile-side {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .user-profile-avatar {
+    width: 160px;
+    height: 160px;
+  }
+}
+
+/* Модальное окно для ввода причины отклонения документа */
+.admin-reject-document-modal {
+  z-index: 2100;
+}
+
+.admin-reject-modal-content {
+  width: min(600px, 90vw);
+  max-width: 90vw;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #121922 0%, #0c121b 38%, #11192a 100%);
+  box-shadow:
+    0 32px 65px rgba(9, 12, 18, 0.78),
+    inset 0 0 0 1px rgba(87, 107, 138, 0.18);
+}
+
+.admin-reject-modal-header {
+  position: relative;
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(86, 106, 136, 0.22);
+}
+
+.admin-reject-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+.admin-reject-modal-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(111, 126, 151, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  padding: 0;
+}
+
+.admin-reject-modal-close:hover {
+  transform: translateY(-1px);
+  border-color: rgba(79, 172, 254, 0.55);
+  background: rgba(24, 32, 45, 0.9);
+}
+
+.admin-reject-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+}
+
+.admin-reject-modal-body p {
+  margin: 0;
+  font-size: 14px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.admin-reject-reason-input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(86, 106, 136, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  color: #f5f5f5;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  min-height: 120px;
+  line-height: 1.5;
+  transition: border-color 0.2s ease;
+}
+
+.admin-reject-reason-input:focus {
+  outline: none;
+  border-color: rgba(79, 172, 254, 0.55);
+}
+
+.admin-reject-reason-input::placeholder {
+  color: rgba(143, 155, 183, 0.6);
+}
+
+.admin-reject-modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid rgba(86, 106, 136, 0.22);
+}
+
+.admin-reject-modal-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.admin-reject-modal-btn--cancel {
+  border-color: rgba(111, 126, 151, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  color: #ffffff;
+}
+
+.admin-reject-modal-btn--cancel:hover {
+  border-color: rgba(79, 172, 254, 0.55);
+  background: rgba(24, 32, 45, 0.9);
+  transform: translateY(-1px);
+}
+
+.admin-reject-modal-btn--submit {
+  border-color: #ff6b6b;
+  background: #ff6b6b;
+  color: #ffffff;
+}
+
+.admin-reject-modal-btn--submit:hover:not(:disabled) {
+  background: #ff5252;
+  border-color: #ff5252;
+  transform: translateY(-1px);
+}
+
+.admin-reject-modal-btn--submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Модальное окно для подтверждения сброса пароля */
+.admin-password-reset-modal {
+  z-index: 2100;
+}
+
+.admin-password-reset-modal-content {
+  width: min(700px, 90vw);
+  max-width: 90vw;
+  max-height: 90vh;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #121922 0%, #0c121b 38%, #11192a 100%);
+  box-shadow:
+    0 32px 65px rgba(9, 12, 18, 0.78),
+    inset 0 0 0 1px rgba(87, 107, 138, 0.18);
+  overflow-y: auto;
+}
+
+.admin-password-reset-modal-header {
+  position: relative;
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(86, 106, 136, 0.22);
+}
+
+.admin-password-reset-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+.admin-password-reset-modal-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(111, 126, 151, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.admin-password-reset-modal-close:hover {
+  transform: translateY(-1px);
+  border-color: rgba(79, 172, 254, 0.55);
+  background: rgba(24, 32, 45, 0.9);
+}
+
+.admin-password-reset-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.admin-password-reset-reason-input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(86, 106, 136, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.admin-password-reset-reason-input:focus {
+  outline: none;
+  border-color: rgba(79, 172, 254, 0.55);
+}
+
+.admin-password-reset-reason-input::placeholder {
+  color: rgba(143, 155, 183, 0.6);
+}
+
+.admin-password-reset-modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid rgba(86, 106, 136, 0.22);
+}
+
+.admin-password-reset-modal-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.admin-password-reset-modal-btn--cancel {
+  border-color: rgba(111, 126, 151, 0.35);
+  background: rgba(17, 24, 35, 0.6);
+  color: #ffffff;
+}
+
+.admin-password-reset-modal-btn--cancel:hover:not(:disabled) {
+  border-color: rgba(79, 172, 254, 0.55);
+  background: rgba(24, 32, 45, 0.9);
+  transform: translateY(-1px);
+}
+
+.admin-password-reset-modal-btn--submit {
+  border-color: #ff6b6b;
+  background: #ff6b6b;
+  color: #ffffff;
+}
+
+.admin-password-reset-modal-btn--submit:hover:not(:disabled) {
+  background: #ff5252;
+  border-color: #ff5252;
+  transform: translateY(-1px);
+}
+
+.admin-password-reset-modal-btn--submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

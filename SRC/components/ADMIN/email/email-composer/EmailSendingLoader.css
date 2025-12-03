@@ -1,0 +1,131 @@
+/* Прелоадер отправки письма */
+.email-sending-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.email-sending-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.email-sending-loader-circle {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.email-sending-loader-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #6c757d;
+  animation: pulse-wave 2s infinite ease-out;
+}
+
+.email-sending-loader-pulse.delay-1 {
+  animation-delay: 0s;
+}
+
+.email-sending-loader-pulse.delay-2 {
+  animation-delay: 0.5s;
+}
+
+.email-sending-loader-pulse.delay-3 {
+  animation-delay: 1s;
+}
+
+.email-sending-loader-pulse.delay-4 {
+  animation-delay: 1.5s;
+}
+
+@keyframes pulse-wave {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.email-sending-loader-text {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 1px;
+  animation: text-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes text-pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* Дополнительная анимация для центрального круга */
+.email-sending-loader-circle::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #6c757d;
+  animation: center-pulse 1s infinite ease-in-out;
+}
+
+@keyframes center-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .email-sending-loader-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .email-sending-loader-text {
+    font-size: 16px;
+  }
+}

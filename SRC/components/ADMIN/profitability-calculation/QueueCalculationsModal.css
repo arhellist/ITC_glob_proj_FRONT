@@ -1,0 +1,456 @@
+/* Модальное окно расчетов очереди */
+.queue-calculations-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 2vw;
+}
+
+.queue-calculations-modal {
+  background: #1a1a2e;
+  border-radius: 1vw;
+  width: 95vw;
+  max-width: 1400px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.queue-calculations-header {
+  background: #2c2c54;
+  padding: 1.5vw;
+  border-bottom: 0.1vw solid #40407a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.queue-calculations-header h2 {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.5vw;
+  color: #ecf0f1;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+}
+
+.scroll-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.1vw solid rgba(255, 255, 255, 0.2);
+  color: #ecf0f1;
+  font-size: 1.2vw;
+  cursor: pointer;
+  padding: 0;
+  width: 2.5vw;
+  height: 2.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.scroll-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.scroll-btn:active {
+  transform: scale(0.95);
+}
+
+.queue-calculations-header .close-btn {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  font-size: 2vw;
+  cursor: pointer;
+  padding: 0;
+  width: 2vw;
+  height: 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.queue-calculations-header .close-btn:hover {
+  background: #40407a;
+}
+
+.queue-calculations-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5vw;
+}
+
+.queue-calculations-info {
+  display: flex;
+  gap: 2vw;
+  margin-bottom: 1.5vw;
+  padding: 1vw;
+  background: #2c2c54;
+  border-radius: 0.5vw;
+  align-items: center; /* Выравниваем элементы по центру */
+}
+
+.queue-calculations-info .info-item {
+  display: flex;
+  flex-direction: row; /* Изменили на row для горизонтального расположения */
+  gap: 0.5vw; /* Увеличили gap между лейблом и значением */
+  align-items: center; /* Выравниваем по центру */
+}
+
+.queue-calculations-info .label {
+  font-size: 0.9vw;
+  color: #bdc3c7;
+  font-weight: bold;
+}
+
+.queue-calculations-info .value {
+  font-size: 1.1vw;
+  color: #ecf0f1;
+  font-weight: bold;
+}
+
+.queue-calculations-info .status {
+  padding: 0.2vw 0.6vw;
+  border-radius: 0.3vw;
+  font-size: 0.8vw;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.queue-calculations-info .status.pending {
+  background: #f39c12;
+  color: #ffffff;
+}
+
+.queue-calculations-info .status.sending {
+  background: #3498db;
+  color: #ffffff;
+}
+
+.queue-calculations-info .status.paused {
+  background: #e67e22;
+  color: #ffffff;
+}
+
+.queue-calculations-info .status.completed {
+  background: #27ae60;
+  color: #ffffff;
+}
+
+.queue-calculations-info .status.cancelled {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+/* Фильтры */
+.queue-calculations-filters {
+  display: flex;
+  gap: 2vw;
+  margin-bottom: 1.5vw;
+  padding: 1vw;
+  background: #2c2c54;
+  border-radius: 0.5vw;
+  align-items: center; /* Выравниваем элементы по центру */
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: row; /* Изменили на row для горизонтального расположения */
+  gap: 0.5vw; /* Увеличили gap между лейблом и полем ввода */
+  flex: 1;
+  align-items: center; /* Выравниваем по центру */
+}
+
+.filter-label {
+  font-size: 0.9vw;
+  color: #ecf0f1 !important; /* Белый цвет для лейблов */
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.filter-select,
+.filter-input {
+  padding: 0.5vw;
+  background: #40407a !important;
+  border: 0.1vw solid #706fd3;
+  border-radius: 0.3vw;
+  color: #ecf0f1 !important;
+  font-size: 0.9vw;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.filter-select {
+  width: 40%;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  border-color: #4caf50;
+  background: #40407a !important;
+}
+
+.filter-select option {
+  background: #40407a !important;
+  color: #ecf0f1 !important;
+}
+
+/* Дополнительные стили для селекта */
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ecf0f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5vw center;
+  background-size: 1vw;
+  padding-right: 2vw;
+}
+
+.filter-input::placeholder {
+  color: #7f8c8d;
+}
+
+.queue-calculations-table-container {
+  background: #2c2c54;
+  border-radius: 0.5vw;
+  overflow: hidden;
+  margin-bottom: 1.5vw;
+}
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+  max-height: 60vh; /* Ограничиваем высоту для появления вертикальной прокрутки */
+}
+
+.queue-calculations-table {
+  width: 100%;
+  min-width: 1600px; /* Увеличили минимальную ширину */
+  border-collapse: separate; /* Изменили на separate для правильного отображения границ */
+  border-spacing: 0;
+  font-size: 0.9vw;
+}
+
+.queue-calculations-table th {
+  background: #40407a;
+  color: #ecf0f1;
+  padding: 0.8vw 1vw; /* Увеличили padding */
+  text-align: center; /* Выравнивание по центру */
+  font-weight: bold;
+  font-size: 0.8vw; /* Увеличили размер шрифта шапки */
+  text-transform: uppercase;
+  letter-spacing: 0.05vw;
+  border-bottom: 0.1vw solid #706fd3;
+  white-space: nowrap;
+  min-width: 120px; /* Минимальная ширина колонок */
+}
+
+.queue-calculations-table td {
+  padding: 0.8vw 1vw; /* Увеличили padding */
+  border-bottom: 0.05vw solid #40407a;
+  color: #ecf0f1;
+  font-size: 0.85vw; /* Увеличили размер шрифта ячеек */
+  white-space: nowrap;
+  min-width: 120px; /* Минимальная ширина колонок */
+  text-align: center; /* Выравнивание по центру */
+}
+
+.queue-calculations-table tr:hover {
+  background: #40407a;
+}
+
+/* Закрепленный столбец с ФИО */
+.queue-calculations-table .sticky-column {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: #40407a;
+  border-right: 0.1vw solid #706fd3;
+  min-width: 200px; /* Широкая колонка для ФИО */
+}
+
+.queue-calculations-table tr:hover .sticky-column {
+  background: #40407a;
+}
+
+.queue-calculations-table .client-name {
+  font-weight: bold;
+  color: #3498db;
+  font-size: 0.85vw;
+  min-width: 200px; /* Широкая колонка для ФИО */
+}
+
+.queue-calculations-table .email {
+  font-family: monospace;
+  font-size: 0.8vw;
+  min-width: 180px; /* Широкая колонка для email */
+}
+
+.queue-calculations-table .amount {
+  font-weight: bold;
+  color: #2ecc71;
+  min-width: 140px;
+}
+
+.queue-calculations-table .deposit {
+  font-weight: bold;
+  color: #27ae60;
+  min-width: 140px;
+}
+
+.queue-calculations-table .withdrawal {
+  font-weight: bold;
+  color: #e74c3c;
+  min-width: 140px;
+}
+
+.queue-calculations-table .profitability {
+  font-weight: bold;
+  color: #f39c12;
+  min-width: 120px;
+}
+
+.queue-calculations-table .balance {
+  font-weight: bold;
+  color: #27ae60;
+  min-width: 140px;
+}
+
+.account-status {
+  padding: 0.2vw 0.6vw;
+  border-radius: 0.3vw;
+  font-size: 0.7vw;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.account-status.pending {
+  background: #f39c12;
+  color: #ffffff;
+}
+
+.account-status.sending {
+  background: #3498db;
+  color: #ffffff;
+}
+
+.account-status.sent {
+  background: #9b59b6;
+  color: #ffffff;
+}
+
+.account-status.delivered {
+  background: #27ae60;
+  color: #ffffff;
+}
+
+.account-status.failed {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+.account-status.cancelled {
+  background: #95a5a6;
+  color: #ffffff;
+}
+
+.queue-calculations-summary {
+  background: #2c2c54;
+  border-radius: 0.5vw;
+  padding: 1.5vw;
+}
+
+.queue-calculations-summary h3 {
+  font-family: "Raleway-Bold", sans-serif;
+  font-size: 1.3vw;
+  color: #ecf0f1;
+  margin: 0 0 1vw 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1vw;
+}
+
+.summary-card {
+  background: #40407a;
+  padding: 1vw;
+  border-radius: 0.5vw;
+  text-align: center;
+}
+
+.summary-card .card-title {
+  font-size: 0.9vw;
+  color: #bdc3c7;
+  margin-bottom: 0.5vw;
+  font-weight: bold;
+}
+
+.summary-card .card-value {
+  font-size: 1.2vw;
+  color: #ecf0f1;
+  font-weight: bold;
+}
+
+/* Скроллбары для таблицы */
+.table-scroll-wrapper::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-track {
+  background: #2c2c54;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #40407a;
+  border-radius: 4px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #706fd3;
+}
+
+/* Скроллбары для контента */
+.queue-calculations-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.queue-calculations-content::-webkit-scrollbar-track {
+  background: #2c2c54;
+}
+
+.queue-calculations-content::-webkit-scrollbar-thumb {
+  background: #40407a;
+  border-radius: 4px;
+}
+
+.queue-calculations-content::-webkit-scrollbar-thumb:hover {
+  background: #706fd3;
+}

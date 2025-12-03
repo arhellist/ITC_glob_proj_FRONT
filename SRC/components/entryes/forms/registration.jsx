@@ -1,36 +1,36 @@
-import "../entryes.css";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../../JS/auth/store/store";
-import { useState, useEffect } from "react";
-import Captcha from "../captcha.jsx";
+import "../entryes.css"; // Импорт CSS стилей для формы регистрации
+import { useNavigate } from "react-router-dom"; // Импорт хука для программной навигации
+import { useAuthStore } from "../../../JS/auth/store/store"; // Импорт Zustand store для управления аутентификацией
+import { useState, useEffect } from "react"; // Импорт React хуков для состояния и побочных эффектов
+import Captcha from "../captcha.jsx"; // Импорт компонента капчи для защиты от ботов
 
-function Registration() {
-    console.log('Registration: Компонент регистрации загружен');
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        lastName: '',
-        name: '',
-        patronymic: '',
-        phone: '',
-        email: '',
-        referralCode: '',
-        password: '',
-        passwordRepeat: ''
+function Registration() { // Компонент формы регистрации нового пользователя
+    console.log('Registration: Компонент регистрации загружен'); // Логирование загрузки компонента
+    const navigate = useNavigate(); // Хук для программной навигации между страницами
+    const [formData, setFormData] = useState({ // Состояние для хранения данных формы регистрации
+        lastName: '', // Фамилия пользователя
+        name: '', // Имя пользователя
+        patronymic: '', // Отчество пользователя
+        phone: '', // Номер телефона пользователя
+        email: '', // Email адрес пользователя
+        referralCode: '', // Реферальный код для регистрации
+        password: '', // Пароль пользователя
+        passwordRepeat: '' // Повтор пароля для проверки
     });
-    const [loading, setLoading] = useState(false);
-    const [showCaptcha, setShowCaptcha] = useState(false);
-    const [captchaVerified, setCaptchaVerified] = useState(false);
-    const [captchaCompleted, setCaptchaCompleted] = useState(false);
+    const [loading, setLoading] = useState(false); // Состояние загрузки при отправке формы
+    const [showCaptcha, setShowCaptcha] = useState(false); // Состояние показа капчи
+    const [captchaVerified, setCaptchaVerified] = useState(false); // Состояние проверки капчи
+    const [captchaCompleted, setCaptchaCompleted] = useState(false); // Состояние завершения капчи
     
-    // Получаем методы стора
-    const registration = useAuthStore(s => s.registration);
-    const fetchCSRFToken = useAuthStore(s => s.fetchCSRFToken);
-    
+    // Получаем методы стора для регистрации
+    const registration = useAuthStore(s => s.registration); // Получаем функцию регистрации из store
+    const fetchCSRFToken = useAuthStore(s => s.fetchCSRFToken); // Получаем функцию получения CSRF токена из store
+
     // Получаем CSRF токен при загрузке формы
     useEffect(() => {
-        console.log('Форма регистрации загружена, запрашиваем CSRF токен...');
+        console.log('Registration: Форма регистрации загружена, запрашиваем CSRF токен...');
         fetchCSRFToken().catch(err => {
-            console.error('Ошибка получения CSRF токена:', err);
+            console.error('Registration: Ошибка получения CSRF токена:', err);
         });
     }, [fetchCSRFToken]);
 
@@ -42,7 +42,7 @@ function Registration() {
                 setFormData(prev => ({ ...prev, referralCode: ref }));
             }
         } catch (e) {
-            // ignore
+            console.log(e)
         }
     }, []);
     
@@ -183,7 +183,15 @@ function Registration() {
     }
     return (
       <>
-      <div className="form-login-container formm-shadow form-registration-container flex flex-column bru-max bg-color-main txt-size-07">
+      <div 
+        className="form-login-container formm-shadow form-registration-container flex flex-column bru-max bg-color-main txt-size-07"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !loading) {
+            e.preventDefault();
+            handleRegistration();
+          }
+        }}
+      >
         <div className="form-registration-logo">
           <div className="form-login-logo-img img"></div>
         </div>

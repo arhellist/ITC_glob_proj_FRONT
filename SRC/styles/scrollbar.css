@@ -1,0 +1,217 @@
+/* Улучшенные скролл-бары для всех элементов */
+
+/* Основные стили скролл-бара */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Трек скролл-бара */
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+/* Ползунок скролл-бара */
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+/* Ползунок при наведении */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Ползунок при активном состоянии (удерживание) */
+::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Угол между вертикальным и горизонтальным скролл-барами */
+::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Темная тема для скролл-баров */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  ::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.7);
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Специальные стили для админ-панели */
+.admin-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+.admin-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+}
+
+.admin-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Нативный скролл-бар (стандартное поведение браузера) */
+.native-scrollbar {
+  scrollbar-width: auto !important;
+}
+
+.native-scrollbar::-webkit-scrollbar {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.native-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 0 !important;
+}
+
+.native-scrollbar::-webkit-scrollbar-thumb {
+  background: #888 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background-clip: padding-box !important;
+}
+
+.native-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+.native-scrollbar::-webkit-scrollbar-thumb:active {
+  background: #333 !important;
+}
+
+.native-scrollbar::-webkit-scrollbar-corner {
+  background: #f1f1f1 !important;
+}
+
+/* Специальные стили для таблицы пользователей в админ-панели */
+.admin-dashboard-users-list-container-table-items {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.1) !important;
+}
+
+.admin-dashboard-users-list-container-table-items::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+  -webkit-appearance: none !important;
+}
+
+.admin-dashboard-users-list-container-table-items::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 6px !important;
+  -webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.1) !important;
+}
+
+.admin-dashboard-users-list-container-table-items::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-radius: 6px !important;
+  border: 2px solid transparent !important;
+  background-clip: content-box !important;
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,0.5) !important;
+}
+
+.admin-dashboard-users-list-container-table-items::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.6) !important;
+  background-clip: content-box !important;
+}
+
+.admin-dashboard-users-list-container-table-items::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.8) !important;
+  background-clip: content-box !important;
+}
+
+.admin-dashboard-users-list-container-table-items::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Специальные стили для пользовательских областей */
+.user-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+.user-scrollable::-webkit-scrollbar {
+  width: 10px;
+}
+
+.user-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+.user-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Анимация для плавной прокрутки */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Стили для горизонтальных скролл-баров */
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+/* Стили для вертикальных скролл-баров */
+.vertical-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Скрытие скролл-бара с сохранением функциональности */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Кастомные стили для мобильных устройств */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .admin-scrollable::-webkit-scrollbar {
+    width: 3px;
+  }
+  
+  .user-scrollable::-webkit-scrollbar {
+    width: 6px;
+  }
+}

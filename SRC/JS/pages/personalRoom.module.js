@@ -13,7 +13,7 @@ import {
   clearDOMPurify,
 } from "../utils.js";
 // Страницы
-import Login from "../pages/login.module.js";
+// import Login from "../pages/login.module.js"; // Удален - используем React компоненты
 
 // Уведомления
 import {

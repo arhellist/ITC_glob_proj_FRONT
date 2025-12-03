@@ -1,0 +1,636 @@
+.email-list {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+}
+
+/* Заголовок списка писем */
+.email-list-header {
+  padding: 20px;
+  border-bottom: 1px solid #333;
+  background: #2a2a2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.email-list-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.email-list-header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+.email-list-checkbox-container {
+  display: flex;
+  align-items: center;
+}
+
+.email-list-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #007bff;
+}
+
+.email-list-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.email-list-title h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.email-folder-delete-btn {
+  background: none;
+  border: none;
+  color: #ff5757;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.email-folder-delete-btn:hover {
+  background: rgba(255, 87, 87, 0.1);
+  color: #ff4444;
+  transform: scale(1.1);
+}
+
+.email-folder-delete-btn:active {
+  transform: scale(0.95);
+}
+
+
+.email-list-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Выпадающее меню действий */
+.email-action-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #333;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #555;
+}
+
+.email-action-menu.trash-folder {
+  /* Специальные стили для папок корзины */
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.email-action-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.email-action-button:hover {
+  background: #0056b3;
+}
+
+.email-action-dropdown {
+  position: relative;
+}
+
+.email-folder-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  min-width: 150px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.email-folder-option {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.email-folder-option:hover {
+  background: #555;
+}
+
+.email-folder-option:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.email-folder-option:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+.email-folder-option.disabled {
+  color: #666;
+  cursor: not-allowed;
+}
+
+.email-folder-option.disabled:hover {
+  background: none;
+}
+
+.email-list-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.email-list-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Поиск */
+.email-search {
+  position: relative;
+  width: 250px; /* Фиксированная ширина вместо flex: 1 */
+  min-width: 200px;
+  margin-right: 40px;
+}
+
+.email-search-input {
+  width: 100%;
+  background: #333;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 8px 35px 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.email-search-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.email-search-input::placeholder {
+  color: #999;
+}
+
+.email-search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
+.email-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #666;
+  border: none;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.email-search-clear:hover {
+  background: #888;
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Фильтры */
+.email-filter-button {
+  background: #333;
+  border: 1px solid #555;
+  color: #999;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.email-filter-button:hover {
+  background: #444;
+  color: #fff;
+}
+
+.email-filter-button.active {
+  background: #4caf50;
+  border-color: #4caf50;
+  color: #fff;
+}
+
+/* Контент списка писем */
+.email-list-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Элемент письма */
+.email-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 15px 20px;
+  margin: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #333333 !important; /* Темнее фона подложки для прочитанных писем */
+  border: 1px solid #333;
+}
+
+.email-item:hover {
+  background: #404040 !important;
+  border-color: #555;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.email-item.selected {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4caf50;
+  border-left: 4px solid #4caf50;
+}
+
+.email-item.unread {
+  background: #2917178e !important; /* Светлее фона подложки для непрочитанных */
+  font-weight: 500;
+  border: 1px solid #2a2a2a;
+}
+
+.email-item.unread:hover {
+  background: #252525 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.email-item.unread.selected {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid #4caf50;
+  border-left: 4px solid #4caf50;
+}
+
+/* Чекбокс */
+.email-item-checkbox {
+  margin-right: 12px;
+  margin-top: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.email-item-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Контент письма */
+.email-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.email-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.email-item-sender {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.email-item-name {
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.email-item-important {
+  color: #ffd700;
+  font-size: 12px;
+}
+
+.email-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #999;
+  font-size: 12px;
+}
+
+.email-item-date {
+  font-weight: 500;
+}
+
+.email-item-time {
+  opacity: 0.8;
+}
+
+.email-item-subject {
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.email-item-preview {
+  color: #999;
+  font-size: 13px;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Действия с письмом */
+.email-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.email-item:hover .email-item-actions {
+  opacity: 1;
+}
+
+.email-item-action {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.email-item-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.email-item-action.important {
+  color: #ffd700;
+}
+
+.email-item-action.important:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.email-item-action.danger:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+/* Стили для важных писем */
+.email-item.important {
+  background: rgba(255, 87, 87, 0.1) !important; /* Слегка красный фон */
+  border: 1px solid rgba(255, 87, 87, 0.3);
+  border-left: 4px solid #ff5757;
+}
+
+.email-item.important:hover {
+  background: rgba(255, 87, 87, 0.15) !important;
+  border-color: rgba(255, 87, 87, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 87, 87, 0.2);
+}
+
+.email-item.important.selected {
+  background: rgba(76, 175, 80, 0.2) !important;
+  border: 1px solid #4caf50;
+  border-left: 4px solid #4caf50;
+}
+
+.email-item.important.unread {
+  background: rgba(255, 87, 87, 0.15) !important; /* Чуть более красный для непрочитанных важных */
+  border: 1px solid rgba(255, 87, 87, 0.4);
+}
+
+.email-item.important.unread:hover {
+  background: rgba(255, 87, 87, 0.2) !important;
+}
+
+.email-item.important.unread.selected {
+  background: rgba(76, 175, 80, 0.25) !important;
+  border: 1px solid #4caf50;
+  border-left: 4px solid #4caf50;
+}
+
+/* Стили для удаленных писем */
+.email-item.deleted {
+  background: rgba(100, 100, 100, 0.3) !important; /* Полупрозрачный серый фон */
+  border: 1px solid rgba(150, 150, 150, 0.3);
+  opacity: 0.6; /* Общая полупрозрачность */
+}
+
+.email-item.deleted:hover {
+  background: rgba(100, 100, 100, 0.4) !important;
+  border-color: rgba(150, 150, 150, 0.5);
+  opacity: 0.7;
+}
+
+.email-item.deleted .email-item-name,
+.email-item.deleted .email-item-subject,
+.email-item.deleted .email-item-preview,
+.email-item.deleted .email-item-date,
+.email-item.deleted .email-item-time {
+  color: rgba(255, 255, 255, 0.5) !important; /* Полупрозрачный белый текст */
+}
+
+.email-item.deleted .email-item-meta {
+  color: rgba(153, 153, 153, 0.5) !important; /* Полупрозрачный серый текст */
+}
+
+.email-item.deleted .email-item-important {
+  color: rgba(255, 215, 0, 0.5) !important; /* Полупрозрачная звездочка */
+}
+
+.email-item.deleted .email-item-actions {
+  opacity: 0.5; /* Полупрозрачные действия */
+}
+
+.email-item.deleted .email-item-actions .email-item-action {
+  color: rgba(153, 153, 153, 0.5) !important;
+}
+
+.email-item.deleted .email-item-actions .email-item-action:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Пагинация */
+.email-list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  border-top: 1px solid #333;
+  background: #2a2a2a;
+}
+
+.email-pagination-button {
+  background: #333;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.email-pagination-button:hover:not(:disabled) {
+  background: #444;
+  border-color: #666;
+}
+
+.email-pagination-button:disabled {
+  background: #222;
+  border-color: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.email-pagination-info {
+  color: #999;
+  font-size: 14px;
+}
+
+/* Стилизация скроллбара */
+.email-list-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.email-list-content::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.email-list-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.email-list-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* Для Firefox */
+.email-list-content {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2a;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .email-list-header {
+    padding: 15px;
+  }
+  
+  .email-list-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .email-search {
+    min-width: auto;
+  }
+  
+  .email-item {
+    padding: 12px 15px;
+    margin: 6px 12px;
+    border-radius: 8px;
+  }
+  
+  .email-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .email-item-meta {
+    align-self: flex-end;
+  }
+  
+  .email-item-actions {
+    opacity: 1;
+    margin-left: 5px;
+  }
+  
+  .email-pagination-info {
+    display: none;
+  }
+}
+
+/* Анимации - стили уже определены выше */

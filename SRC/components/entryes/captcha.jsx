@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import './entryes.css';
+import React, { useState, useEffect, useRef, useCallback } from 'react'; // Импорт React хуков для состояния, эффектов, рефов и колбэков
+import './entryes.css'; // Импорт CSS стилей для компонента капчи
 
-const Captcha = ({ onVerified, isVerified = false }) => {
-  const [isPuzzleSolved, setIsPuzzleSolved] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentLeft, setCurrentLeft] = useState(0);
-  const [currentTop, setCurrentTop] = useState(0);
-  const [targetPosition, setTargetPosition] = useState({ left: 0, top: 0 });
-  const [sliderValue, setSliderValue] = useState(0);
+const Captcha = ({ onVerified, isVerified = false }) => { // Компонент капчи принимает колбэк верификации и состояние проверки
+  const [isPuzzleSolved, setIsPuzzleSolved] = useState(false); // Состояние решения головоломки
+  const [isDragging, setIsDragging] = useState(false); // Состояние перетаскивания элемента
+  const [currentLeft, setCurrentLeft] = useState(0); // Текущая позиция по горизонтали
+  const [currentTop, setCurrentTop] = useState(0); // Текущая позиция по вертикали
+  const [targetPosition, setTargetPosition] = useState({ left: 0, top: 0 }); // Целевая позиция для размещения
+  const [sliderValue, setSliderValue] = useState(0); // Значение слайдера для альтернативной капчи
   
-  const puzzlePieceRef = useRef(null);
-  const puzzleContainerRef = useRef(null);
-  const puzzleHoleRef = useRef(null);
-  const startPosRef = useRef({ x: 0, y: 0 });
-  const checkTimeoutRef = useRef(null);
+  const puzzlePieceRef = useRef(null); // Реф для элемента головоломки
+  const puzzleContainerRef = useRef(null); // Реф для контейнера головоломки
+  const puzzleHoleRef = useRef(null); // Реф для отверстия в головоломке
+  const startPosRef = useRef({ x: 0, y: 0 }); // Реф для начальной позиции перетаскивания
+  const checkTimeoutRef = useRef(null); // Реф для таймаута проверки
 
-  // Константы
-  const CONTAINER_WIDTH = 300;
-  const CONTAINER_HEIGHT = 150;
-  const PIECE_SIZE = 40;
-  const TOLERANCE = 15; // Допустимое отклонение для успешного размещения
+  // Константы для размеров и параметров капчи
+  const CONTAINER_WIDTH = 300; // Ширина контейнера капчи в пикселях
+  const CONTAINER_HEIGHT = 150; // Высота контейнера капчи в пикселях
+  const PIECE_SIZE = 40; // Размер элемента головоломки в пикселях
+  const TOLERANCE = 15; // Допустимое отклонение для успешного размещения элемента
 
   // Генерируем случайную позицию для цели при монтировании
   useEffect(() => {

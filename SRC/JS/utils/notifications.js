@@ -1,5 +1,14 @@
-import { clearDOMPurify } from "./utils.js";
 import { v4 as uuidv4 } from "uuid";
+
+// Простая функция очистки HTML (альтернатива clearDOMPurify)
+function clearDOMPurify(html) {
+  // Базовая очистка HTML - удаляем потенциально опасные теги и атрибуты
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/javascript:/gi, '');
+}
 
 export function ErrorNotification(root, text) {
   const id = uuidv4();
