@@ -16,24 +16,23 @@ class MonitoringService {
     return [];
   }
 
-  // Получение данных мониторинга счетов
+  // Получение данных мониторинга счетов (полная загрузка всех данных)
   async getAccountsMonitoring(filters = {}) {
-    console.log('MonitoringService: Запрос данных мониторинга с фильтрами:', filters);
+    console.log('MonitoringService: Запрос всех данных мониторинга с фильтрами:', filters);
     
-    // Формируем query параметры
+    // Формируем query параметры (без пагинации)
     const params = new URLSearchParams();
     if (filters.year) params.append('year', filters.year);
     if (filters.product) params.append('product', filters.product);
-    if (filters.page) params.append('page', filters.page);
-    if (filters.pageSize) params.append('pageSize', filters.pageSize);
     
     const queryString = params.toString();
     const url = `/admin/monitoring/accounts${queryString ? `?${queryString}` : ''}`;
     
     console.log('MonitoringService: URL запроса:', url);
     
-    const response = await axios.get(url);
-    console.log('MonitoringService: Получены данные мониторинга:', response.data);
+    // Убираем таймаут для этого запроса, так как данных может быть много и загрузка может занять долгое время
+    const response = await axios.get(url, { timeout: 0 });
+    console.log('MonitoringService: Получены все данные мониторинга:', response.data);
     return response.data;
   }
 

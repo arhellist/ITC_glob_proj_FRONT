@@ -239,6 +239,22 @@ class AdminService {
   }
 
   // Обновление статуса заявки (принять/отклонить)
+  async updateRequestComment(requestId, requestType, comment) { // Функция обновления комментария к заявке
+    try {
+      console.log('AdminService: Обновление комментария к заявке', { requestId, requestType, comment });
+      
+      const response = await axiosAPI.put(`${this.baseURL}/requests/${requestType}/${requestId}/comment`, {
+        comment: comment || ''
+      });
+      
+      console.log('AdminService: Комментарий обновлен:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('AdminService: Ошибка обновления комментария к заявке:', error);
+      throw error;
+    }
+  }
+
   async updateRequestStatus(requestId, requestType, status, rejectReason = null) { // Функция обновления статуса заявки
     try { // Начинаем блок обработки ошибок
       console.log('AdminService: Обновление статуса заявки', { requestId, requestType, status, rejectReason }); // Логируем начало

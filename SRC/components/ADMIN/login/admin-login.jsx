@@ -48,6 +48,19 @@ const AdminLogin = ({ onLoginSuccess }) => {
     }
   }, [generateToken]);
 
+  const handlePasteToken = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setToken(text.trim());
+        setError('');
+      }
+    } catch (err) {
+      console.error('Ошибка чтения из буфера обмена:', err);
+      setError('Не удалось прочитать буфер обмена. Убедитесь, что у браузера есть разрешение на доступ к буферу обмена.');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -92,7 +105,17 @@ const AdminLogin = ({ onLoginSuccess }) => {
             
             <form onSubmit={handleSubmit}>
               <div className="admin-login-field">
-                <label htmlFor="admin-token">Токен:</label>
+                <label htmlFor="admin-token" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>Токен:</span>
+                  <button
+                    type="button"
+                    onClick={handlePasteToken}
+                    disabled={loading}
+                    className="admin-login-paste-button"
+                  >
+                    Вставить
+                  </button>
+                </label>
                 <input
                   type="text"
                   id="admin-token"

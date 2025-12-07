@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import securityService from '../../../../JS/services/security-service';
 import { API_CONFIG } from '../../../../config/api.js';
+import PaymentMethodsManagement from './payment-methods-management/PaymentMethodsManagement';
 import './security-settings.css';
 
 const CATEGORY_LABELS = {
@@ -178,7 +179,8 @@ const SecuritySettings = () => {
     roles: true,
     products: false,
     options: false,
-    referral: false
+    referral: false,
+    paymentMethods: false
   });
 
   const [products, setProducts] = useState([]);
@@ -1377,6 +1379,20 @@ const SecuritySettings = () => {
           {sectionsOpen.referral && (
             <div className="security-settings-accordion-panel">
               <ReferralProgramSettings />
+            </div>
+          )}
+        </div>
+
+        <div className="security-settings-accordion-item">
+          <button
+            className={`security-settings-accordion-button ${sectionsOpen.paymentMethods ? 'open' : ''}`}
+            onClick={() => toggleSection('paymentMethods')}
+          >
+            Способы пополнения
+          </button>
+          {sectionsOpen.paymentMethods && (
+            <div className="security-settings-accordion-panel">
+              <PaymentMethodsManagement />
             </div>
           )}
         </div>

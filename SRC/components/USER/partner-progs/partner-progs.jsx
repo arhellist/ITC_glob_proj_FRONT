@@ -11,6 +11,11 @@ function PartnerProgs() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showCopiedTooltip, setShowCopiedTooltip] = useState(false);
+  const [referralAccount, setReferralAccount] = useState(null);
+  const [totalReferralRewards, setTotalReferralRewards] = useState(0);
+  const [hasReferrals, setHasReferrals] = useState(false);
+  const [currency, setCurrency] = useState('USDT');
+  const [rewardsHistory, setRewardsHistory] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -20,6 +25,11 @@ function PartnerProgs() {
         const { data } = await axiosAPI.get('/profile/referrals');
         if (!isMounted) return;
         setReferrals(Array.isArray(data?.referrals) ? data.referrals : []);
+        setReferralAccount(data?.referralAccount || null);
+        setTotalReferralRewards(data?.totalReferralRewards || 0);
+        setHasReferrals(data?.hasReferrals || false);
+        setCurrency(data?.currency || 'USDT');
+        setRewardsHistory(Array.isArray(data?.rewardsHistory) ? data.rewardsHistory : []);
       } catch (e) {
         if (!isMounted) return;
         setError('Не удалось загрузить рефералов');
@@ -82,12 +92,51 @@ function PartnerProgs() {
           <div className="partners-program-aboutreferal-accounts flex flex-column">
             <div className="partners-program-aboutreferal-account-item gradient-border bru-max flex flex-column">
               <div className="partners-program-aboutreferal-account-item-title">реферальный счет</div>
-              <div className="partners-program-aboutreferal-account-item-text">5,700 $</div>
+              {!hasReferrals ? (
+                <div className="partners-program-aboutreferal-account-item-text partners-program-aboutreferal-account-item-text-info">
+                  Реферальный счет будет открыт автоматически, как только по вашей ссылке зарегистрируется новый инвестор
+                </div>
+              ) : referralAccount ? (
+                <div className="partners-program-aboutreferal-account-item-text">
+                  {referralAccount.balance.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {currency}
+                </div>
+              ) : (
+                <div className="partners-program-aboutreferal-account-item-text">0.00 {currency}</div>
+              )}
             </div>
 
             <div className="partners-program-aboutreferal-account-item gradient-border bru-max flex flex-column">
-              <div className="partners-program-aboutreferal-account-item-title">разовый доход по реферальной ссылке</div>
-              <div className="partners-program-aboutreferal-account-item-text">5,700 $</div>
+              <div className="partners-program-aboutreferal-account-item-title">история зачислений</div>
+              <div className="partners-program-aboutreferal-account-item-rewards-list">
+                {rewardsHistory.length === 0 ? (
+                  <div className="partners-program-rewards-empty">
+                    Начисления появятся здесь после регистрации новых инвесторов по вашей ссылке и пополнения ими своих счетов
+                  </div>
+                ) : (
+                  <div className="partners-program-rewards-scroll">
+                    {rewardsHistory.map((reward) => (
+                      <div key={reward.id} className="partners-program-reward-item">
+                        <div className="partners-program-reward-item-header">
+                          <span className="partners-program-reward-item-amount">
+                            +{reward.amount.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {reward.currency}
+                          </span>
+                          <span className="partners-program-reward-item-date">
+                            {new Date(reward.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <div className="partners-program-reward-item-description">
+                          {reward.description}
+                        </div>
+                        {reward.referredUserName && (
+                          <div className="partners-program-reward-item-user">
+                            От: {reward.referredUserName}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

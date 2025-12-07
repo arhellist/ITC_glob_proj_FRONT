@@ -152,6 +152,27 @@
     font-size: 0.9rem;
   }
 
+  .admin-login-paste-button {
+    background: none;
+    border: none;
+    color: #4862aa;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+
+  .admin-login-paste-button:hover:not(:disabled) {
+    color: #6d66cc;
+  }
+
+  .admin-login-paste-button:disabled {
+    color: #666;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+
   .admin-login-field input {
     width: 100%;
     padding: 0.75rem;

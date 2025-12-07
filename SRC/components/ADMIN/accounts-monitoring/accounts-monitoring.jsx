@@ -11,8 +11,6 @@ import { getSocket } from '../../../JS/websocket/websocket-service';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
-const PAGE_SIZE = 20;
-
 const AccountsMonitoring = () => {
   const [data, setData] = useState([]); // Данные для таблицы
   const [loading, setLoading] = useState(false); // Состояние загрузки
@@ -27,11 +25,7 @@ const [products, setProducts] = useState([
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' }); // Конфигурация сортировки
   const [filterText, setFilterText] = useState(''); // Текст фильтра
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, content: null }); // Всплывающая подсказка
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const tableScrollRef = useRef(null);
-  const dataLength = data.length;
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 
   const formatProductOptions = useCallback((rawProducts = []) => {
@@ -94,42 +88,28 @@ const [products, setProducts] = useState([
     };
   }, [formatProductOptions, product]);
 
-  // Загрузка данных (с поддержкой пагинации)
-  const loadData = useCallback(async ({ page: targetPage = 1, reset = false } = {}) => {
+  // Загрузка данных (полная загрузка всех данных за год)
+  const loadData = useCallback(async () => {
     if (!year) {
       console.log('AccountsMonitoring: год не выбран, пропускаем загрузку данных');
       setLoading(false);
-      setIsFetchingMore(false);
       return;
     }
 
-    const normalizedPage = Number.isFinite(targetPage) && targetPage > 0 ? targetPage : 1;
-    const isFirstPageRequest = reset || normalizedPage === 1;
-
-    if (isFirstPageRequest) {
-      setLoading(true);
-      setHasMore(true);
-    } else {
-      setIsFetchingMore(true);
-    }
+    setLoading(true);
 
     try {
       setError(null);
-      console.log('AccountsMonitoring: Загружаем данные', {
+      console.log('AccountsMonitoring: Загружаем все данные', {
         year,
-        product,
-        page: normalizedPage,
-        pageSize: PAGE_SIZE,
-        reset
+        product
       });
 
       const response = await monitoringService.getAccountsMonitoring({
         year,
-        product,
-        page: normalizedPage,
-        pageSize: PAGE_SIZE
+        product
       });
-      console.log('AccountsMonitoring: Получены данные (порция):', response);
+      console.log('AccountsMonitoring: Получены все данные:', response);
 
       const incomingData = Array.isArray(response?.data) ? response.data : [];
       
@@ -153,11 +133,11 @@ const [products, setProducts] = useState([
       });
       console.log(`📊 AccountsMonitoring: Всего найдено profitabilityDetails: ${totalProfitabilityDetails} в ${incomingData.length} счетах`);
 
-      if (isFirstPageRequest && tableScrollRef.current) {
+      if (tableScrollRef.current) {
         tableScrollRef.current.scrollTop = 0;
       }
 
-      if (response?.products && response.products.length > 0 && isFirstPageRequest) {
+      if (response?.products && response.products.length > 0) {
         const formattedOptions = formatProductOptions(response.products);
         if (formattedOptions.length > 0) {
           setProducts(formattedOptions);
@@ -167,63 +147,15 @@ const [products, setProducts] = useState([
         }
       }
 
-      const nextHasMore = typeof response?.meta?.hasMore === 'boolean'
-        ? response.meta.hasMore
-        : incomingData.length === PAGE_SIZE;
-      setHasMore(nextHasMore);
-
-      setPage(normalizedPage);
-
-      setData(prevData => {
-        if (isFirstPageRequest || !Array.isArray(prevData) || prevData.length === 0) {
-          return incomingData;
-        }
-
-        const merged = [...prevData];
-        incomingData.forEach(item => {
-          const incomingKey = Number.isFinite(Number(item.accountId)) ? Number(item.accountId) : item.accountId;
-          const existingIndex = merged.findIndex(existing => {
-            const existingKey = Number.isFinite(Number(existing.accountId)) ? Number(existing.accountId) : existing.accountId;
-            return existingKey === incomingKey;
-          });
-
-          if (existingIndex >= 0) {
-            merged[existingIndex] = item;
-          } else {
-            merged.push(item);
-          }
-        });
-
-        return merged;
-      });
+      setData(incomingData);
     } catch (err) {
       console.error('AccountsMonitoring: Ошибка загрузки данных:', err);
       setError(err.message || 'Ошибка загрузки данных');
-
-      if (isFirstPageRequest) {
-        setData([]);
-        setHasMore(false);
-      }
+      setData([]);
     } finally {
-      if (isFirstPageRequest) {
-        setLoading(false);
-      } else {
-        setIsFetchingMore(false);
-      }
+      setLoading(false);
     }
   }, [year, product, formatProductOptions]);
-
-  const handleTableScroll = useCallback(() => {
-    const node = tableScrollRef.current;
-    if (!node || loading || isFetchingMore || !hasMore) {
-      return;
-    }
-
-    const { scrollTop, scrollHeight, clientHeight } = node;
-    if (scrollHeight - (scrollTop + clientHeight) < 200) {
-      loadData({ page: page + 1 });
-    }
-  }, [hasMore, isFetchingMore, loadData, loading, page]);
 
   // Модальные окна для транзакций
   const [showTransactionList, setShowTransactionList] = useState(false);
@@ -242,49 +174,15 @@ const [products, setProducts] = useState([
   // Загружаем данные при изменении фильтров
   useEffect(() => {
     if (!year) {
-      setPage(1);
-      setHasMore(false);
       setLoading(false);
-      setIsFetchingMore(false);
       setData([]);
       setError(null);
       return;
     }
 
-    setPage(1);
-    setHasMore(true);
     setData([]);
-    loadData({ page: 1, reset: true });
+    loadData();
   }, [year, product, loadData]);
-
-  useEffect(() => {
-    if (!year) {
-      return undefined;
-    }
-
-    const node = tableScrollRef.current;
-    if (!node) {
-      return undefined;
-    }
-
-    const onScroll = (event) => handleTableScroll(event);
-    node.addEventListener('scroll', onScroll);
-
-    return () => {
-      node.removeEventListener('scroll', onScroll);
-    };
-  }, [handleTableScroll, year]);
-
-  useEffect(() => {
-    if (!year) {
-      return;
-    }
-
-    if (!loading && !isFetchingMore && hasMore && dataLength === 0 && page >= 1) {
-      console.log('AccountsMonitoring: текущая страница пуста, пробуем загрузить следующую', page + 1);
-      loadData({ page: page + 1 });
-    }
-  }, [dataLength, hasMore, isFetchingMore, loadData, loading, page, year]);
 
   // Обработчик изменения года
   const handleYearChange = (e) => {
@@ -954,11 +852,11 @@ const [products, setProducts] = useState([
         {year && error && (
           <div className="accounts-monitoring-error">
             <p>Ошибка: {error}</p>
-            <button onClick={() => loadData({ page: 1, reset: true })}>Повторить</button>
+            <button onClick={() => loadData()}>Повторить</button>
           </div>
         )}
 
-        {year && !loading && !error && !isFetchingMore && !hasMore && filteredAndSortedData.length === 0 && (
+        {year && !loading && !error && filteredAndSortedData.length === 0 && (
           <div className="accounts-monitoring-empty">
             <p>Нет данных для отображения</p>
           </div>
@@ -1134,21 +1032,6 @@ const [products, setProducts] = useState([
                 ))}
               </tbody>
             </table>
-            {year && isFetchingMore && (
-              <div className="accounts-monitoring-infinite-loader">
-                <span>Загружаем ещё 20 клиентов...</span>
-              </div>
-            )}
-            {year && !loading && !isFetchingMore && hasMore && filteredAndSortedData.length > 0 && (
-              <div className="accounts-monitoring-infinite-hint">
-                Прокрутите вниз, чтобы загрузить дальше
-              </div>
-            )}
-            {year && !loading && !isFetchingMore && !hasMore && filteredAndSortedData.length > 0 && (
-              <div className="accounts-monitoring-end-of-list">
-                Загружены все доступные клиенты
-              </div>
-            )}
           </div>
         )}
         

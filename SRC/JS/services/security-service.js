@@ -656,6 +656,88 @@ class SecurityService {
     }
   }
 
+  // Получение всех способов пополнения
+  async getPaymentMethods() {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axiosAPI.get(`${this.adminBaseURL}/payment-methods`, { headers });
+      return response.data.paymentMethods || [];
+    } catch (error) {
+      console.error('Ошибка получения способов пополнения:', error);
+      return [];
+    }
+  }
+
+  // Создание способа пополнения
+  async createPaymentMethod(formData) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      const response = await axiosAPI.post(`${this.adminBaseURL}/payment-methods`, formData, { headers });
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка создания способа пополнения:', error);
+      return { success: false, message: error.response?.data?.message || error.message };
+    }
+  }
+
+  // Обновление способа пополнения
+  async updatePaymentMethod(id, formData) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      const response = await axiosAPI.put(`${this.adminBaseURL}/payment-methods/${id}`, formData, { headers });
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка обновления способа пополнения:', error);
+      return { success: false, message: error.response?.data?.message || error.message };
+    }
+  }
+
+  // Удаление способа пополнения
+  async deletePaymentMethod(id) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axiosAPI.delete(`${this.adminBaseURL}/payment-methods/${id}`, { headers });
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка удаления способа пополнения:', error);
+      return { success: false, message: error.response?.data?.message || error.message };
+    }
+  }
+
 }
 
 export default new SecurityService();

@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import axiosAPI from "../../../../JS/auth/http/axios.js";
 import "../accounts-room.css";
 
+// Функции для нормализации kind
+const normalizeKindName = (value = '') => value.toString().trim().toLowerCase();
+const sanitizeSlug = (value = '') =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-');
+
 function ModalWindowSendRequestWithdrawl({ onClose }) {
   const [accounts, setAccounts] = useState([]);
   const [selectedId, setSelectedId] = useState("");
@@ -9,6 +18,42 @@ function ModalWindowSendRequestWithdrawl({ onClose }) {
   const [amount, setAmount] = useState("");
   const [settings, setSettings] = useState({ percent: 1, min: 50 });
   const [pendingByAccount, setPendingByAccount] = useState({});
+  const [products, setProducts] = useState([]);
+  const [documentsStatus, setDocumentsStatus] = useState({
+    kinds: [],
+    statusByKind: {},
+    loaded: false
+  });
+
+  // Загружаем список продуктов
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await axiosAPI.get('/profile/products');
+        const productsData = response.data?.data || [];
+        setProducts(productsData);
+      } catch (e) {
+        console.error('Ошибка загрузки продуктов:', e);
+      }
+    })();
+  }, []);
+
+  // Загружаем статус документов
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await axiosAPI.get('/profile/docs/status');
+        setDocumentsStatus({
+          kinds: Array.isArray(data?.kinds) ? data.kinds : [],
+          statusByKind: data?.statusByKind || {},
+          loaded: true
+        });
+      } catch (e) {
+        console.error('Ошибка загрузки статуса документов:', e);
+        setDocumentsStatus(prev => ({ ...prev, loaded: true }));
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -35,6 +80,109 @@ function ModalWindowSendRequestWithdrawl({ onClose }) {
     })();
     return () => { isMounted = false; };
   }, []);
+
+  // Функция проверки инвестиционных правил для продукта
+  const checkInvestmentRulesApproved = (productType) => {
+    if (!documentsStatus.loaded || !products.length) {
+      return null; // Данные еще загружаются
+    }
+
+    const product = products.find(p => p.type === productType);
+    if (!product) {
+      console.log('Withdraw: Продукт не найден', { productType, products: products.map(p => p.type) });
+      return null;
+    }
+
+    // Если продукт не требует инвестиционных правил - считаем, что они утверждены
+    if (product.investment_rules_required === false) {
+      console.log('Withdraw: Продукт не требует инвестиционных правил', { productType });
+      return true;
+    }
+
+    const productTicker = product.ticker;
+
+    // Формируем возможные варианты kind для документа инвестиционных правил
+    const possibleKinds = [];
+    
+    // Вариант 1: по ticker (приоритетный) - investmentrules-{ticker}
+    if (productTicker || product.ticker) {
+      const tickerLower = (productTicker || product.ticker).toLowerCase();
+      possibleKinds.push(`investmentrules-${tickerLower}`);
+      possibleKinds.push(normalizeKindName(`investmentrules-${tickerLower}`));
+    }
+    
+    // Вариант 2: по type с sanitizeSlug - investmentrules-{type-slug}
+    if (productType || product.type) {
+      const typeSlug = sanitizeSlug(productType || product.type);
+      if (typeSlug) {
+        possibleKinds.push(`investmentrules-${typeSlug}`);
+        possibleKinds.push(normalizeKindName(`investmentrules-${typeSlug}`));
+      }
+    }
+
+    // Также добавляем вариант по ticker || type
+    if (productTicker || product.ticker || productType || product.type) {
+      const slug = sanitizeSlug(productTicker || product.ticker || productType || product.type || `product-${product.id}`);
+      possibleKinds.push(`investmentrules-${slug}`);
+      possibleKinds.push(normalizeKindName(`investmentrules-${slug}`));
+    }
+
+    // Убираем дубликаты
+    const uniqueKinds = [...new Set(possibleKinds)];
+
+    // Проверяем, есть ли документ инвестиционных правил для этого продукта
+    const normalizedUploadedKinds = documentsStatus.kinds.map(k => normalizeKindName(k));
+    
+    console.log('Withdraw: Проверка инвестиционных правил', {
+      productType,
+      productTicker,
+      possibleKinds: uniqueKinds,
+      uploadedKinds: documentsStatus.kinds,
+      statusByKind: documentsStatus.statusByKind
+    });
+    
+    for (const kind of uniqueKinds) {
+      const normalizedKind = normalizeKindName(kind);
+      
+      // Проверяем по оригинальному и нормализованному kind
+      const originalKindInList = documentsStatus.kinds.find(k => normalizeKindName(k) === normalizedKind);
+      
+      if (originalKindInList || normalizedUploadedKinds.includes(normalizedKind)) {
+        // Получаем статус - проверяем по оригинальному kind и нормализованному
+        const originalKind = originalKindInList || kind;
+        const status = documentsStatus.statusByKind[originalKind] || 
+                      documentsStatus.statusByKind[normalizedKind] ||
+                      documentsStatus.statusByKind[kind];
+        
+        console.log('Withdraw: Документ найден', {
+          kind,
+          normalizedKind,
+          originalKind,
+          status,
+          statusByKindKeys: Object.keys(documentsStatus.statusByKind)
+        });
+        
+        // Проверяем статус в разных вариантах (с учетом регистра)
+        const statusLower = String(status || '').toLowerCase().trim();
+        const isApproved = statusLower === 'approve' || statusLower === 'approved';
+        
+        if (isApproved) {
+          console.log('Withdraw: Правила утверждены', { kind, status });
+          return true;
+        } else {
+          console.log('Withdraw: Правила не утверждены', { kind, status, statusLower });
+        }
+      }
+    }
+
+    // Документ не найден или не утвержден - правила не утверждены
+    console.log('Withdraw: Документ не найден или не утвержден', {
+      productType,
+      checkedKinds: uniqueKinds,
+      uploadedKinds: documentsStatus.kinds
+    });
+    return false;
+  };
 
   useEffect(() => {
     const acc = accounts.find(a => String(a.id) === String(selectedId));
@@ -79,6 +227,28 @@ function ModalWindowSendRequestWithdrawl({ onClose }) {
       document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'attention', text: 'Введите корректную сумму для вывода' } }));
       return;
     }
+
+    // Проверяем инвестиционные правила для выбранного счета
+    const selectedAccount = accounts.find(acc => String(acc.id) === String(selectedId));
+    if (selectedAccount && selectedAccount.product) {
+      const isRulesApproved = checkInvestmentRulesApproved(selectedAccount.product);
+      
+      // Если данные еще загружаются, ждем
+      if (isRulesApproved === null) {
+        document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'attention', text: 'Проверка инвестиционных правил... Пожалуйста, подождите' } }));
+        return;
+      }
+      
+      // Если правила не утверждены, блокируем операцию
+      if (isRulesApproved === false) {
+        const product = products.find(p => p.type === selectedAccount.product);
+        const productName = product?.type || selectedAccount.product;
+        const message = `Чтобы вывести средства со счета по продукту ${productName}, Вам необходимо подписать и загрузить инвестиционные правила по соответствующему продукту. Дождитесь утверждения ваших подписанных инвестиционных правил, если они были загружены ранее`;
+        document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'info', text: message } }));
+        return;
+      }
+    }
+
     const fee = computeCommission(num);
     const available = balance - pendingForSelected;
 

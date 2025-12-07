@@ -43,8 +43,11 @@ function ModalWindowOpenNewAccount({ onClose, onCreated }) {
         
         console.log('📄 OpenNewAccount: Загружено продуктов из БД:', productsData);
         
+        // Исключаем реферальный продукт из списка
+        const filteredProducts = productsData.filter(prod => prod.type !== 'Referral');
+        
         // Сортируем продукты: Classic первый, остальные по алфавиту
-        const sortedProducts = [...productsData].sort((a, b) => {
+        const sortedProducts = [...filteredProducts].sort((a, b) => {
           if (a.type === 'Classic') return -1;
           if (b.type === 'Classic') return 1;
           return (a.type || '').localeCompare(b.type || '');
