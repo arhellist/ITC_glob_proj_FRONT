@@ -36,6 +36,7 @@ function NotificationPost({ id, header, description, onClose }) {
         data-id={id}
         onClick={handleClick}
       >
+        <div className="notification-blur-background"></div>
         <div 
           className="cancel_icon_notification img" 
           onClick={handleCloseNotification}

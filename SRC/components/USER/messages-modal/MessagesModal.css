@@ -143,6 +143,43 @@
   cursor: pointer;
   background: white;
   transition: background 0.2s;
+  min-height: auto;
+  height: auto;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Мобильная версия: увеличенная высота уведомлений */
+@media (max-width: 768px) {
+  .notification-item {
+    padding: 25px 20px;
+    min-height: auto;
+    height: auto;
+    max-height: none;
+  }
+  
+  .notification-item-subject {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.6;
+    margin-top: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+  
+  .notification-item-header {
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  
+  .notification-item-new-badge {
+    margin-top: 12px;
+    flex-shrink: 0;
+  }
 }
 
 .notification-item.active {
@@ -175,6 +212,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Для мобильной версии текст не обрезается */
+@media (max-width: 768px) {
+  .notification-item-subject {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
 .notification-item-new-badge {
@@ -510,6 +558,45 @@
   background: #e9ecef;
 }
 
+/* Аудио проигрыватель */
+.conversation-attachment-audio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 400px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.conversation-attachment-audio:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.conversation-audio-player {
+  width: 100%;
+  height: 40px;
+  outline: none;
+}
+
+.conversation-audio-player::-webkit-media-controls-panel {
+  background-color: #f8f9fa;
+}
+
+.conversation-audio-filename {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Полноэкранный просмотр вложений */
 .conversation-fullscreen-overlay {
   position: fixed;
@@ -521,7 +608,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10003;
+  z-index: 10004; /* Выше модального окна (10000) и всех мобильных элементов */
   cursor: pointer;
 }
 
@@ -537,6 +624,37 @@
   max-width: 100%;
   max-height: 90vh;
   object-fit: contain;
+}
+
+.conversation-fullscreen-audio {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  min-width: 500px;
+  max-width: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.conversation-fullscreen-audio-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  word-break: break-word;
+  margin-bottom: 10px;
+}
+
+.conversation-fullscreen-audio-player {
+  width: 100%;
+  height: 60px;
+  outline: none;
+}
+
+.conversation-fullscreen-audio-player::-webkit-media-controls-panel {
+  background-color: #f8f9fa;
 }
 
 .conversation-fullscreen-close {
@@ -593,6 +711,180 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ===== Детальные модалки (адаптированы с MiniAppMessagesModal) ===== */
+.messages-notification-detail-overlay,
+.messages-conversation-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10001;
+  padding: 20px;
+}
+
+.messages-notification-detail-container,
+.messages-conversation-detail-container {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.messages-notification-detail-header,
+.messages-conversation-detail-header {
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.messages-notification-detail-title-row,
+.messages-conversation-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.messages-notification-detail-title,
+.messages-conversation-detail-title {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+  flex: 1;
+}
+
+.messages-notification-detail-close-btn,
+.messages-conversation-detail-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.messages-notification-detail-meta,
+.messages-conversation-detail-meta {
+  padding: 10px 20px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  color: #666;
+}
+
+.messages-notification-detail-content {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.messages-notification-detail-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.messages-notification-detail-report-desc {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.messages-notification-detail-report-btn {
+  padding: 12px 24px;
+  background: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.messages-notification-detail-unknown {
+  color: #999;
+  font-size: 14px;
+}
+
+.messages-conversation-header-channel .channel-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: 4px;
+}
+
+.messages-conversation-detail-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 0;
+}
+
+.messages-conversation-message {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.messages-conversation-message.user {
+  align-self: flex-start;
+  background: #f1f1f1;
+}
+
+.messages-conversation-message.admin {
+  align-self: flex-end;
+  background: #e3f2fd;
+}
+
+.messages-conversation-message.system {
+  align-self: flex-end;
+  background: #fff9c4;
+}
+
+.messages-conversation-message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.messages-conversation-message-sender {
+  font-weight: bold;
+  color: #333;
+}
+
+.messages-conversation-message-time {
+  color: #999;
+}
+
+.messages-conversation-message-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  white-space: pre-line;
 }
 
 .conversation-reply-file-remove {
@@ -653,6 +945,20 @@
   z-index: 1000;
 }
 
+/* Выравнивание пикера на мобиле: центрируем, ограничиваем размер */
+@media (max-width: 768px) {
+  .conversation-reply-emoji-picker-wrapper,
+  .new-message-form-emoji-picker-wrapper {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    max-width: 95vw;
+    max-height: 50vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
 .conversation-reply-actions {
   display: flex;
   gap: 10px;
@@ -677,7 +983,7 @@
 }
 
 .conversation-reply-btn {
-  padding: 10px 25px;
+  padding: 10px 18px;
   background: #4caf50;
   color: white;
   border: none;
@@ -685,6 +991,7 @@
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .conversation-reply-btn:disabled {
@@ -910,5 +1217,222 @@
 
 .new-message-form-file-remove:hover {
   transform: scale(1.2);
+}
+
+/* ===== МОБИЛЬНАЯ ВЕРСИЯ: УВЕДОМЛЕНИЯ - СПЛОШНАЯ ЛЕНТА ===== */
+.mobile-notifications-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+
+.mobile-notifications-list .messages-list-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-notifications-list .messages-list-items .notification-item {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+/* Мобильная версия: уведомления с высотой по контенту */
+@media (max-width: 768px) {
+  .mobile-notifications-list .notification-item {
+    padding: 25px 20px;
+    min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  
+  .mobile-notifications-list .notification-item-subject {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.6;
+    margin-top: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    flex: 0 1 auto;
+  }
+  
+  .mobile-notifications-list .notification-item-header {
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  
+  .mobile-notifications-list .notification-item-date {
+    font-size: 14px;
+  }
+  
+  .mobile-notifications-list .notification-item-new-badge {
+    margin-top: 12px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+}
+
+/* ===== МОБИЛЬНАЯ ВЕРСИЯ: ШТОРКА И ОКНО ЧАТА ДЛЯ ОБРАЩЕНИЙ ===== */
+.mobile-conversations-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(100vh - 80px); /* Высота минус заголовок */
+  background: white;
+  z-index: 10002;
+  transform: translateY(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+}
+
+/* Когда шторка поднята, она должна останавливаться на уровне counter */
+.mobile-conversations-drawer[style*="translateY"] {
+  /* Позиция рассчитывается динамически через JS */
+}
+
+.mobile-drawer-handle {
+  width: 50px;
+  height: 5px;
+  background: #ccc;
+  border-radius: 3px;
+  margin: 10px auto;
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
+  user-select: none;
+}
+
+.mobile-drawer-handle:active {
+  cursor: grabbing;
+}
+
+.mobile-drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+
+.mobile-chat-window {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(100vh - 80px); /* Высота минус заголовок */
+  background: white;
+  z-index: 10003;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-chat-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+  background: #f8f9fa;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.mobile-chat-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.mobile-chat-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.mobile-chat-close-btn:hover {
+  color: #333;
+}
+
+.mobile-chat-title {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.mobile-chat-meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.mobile-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 0;
+}
+
+.mobile-chat-back-btn {
+  padding: 10px 20px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mobile-chat-back-btn:hover {
+  background: #555;
+}
+
+/* Скрываем старую зону списка в мобильной версии для обращений */
+@media (max-width: 768px) {
+  .messages-list-zone.mobile-drawer-list {
+    display: none !important;
+  }
+  
+  .messages-view-zone {
+    display: none !important;
+  }
 }
 

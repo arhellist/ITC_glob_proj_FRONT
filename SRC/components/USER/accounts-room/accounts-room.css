@@ -66,41 +66,38 @@
     transition: filter 0.3s ease;
   }
 
-  .account-container-myaccounts-table-item-content.account-blurred {
-    filter: blur(3px);
-    pointer-events: none;
-  }
+.account-container-myaccounts-table-item-content.account-blurred {
+  filter: blur(3px);
+  pointer-events: none;
+}
 
-  .account-container-myaccounts-table-item-content.account-blurred:hover {
-    filter: blur(2px);
-  }
+/* Десктопная версия: подсказка появляется при наведении, поверх карточки */
+.account-blur-tooltip {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.95);
+  color: #ffffff;
+  padding: 1vw 1.5vw;
+  border-radius: 0.5vw;
+  font-size: 0.9vw;
+  font-weight: 400;
+  text-align: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  max-width: 80%;
+  white-space: normal;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-  .account-blur-tooltip {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.95);
-    color: #ffffff;
-    padding: 1vw 1.5vw;
-    border-radius: 0.5vw;
-    font-size: 0.9vw;
-    font-weight: 400;
-    text-align: center;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    max-width: 85%;
-    white-space: normal;
-    line-height: 1.5;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .account-container-myaccounts-table-item:hover .account-blur-tooltip {
-    opacity: 1;
-  }
+.account-container-myaccounts-table-item:hover .account-blur-tooltip {
+  opacity: 1;
+}
   
   .account-container-myaccounts-table-item-number {
     width: 90%;
@@ -259,6 +256,7 @@
     font-weight: 600;
     color: #ffffff;
     background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    cursor: pointer;
   }
   
   /* ADD ACCOUNT MODAL WINDOW */
@@ -291,6 +289,7 @@
     right: 1vw;
     width: 2vw;
     height: 2vw;
+    cursor: pointer;
   }
   
   .account-container-addAccount-modal-window-menu-cancel-icon{
@@ -364,6 +363,7 @@
       font-weight: 600;
       color: #ffffff;
       background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+      cursor: pointer;
   }
   
   
@@ -400,6 +400,7 @@
       right: 1vw;
       width: 2vw;
       height: 2vw;
+      cursor: pointer;
     }
     
     .account-container-withdrawl-modal-window-menu-cancel-icon{
@@ -486,6 +487,7 @@
         font-weight: 600;
         color: #ffffff;
         background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+        cursor: pointer;
     }
   
   
@@ -520,6 +522,7 @@
       right: 1vw;
       width: 2vw;
       height: 2vw;
+      cursor: pointer;
     }
     
     .account-container-transfer-modal-window-menu-cancel-icon{
@@ -593,6 +596,7 @@
         font-weight: 600;
         color: #ffffff;
         background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+        cursor: pointer;
     }
   
   
@@ -633,6 +637,7 @@
       right: 1vw;
       width: 2vw;
       height: 2vw;
+      cursor: pointer;
     }
     
     .account-container-craa-modal-window-menu-cancel-icon{
@@ -706,6 +711,7 @@
         font-weight: 600;
         color: #ffffff;
         background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+        cursor: pointer;
     }
   
     .account-container-craa-modal-window-menu-payment-method-title{

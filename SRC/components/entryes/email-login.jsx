@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "../../JS/auth/store/store";
 import { collectBasicFingerprint, parseUserAgent } from "../../utils/fingerprint-collector.js";
+import FingerprintPermissionsModal from "./fingerprint-permissions-modal.jsx";
 import axios from "axios";
+import { API_CONFIG } from "../../config/api.js"; // Централизованный BASE_URL для API
 import "../entryes/entryes.css";
 
 function EmailLogin() {
@@ -10,6 +12,7 @@ function EmailLogin() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFingerprintModal, setShowFingerprintModal] = useState(false);
   const token = searchParams.get('token');
 
   useEffect(() => {
@@ -22,8 +25,9 @@ function EmailLogin() {
 
       try {
         setLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const loginUrl = apiUrl 
+        // Используем централизованную конфигурацию, чтобы в проде всегда был верный BASE_URL
+        const apiUrl = API_CONFIG.BASE_URL || '';
+        const loginUrl = apiUrl
           ? `${apiUrl}/auth/email-link/login`
           : `/auth/email-link/login`;
         
@@ -75,7 +79,19 @@ function EmailLogin() {
             detail: { type: 'success', text: 'Вход выполнен успешно' } 
           }));
           
-          navigate('/personal-room');
+          // Проверяем fingerprint_permissions после успешной авторизации
+          try {
+            const storedPermissions = localStorage.getItem('fingerprint_permissions');
+            if (!storedPermissions) {
+              // Если разрешения не были запрошены - показываем модальное окно
+              setShowFingerprintModal(true);
+            } else {
+              navigate('/personal-room');
+            }
+          } catch (e) {
+            console.warn('Ошибка чтения разрешений из localStorage:', e);
+            navigate('/personal-room');
+          }
         } else {
           setError(response.data.message || 'Ошибка входа по ссылке');
         }
@@ -147,6 +163,20 @@ function EmailLogin() {
           }
         `}</style>
       </div>
+
+      {/* Модальное окно разрешений на fingerprint */}
+      {showFingerprintModal && (
+        <FingerprintPermissionsModal
+          onPermissionsGranted={() => {
+            setShowFingerprintModal(false);
+            navigate('/personal-room');
+          }}
+          onPermissionsDenied={() => {
+            setShowFingerprintModal(false);
+            navigate('/personal-room');
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -17,7 +17,7 @@
     margin-top: 1vw;
   }
   
-  .add-document-button-container {
+.add-document-button-container {
     width: 98%;
     height: 95%;
   }
@@ -29,7 +29,7 @@
     margin-bottom: 1vw;
   }
   
-.add-document-button-container-item {
+  .add-document-button-container-item {
     width: 40vw;
     height: 8.2vw;
   }
@@ -43,6 +43,35 @@
     font-size: 1vw;
     text-align: center;
     padding: 0 1vw;
+  }
+
+  .add-document-button-container-item-buttons {
+    width: 100%;
+    gap: 0.8vw;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .add-document-button-container-item-view-button {
+    width: 3.5vw;
+    height: 3.5vw;
+    min-width: 3.5vw;
+    min-height: 3.5vw;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    border-radius: 1vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .iconView {
+    width: 60%;
+    height: 60%;
+    background-image: url("../../../IMG/profiles/white/documents.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
   .iconRefresh{
@@ -249,6 +278,159 @@
     white-space: normal;
     word-wrap: break-word;
     margin-bottom: 8px;
+  }
+
+  /* Вьювер документов (основной сайт, desktop) */
+  .docs-viewer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+  }
+
+  .docs-viewer-container {
+    width: 60vw;
+    max-height: 80vh;
+    background-color: #141f33;
+    box-shadow: 0 0 1.5vw 0.8vw rgba(0, 0, 0, 0.671);
+    padding: 1.5vw;
+    box-sizing: border-box;
+  }
+
+  .docs-viewer-header {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1vw;
+  }
+
+  .docs-viewer-title {
+    font-size: 1.4vw;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+
+  .docs-viewer-close {
+    width: 2vw;
+    height: 2vw;
+  }
+
+  .docs-viewer-close-icon {
+    width: 100%;
+    height: 100%;
+    background-image: url("../../../IMG/profiles/white/exit.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .docs-viewer-content {
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    gap: 1vw;
+    align-items: flex-start;   /* чтобы первый элемент начинался строго сверху */
+    justify-content: flex-start;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  .docs-viewer-item {
+    width: 100%;
+    gap: 0.5vw;
+  }
+
+  .docs-viewer-item-header {
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .docs-viewer-item-name {
+    font-size: 1vw;
+    font-weight: 500;
+    color: #ffffff;
+  }
+
+  .docs-viewer-item-image-wrapper {
+    width: 100%;
+    /* Картинка всегда полностью видна, центрирована по горизонтали и вертикали,
+       прокрутка только у общей ленты docs-viewer-content */
+    max-height: none;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .docs-viewer-item-image {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.5vw;
+  }
+
+  .docs-viewer-item-iframe {
+    width: 100%;
+    height: 60vh;
+    border: none;
+    border-radius: 0.5vw;
+  }
+
+  .docs-viewer-item-actions {
+    margin-top: 0.5vw;
+    justify-content: flex-end;
+    gap: 0.5vw;
+  }
+
+  .docs-viewer-item-download-button {
+    padding: 0.4vw 1vw;
+    font-size: 0.9vw;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    border-radius: 0.6vw;
+  }
+
+  .docs-viewer-empty {
+    font-size: 1vw;
+    color: #ffffff;
+    text-align: center;
+    margin-top: 1vw;
+  }
+
+  /* Tooltip при наведении на кнопку просмотра (только десктоп, без мобильных/планшетов) */
+  @media (min-width: 1025px) {
+    .add-document-button-container-item-view-button {
+      position: relative;
+    }
+
+    .add-document-button-container-item-view-button::after {
+      content: 'Просмотреть';
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      background: rgba(7, 10, 16, 0.95);
+      color: #f5f5f5;
+      padding: 0.3vw 0.6vw;
+      font-size: 0.8vw;
+      border-radius: 0.4vw;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 10;
+    }
+
+    .add-document-button-container-item-view-button:hover::after {
+      opacity: 1;
+    }
   }
 
   .docs-room-tooltip::after {

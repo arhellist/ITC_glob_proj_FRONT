@@ -52,6 +52,7 @@ const Captcha = ({ onVerified, isVerified = false }) => { // Компонент 
 
   // Обработчики мыши
   const handleMouseDown = (e) => {
+    if (!e.isTrusted) return;
     setIsDragging(true);
     const rect = puzzlePieceRef.current.getBoundingClientRect();
     startPosRef.current = {
@@ -61,22 +62,36 @@ const Captcha = ({ onVerified, isVerified = false }) => { // Компонент 
     e.preventDefault();
   };
 
+  const handleTouchStart = (e) => {
+    if (!e.isTrusted || !e.touches || e.touches.length === 0) return;
+    setIsDragging(true);
+    const touch = e.touches[0];
+    const rect = puzzlePieceRef.current.getBoundingClientRect();
+    startPosRef.current = {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    };
+    e.preventDefault();
+  };
+
   const handleMouseMove = useCallback((e) => {
-    if (!isDragging) return;
+    if (!isDragging || !e.isTrusted) return;
     
     const containerRect = puzzleContainerRef.current.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    const containerHeight = containerRect.height;
     const newLeft = e.clientX - containerRect.left - startPosRef.current.x;
     const newTop = e.clientY - containerRect.top - startPosRef.current.y;
     
     // Ограничиваем движение в пределах контейнера
-    const clampedLeft = Math.max(0, Math.min(newLeft, CONTAINER_WIDTH - PIECE_SIZE));
-    const clampedTop = Math.max(0, Math.min(newTop, CONTAINER_HEIGHT - PIECE_SIZE));
+    const clampedLeft = Math.max(0, Math.min(newLeft, containerWidth - PIECE_SIZE));
+    const clampedTop = Math.max(0, Math.min(newTop, containerHeight - PIECE_SIZE));
     
     setCurrentLeft(clampedLeft);
     setCurrentTop(clampedTop);
     
     // Обновляем слайдер
-    const sliderPos = (clampedLeft / (CONTAINER_WIDTH - PIECE_SIZE)) * 200;
+    const sliderPos = (clampedLeft / (containerWidth - PIECE_SIZE)) * 200;
     setSliderValue(sliderPos);
     
     // Отложенная проверка позиции
@@ -84,18 +99,57 @@ const Captcha = ({ onVerified, isVerified = false }) => { // Компонент 
     checkTimeoutRef.current = setTimeout(checkPuzzlePosition, 50);
   }, [isDragging, checkPuzzlePosition]);
 
-  const handleMouseUp = useCallback(() => {
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging || !e.isTrusted || !e.touches || e.touches.length === 0) return;
+    
+    const touch = e.touches[0];
+    const containerRect = puzzleContainerRef.current.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    const containerHeight = containerRect.height;
+    const newLeft = touch.clientX - containerRect.left - startPosRef.current.x;
+    const newTop = touch.clientY - containerRect.top - startPosRef.current.y;
+    
+    const clampedLeft = Math.max(0, Math.min(newLeft, containerWidth - PIECE_SIZE));
+    const clampedTop = Math.max(0, Math.min(newTop, containerHeight - PIECE_SIZE));
+    
+    setCurrentLeft(clampedLeft);
+    setCurrentTop(clampedTop);
+    
+    const sliderPos = (clampedLeft / (containerWidth - PIECE_SIZE)) * 200;
+    setSliderValue(sliderPos);
+    
+    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+    checkTimeoutRef.current = setTimeout(checkPuzzlePosition, 50);
+    
+    e.preventDefault();
+  }, [isDragging, checkPuzzlePosition]);
+
+  const handleMouseUp = useCallback((e) => {
     if (isDragging) {
+      if (e && !e.isTrusted) return;
       setIsDragging(false);
       if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
       checkPuzzlePosition();
     }
   }, [isDragging, checkPuzzlePosition]);
 
+  const handleTouchEnd = useCallback((e) => {
+    if (isDragging) {
+      if (e && !e.isTrusted) return;
+      setIsDragging(false);
+      if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+      checkPuzzlePosition();
+    }
+    e.preventDefault();
+  }, [isDragging, checkPuzzlePosition]);
+
   // Обработчик слайдера
   const handleSliderChange = (e) => {
+    if (!e.isTrusted) return;
     const value = parseInt(e.target.value);
-    const maxLeft = CONTAINER_WIDTH - PIECE_SIZE;
+    const containerRect = puzzleContainerRef.current?.getBoundingClientRect();
+    const containerWidth = containerRect ? containerRect.width : CONTAINER_WIDTH;
+    const maxLeft = containerWidth - PIECE_SIZE;
     const leftPosition = (value / 200) * maxLeft;
     
     setCurrentLeft(leftPosition);
@@ -107,24 +161,31 @@ const Captcha = ({ onVerified, isVerified = false }) => { // Компонент 
   };
 
   // Обработчик кнопки проверки
-  const handleVerify = () => {
+  const handleVerify = (e) => {
+    if (e && !e.isTrusted) return;
     if (isPuzzleSolved && onVerified) {
       onVerified(true);
     }
   };
 
-  // Добавляем глобальные обработчики мыши
+  // Добавляем глобальные обработчики мыши и тач-событий
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd, { passive: false });
+      document.addEventListener('touchcancel', handleTouchEnd, { passive: false });
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   // Очистка таймера при размонтировании
   useEffect(() => {
@@ -173,9 +234,11 @@ const Captcha = ({ onVerified, isVerified = false }) => { // Компонент 
           style={{
             left: `${currentLeft}px`,
             top: `${currentTop}px`,
-            cursor: isDragging ? 'grabbing' : 'grab'
+            cursor: isDragging ? 'grabbing' : 'grab',
+            touchAction: 'none'
           }}
           onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
         >
           <div className="puzzle-indicator">
             {isPuzzleSolved ? '✓' : '↔'}

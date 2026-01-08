@@ -2,6 +2,8 @@ import "./partner-progs.css";
 import { useAuthStore } from "../../../JS/auth/store/store";
 import { useEffect, useState } from "react";
 import axiosAPI from "../../../JS/auth/http/axios.js";
+import defaultMaleAvatar from "../../../IMG/male/ava.png";
+import defaultFemaleAvatar from "../../../IMG/female/ava.png";
 
 function PartnerProgs() {
   const user = useAuthStore(s => s.user);
@@ -150,14 +152,69 @@ function PartnerProgs() {
           {!loading && !error && referrals.length === 0 && (
             <div className="partners-empty">У вас пока нет рефералов</div>
           )}
-          {!loading && !error && referrals.map(ref => (
-            <div key={ref.id} className="partners-program-right-table-item  gradient-border flex flex-row bru">
-              <div className="partners-program-right-table-item-img flex bru gradient-border">
-                <div className="partners-program-right-table-item-img-img img"></div>
+          {!loading && !error && referrals.map(ref => {
+            // Определяем дефолтный аватар по полу
+            const defaultAvatar = ref.gender === 'female' ? defaultFemaleAvatar : defaultMaleAvatar;
+            
+            // Строгая проверка наличия валидного аватара
+            const avatar = ref.avatar;
+            let avatarUrl = defaultAvatar; // По умолчанию дефолтный
+            let hasValidAvatar = false;
+            
+            // Проверяем, что аватар существует и валиден
+            // Если аватара нет или он невалидный - используем дефолтный БЕЗ попытки загрузки
+            if (avatar !== null && 
+                avatar !== undefined && 
+                typeof avatar === 'string' && 
+                avatar.trim() !== '' && 
+                avatar.trim() !== 'noAvatar' && 
+                avatar.trim() !== 'null' && 
+                avatar.trim() !== 'undefined' &&
+                avatar.trim().length > 0) {
+              
+              const trimmedAvatar = avatar.trim();
+              
+              // Если это полный URL
+              if (trimmedAvatar.startsWith('http://') || trimmedAvatar.startsWith('https://')) {
+                avatarUrl = trimmedAvatar;
+                hasValidAvatar = true;
+              } 
+              // Если это путь начинающийся с /
+              else if (trimmedAvatar.startsWith('/')) {
+                avatarUrl = trimmedAvatar;
+                hasValidAvatar = true;
+              } 
+              // Иначе формируем путь /users/{avatar}
+              else {
+                avatarUrl = `/users/${trimmedAvatar}`;
+                hasValidAvatar = true;
+              }
+            }
+            // Если аватара нет - avatarUrl уже установлен в defaultAvatar, hasValidAvatar = false
+            
+            return (
+              <div key={ref.id} className="partners-program-right-table-item  gradient-border flex flex-row bru">
+                <div className="partners-program-right-table-item-img flex bru gradient-border">
+                  <img 
+                    src={avatarUrl} 
+                    alt={ref.fio || 'Партнер'} 
+                    className="partners-program-right-table-item-img-img"
+                    onError={hasValidAvatar ? (e) => {
+                      // Если аватар не загрузился, используем дефолтный
+                      // Проверяем, что это не дефолтный аватар, чтобы избежать цикла
+                      const currentSrc = e.target.src || '';
+                      const isDefault = currentSrc.includes('ProfileAdd.png') || currentSrc.includes('ProfileFemale.png');
+                      if (!isDefault) {
+                        e.target.src = defaultAvatar;
+                        e.target.onerror = null; // Убираем обработчик после первой ошибки, чтобы избежать цикла
+                      }
+                    } : undefined}
+                  />
+                </div>
+                <span className="partners-program-right-table-item-name">{ref.fio || '—'}</span>
               </div>
-              <span className="partners-program-right-table-item-name">{ref.fio || '—'}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

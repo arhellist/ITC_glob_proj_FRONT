@@ -43,6 +43,9 @@ class KeystrokeCollector {
     this.keyUpHandler = (e) => {
       if (!this.isEnabled || !this.currentKeyDownTime) return;
       
+      // Проверяем, что e.key существует перед проверкой длины
+      if (!e || !e.key) return;
+      
       const keyUpTime = Date.now();
       const keyDownTime = this.currentKeyDownTime;
       const duration = keyUpTime - keyDownTime; // Длительность нажатия
@@ -621,22 +624,54 @@ class BehavioralBiometricsCollector {
       return null;
     }
 
+    // Проверяем наличие токена перед отправкой запроса
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      console.warn('Behavioral Biometrics: Токен отсутствует, пропускаем отправку данных');
+      return null;
+    }
+
     const data = this.getAllData();
     
+    // Проверяем, что есть данные для отправки
+    if (!data || Object.keys(data).length === 0) {
+      console.log('Behavioral Biometrics: Нет данных для отправки');
+      return null;
+    }
+    
     try {
+      // Дополнительная проверка токена перед отправкой
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.warn('Behavioral Biometrics: Токен отсутствует перед отправкой запроса');
+        return null;
+      }
+
+      console.log('📊 Behavioral Biometrics: Отправка данных на анализ, userId:', userId);
+      console.log('📊 Behavioral Biometrics: Токен присутствует:', token.substring(0, 20) + '...');
+      
       const response = await axiosAPI.post('/profile/behavioral-biometrics/analyze', {
         userId: userId,
         data: data
       });
 
       if (response.data && response.data.success) {
+        console.log('✅ Behavioral Biometrics: Данные успешно отправлены и проанализированы');
         return response.data;
       } else {
         console.error('Ошибка отправки данных Behavioral Biometrics: неверный формат ответа');
         return null;
       }
     } catch (error) {
-      console.error('Ошибка отправки данных Behavioral Biometrics:', error.response?.statusText || error.message);
+      // Игнорируем 401 ошибки - они обрабатываются axios interceptor'ом
+      if (error.response?.status === 401) {
+        console.warn('⚠️ Behavioral Biometrics: Пользователь не авторизован (401), пропускаем отправку данных');
+        console.warn('⚠️ Behavioral Biometrics: URL запроса:', error.config?.url);
+        console.warn('⚠️ Behavioral Biometrics: Headers запроса:', error.config?.headers);
+        return null;
+      }
+      console.error('❌ Ошибка отправки данных Behavioral Biometrics:', error.response?.statusText || error.message);
+      console.error('❌ Детали ошибки:', error.response?.data);
       return null;
     }
   }

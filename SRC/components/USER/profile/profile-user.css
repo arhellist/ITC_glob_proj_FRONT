@@ -8,12 +8,14 @@
     width: 100%;
     height: 45%;
     margin-top: 1vw;
+    margin-bottom: 1vw;
     justify-content: space-between;
   }
   
   .profile-container-lineDown {
     width: 100%;
     height: 45%;
+    margin-top: 1vw;
     margin-bottom: 1vw;
     justify-content: space-between;
   }
@@ -42,9 +44,16 @@
   
   .profile-personal-info {
     position: relative;
-    width: 63vw;
-    height: 91%;
+    width: calc(27vw + 2vw + 32vw); /* Служба поддержки + отступы (gap) + Подписки */
+    height: 100%;
     padding: 1vw;
+    padding-top: 5vw; /* Отступ сверху для кнопки настроек */
+    margin-top: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: stretch;
   }
   
   .profile-personal-info-panel {
@@ -54,7 +63,11 @@
     flex-wrap: wrap;
     justify-content: start;
     align-items: start;
-    margin-right: 5vw;
+    margin-right: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
   }
   
   .profile-personal-info-panel label {
@@ -65,13 +78,24 @@
   }
   
   .profile-personal-info-panel input {
-    width: 18vw;
+    width: 100%;
     height: 2.5vw;
     font-size: 1vw;
     font-weight: 300;
     color: #000000;
     padding: 0 0.5vw;
     border: none;
+    box-sizing: border-box;
+  }
+
+  .profile-personal-info-panel > div.flex.flex-column {
+    width: calc(33.333% - 0.67vw); /* 3 элемента в строке с учетом gap */
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: stretch;
+    gap: 0.5vw;
+    box-sizing: border-box;
   }
   
   .profile-settenings-button {
@@ -82,6 +106,7 @@
     height: 3.5vw;
     cursor: pointer;
     background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+    z-index: 10;
   }
   
   .profile-settenings-button-img {
@@ -125,10 +150,15 @@
     background-image: url("../../../IMG/profiles/white/save.png");
   }
   
-  .profile-history-entries,
-  .profile-support-service {
+  .profile-history-entries {
     width: 17vw;
-    height: 20vw;
+    height: 19vw !important;
+    justify-content: start;
+  }
+
+  .profile-support-service {
+    width: 27vw;
+    height: 19vw !important;
     justify-content: start;
   }
   
@@ -176,8 +206,8 @@
   }
   
   .profile-itcclub-form {
-    width: 47vw;
-    height: 18vw;
+    width: 32vw;
+    height: 17vw !important;
     justify-content: center;
     align-items: center;
     padding: 1vw;
@@ -185,15 +215,21 @@
   
   .profile-itcclub-form-header {
     width: 100%;
+    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 2vw;
+    gap: 1vw;
+    flex-shrink: 0;
   }
   
   .profile-itcclub-form-logo {
     width: 10vw;
     height: 8vw;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .profile-itcclub-form-logo-img {
@@ -208,6 +244,8 @@
   .profile-itcclub-form-title-wrapper {
     gap: 0.3vw;
     align-items: flex-start;
+    display: flex;
+    flex-direction: column;
   }
   
   .profile-itcclub-form-title-line1,

@@ -21,9 +21,14 @@ const ReceiptPreview = ({ receiptPath, onClick }) => {
       return;
     }
 
-    // Нормализуем путь (убираем начальный слэш если есть)
-    const normalizedPath = receiptPath.startsWith('/') ? receiptPath.substring(1) : receiptPath;
-    const receiptUrl = `${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?token=${token}&t=${Date.now()}`;
+    // Нормализуем путь: убираем все начальные слэши
+    let normalizedPath = receiptPath;
+    while (normalizedPath.startsWith('/')) {
+      normalizedPath = normalizedPath.substring(1);
+    }
+    // Добавляем токен в query параметр для img, так как cookie может не передаваться
+    const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+    const receiptUrl = `${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?t=${Date.now()}${tokenParam}`;
     
     // Проверяем, является ли файл PDF
     const isPdfFile = receiptPath.toLowerCase().endsWith('.pdf');
@@ -66,24 +71,21 @@ const ReceiptPreview = ({ receiptPath, onClick }) => {
         return;
       }
       
-      // Нормализуем путь (убираем начальный слэш если есть)
-      const normalizedPath = receiptPath.startsWith('/') ? receiptPath.substring(1) : receiptPath;
-      const downloadUrl = `${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?token=${token}&download=true`;
-      
-      // Используем fetch для получения файла как blob
-      const response = await fetch(downloadUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Ошибка загрузки: ${response.status} ${response.statusText}`);
+      // Нормализуем путь: убираем все начальные слэши
+      let normalizedPath = receiptPath;
+      while (normalizedPath.startsWith('/')) {
+        normalizedPath = normalizedPath.substring(1);
       }
       
-      // Получаем blob
-      const blob = await response.blob();
+      // Используем axiosAPI для скачивания - токен будет в куках
+      const { default: axiosAPI } = await import('../../../JS/auth/http/axios');
+      const response = await axiosAPI.get(`/admin/receipts/${normalizedPath}`, {
+        params: { download: 'true' },
+        responseType: 'blob'
+      });
+      
+      // axios возвращает данные напрямую в response.data
+      const blob = response.data;
       
       // Создаем временную ссылку для скачивания
       const blobUrl = window.URL.createObjectURL(blob);

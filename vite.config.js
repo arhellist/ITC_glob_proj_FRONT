@@ -13,19 +13,55 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // Временно оставляем console.log для отладки
         drop_debugger: true,
       },
     },
+    // Увеличиваем лимит предупреждений для больших чанков
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // Разделение кода на чанки
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          store: ['zustand'],
-          utils: ['axios'],
+        // Автоматическое разделение кода на чанки
+        manualChunks(id) {
+          // Разделение node_modules на отдельные чанки
+          if (id.includes('node_modules')) {
+            // React и React DOM в отдельный чанк
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            // React Router в отдельный чанк
+            if (id.includes('react-router')) {
+              return 'router-vendor';
+            }
+            // Zustand в отдельный чанк
+            if (id.includes('zustand')) {
+              return 'store-vendor';
+            }
+            // Axios в отдельный чанк
+            if (id.includes('axios')) {
+              return 'axios-vendor';
+            }
+            // Остальные node_modules в общий vendor чанк
+            return 'vendor';
+          }
+          // Разделение компонентов по папкам для лучшего code splitting
+          if (id.includes('/components/entryes/')) {
+            return 'entryes';
+          }
+          if (id.includes('/components/main/')) {
+            return 'main';
+          }
+          if (id.includes('/components/USER/')) {
+            return 'user-components';
+          }
+          if (id.includes('/components/ADMIN/')) {
+            return 'admin-components';
+          }
         },
+        // Оптимизация имен файлов для лучшего кеширования
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
       },
     },
   },
@@ -39,6 +75,14 @@ export default defineConfig({
       key: fs.readFileSync('./localhost+2-key.pem'),
       cert: fs.readFileSync('./localhost+2.pem'),
     },
+    // Настройки HMR для исправления проблем с react-refresh
+    // Используем автоматическое определение настроек
+    hmr: true,
+    // Увеличиваем таймауты для предотвращения ERR_TOO_MANY_RETRIES
+    watch: {
+      usePolling: false,
+    },
+    // Исключаем определенные пути из прокси (для HMR и Vite внутренних путей)
     proxy: {
       // Прокси для всех запросов к бэкенду
       '/api': {
@@ -47,6 +91,12 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '', // Убираем перезапись домена для cookies
         cookiePathRewrite: '/', // Устанавливаем путь для cookies
+        bypass: (req) => {
+          // Исключаем внутренние пути Vite из прокси
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       // Прокси для маршрутов аутентификации и других маршрутов бэкенда
       '/auth': {
@@ -55,6 +105,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '', // Убираем перезапись домена для cookies
         cookiePathRewrite: '/', // Устанавливаем путь для cookies
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       '/profile': {
         target: 'http://localhost:3000',
@@ -62,6 +117,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       '/admin': {
         target: 'http://localhost:3000',
@@ -69,6 +129,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       '/uploads': {
         target: 'http://localhost:3000',
@@ -76,6 +141,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       // Прокси для статических файлов подписок
       '/subscriptions': {
@@ -84,6 +154,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       '/security': {
         target: 'http://localhost:3000',
@@ -91,6 +166,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       // Прокси для статических файлов (аватары пользователей)
       '/users': {
@@ -99,6 +179,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       // Прокси для других статических файлов (public папка)
       '/public': {
@@ -107,6 +192,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       // Прокси для статических файлов storage (вложения поддержки)
       '/storage': {
@@ -115,6 +205,11 @@ export default defineConfig({
         secure: false,
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
       // Прокси для WebSocket через Socket.IO
       '/socket.io': {
@@ -124,6 +219,11 @@ export default defineConfig({
         ws: true, // Включаем поддержку WebSocket
         cookieDomainRewrite: '',
         cookiePathRewrite: '/',
+        bypass: (req) => {
+          if (req.url.startsWith('/@') || req.url.includes('react-refresh')) {
+            return req.url;
+          }
+        },
       },
     },
   },

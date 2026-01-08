@@ -3,6 +3,7 @@ function NotificationInfo({ text }) {
     <div
       className="notification click_notification info flex flex-row bru pointer"
     >
+      <div className="notification-blur-background"></div>
       <div className="info_icon notification_img img"></div>
       <div className="text">{text}</div>
     </div>

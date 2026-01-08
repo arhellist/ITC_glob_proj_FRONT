@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { API_CONFIG } from '../../../../config/api';
+import { API_CONFIG, getAvatarUrl } from '../../../../config/api';
 import axiosAPI from '../../../../JS/auth/http/axios';
 import { useAuthStore } from '../../../../JS/auth/store/store';
 import './ClientDetailsModal.css';
@@ -287,11 +287,7 @@ const ClientDetailsModal = ({ client, onClose }) => {
                         const avatar = getAvatar();
                         return avatar ? (
                           <img
-                            src={
-                              avatar.startsWith("http")
-                                ? avatar
-                                : `${API_CONFIG.BASE_URL}${avatar}`
-                            }
+                            src={getAvatarUrl(avatar)}
                             alt="Avatar"
                           />
                         ) : (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import adminService from '../../../../../JS/services/admin-service';
+import { getAvatarUrl } from '../../../../../config/api';
 
 const UserProfile = ({ user, onUserUpdate, onPasswordReset, onAccountBlock }) => {
   const [notes, setNotes] = useState(user?.description || '');
@@ -92,7 +93,7 @@ const UserProfile = ({ user, onUserUpdate, onPasswordReset, onAccountBlock }) =>
           <div className="user-profile-avatar">
             {user.avatar && user.avatar !== 'noAvatar' ? (
               <img
-                src={user.avatar.startsWith('http') ? user.avatar : `${import.meta.env.VITE_API_URL}${user.avatar}`}
+                src={getAvatarUrl(user.avatar)}
                 alt={user.fullName}
               />
             ) : (

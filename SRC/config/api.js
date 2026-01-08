@@ -7,27 +7,19 @@ import envConfig from './environment-config'; // Импорт конфигура
 
 // Получаем базовый URL API из environment config
 const getApiUrl = () => { // Функция для получения базового URL API сервера
-  // В development при использовании HTTPS (через прокси Vite) игнорируем VITE_API_URL
-  // и используем относительные пути для работы через прокси
-  const isDevelopment = envConfig.isDevelopment();
-  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-  
-  if (isDevelopment && isHttps) {
-    // В development с HTTPS используем относительные пути через прокси Vite
-    console.log('🔧 getApiUrl: Development + HTTPS - используем относительные пути через прокси');
-    return ''; // Пустая строка = относительные пути через прокси
+  // В development ВСЕГДА используем пустую строку для работы через прокси Vite
+  // Это критично для передачи кук между HTTPS фронтендом и HTTP бэкендом
+  if (envConfig.isDevelopment()) {
+    return ''; // Относительные пути через прокси Vite dev сервера
   }
   
-  // Проверяем переменную окружения Vite (для переопределения в production или HTTP development)
-  if (import.meta.env.VITE_API_URL) { // Проверяем наличие переменной окружения VITE_API_URL
-    console.log('🔧 getApiUrl: Используем VITE_API_URL:', import.meta.env.VITE_API_URL); // Логируем использование переменной окружения
-    return import.meta.env.VITE_API_URL; // Возвращаем URL из переменной окружения
+  // В production всегда используем window.location.origin (надежнее, чем переменные окружения при сборке)
+  if (envConfig.isProduction() && typeof window !== 'undefined' && window.location) {
+    return window.location.origin;
   }
   
-  // Используем автоматически определенный URL из environment config
-  const apiUrl = envConfig.getApiUrl(); // Получаем URL из конфигурации окружения
-  console.log('🔧 getApiUrl: Используем автоматически определенный URL:', apiUrl); // Логируем автоматически определенный URL
-  return apiUrl; // Возвращаем автоматически определенный URL
+  // Используем автоматически определенный URL из environment config (fallback)
+  return envConfig.getApiUrl();
 };
 
 // Экспортируем конфигурацию API для использования в других модулях
@@ -46,24 +38,92 @@ export const getAvatarUrl = (avatarPath) => {
     return null;
   }
   
-  // Если это уже полный URL (http/https), возвращаем как есть
-  if (avatarPath.startsWith('http')) {
-    return avatarPath;
+  // Преобразуем в строку на случай если это не строка
+  let normalizedPath = String(avatarPath).trim();
+  
+  // Логируем исходный путь для диагностики
+  if (normalizedPath.includes('localhost') || normalizedPath.includes('127.0.0.1')) {
+    console.warn('⚠️ getAvatarUrl: Обнаружен localhost в пути аватара:', normalizedPath);
+  }
+  
+  // Агрессивная нормализация: извлекаем только путь после домена
+  // Обрабатываем случаи: http://localhost:3000/users/... или http://127.0.0.1:3000/users/...
+  const localhostMatch = normalizedPath.match(/(?:https?:\/\/)?(?:localhost|127\.0\.0\.1)(?::\d+)?\/(users\/.*?)(?:\?|$)/i);
+  if (localhostMatch && localhostMatch[1]) {
+    normalizedPath = '/' + localhostMatch[1];
+    console.log('✅ getAvatarUrl: Извлечен путь из localhost URL:', avatarPath, '->', normalizedPath);
+  } else {
+    // Нормализуем URL: убираем localhost если есть (различные варианты)
+    normalizedPath = normalizedPath
+      .replace(/https?:\/\/localhost:3000/gi, '')
+      .replace(/https?:\/\/127\.0\.0\.1:3000/gi, '')
+      .replace(/http:\/\/localhost:3000/gi, '')
+      .replace(/http:\/\/127\.0\.0\.1:3000/gi, '')
+      .replace(/https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/gi, '');
+    
+    // Дополнительная проверка: если все еще есть localhost, извлекаем путь
+    if (normalizedPath.includes('localhost') || normalizedPath.includes('127.0.0.1')) {
+      console.warn('⚠️ getAvatarUrl: localhost все еще присутствует, применяем агрессивную нормализацию');
+      // Извлекаем только путь после /users/
+      const usersMatch = normalizedPath.match(/\/(users\/.*?)(?:\?|$)/);
+      if (usersMatch) {
+        normalizedPath = '/' + usersMatch[1];
+      } else {
+        // Пробуем найти первый / после localhost
+        const localhostIndex = normalizedPath.indexOf('localhost');
+        const ipIndex = normalizedPath.indexOf('127.0.0.1');
+        const index = localhostIndex > -1 ? localhostIndex : ipIndex;
+        if (index > -1) {
+          const slashAfter = normalizedPath.indexOf('/', index);
+          if (slashAfter > -1) {
+            normalizedPath = normalizedPath.substring(slashAfter);
+          }
+        }
+      }
+    }
+  }
+  
+  // Если после замены осталась пустая строка, возвращаем null
+  if (!normalizedPath || normalizedPath.trim() === '' || normalizedPath.trim() === '/') {
+    console.warn('⚠️ getAvatarUrl: После нормализации путь пуст, возвращаем null');
+    return null;
+  }
+  
+  // Убираем лишние слэши в начале, но оставляем один
+  normalizedPath = normalizedPath.replace(/^\/+/, '/');
+  
+  // Если это уже полный URL (http/https) после нормализации, НЕ возвращаем - продолжаем обработку
+  if (normalizedPath.startsWith('http')) {
+    console.warn('⚠️ getAvatarUrl: После нормализации все еще полный URL, пытаемся извлечь путь:', normalizedPath);
+    // Пытаемся извлечь путь из полного URL
+    try {
+      const url = new URL(normalizedPath);
+      normalizedPath = url.pathname;
+    } catch (e) {
+      // Если не получилось распарсить, пробуем найти путь после домена
+      const pathMatch = normalizedPath.match(/\/(users\/.*?)(?:\?|$)/);
+      if (pathMatch) {
+        normalizedPath = '/' + pathMatch[1];
+      }
+    }
   }
   
   // Если путь начинается с /, используем его напрямую (работает через прокси)
-  if (avatarPath.startsWith('/')) {
-    return avatarPath;
+  if (normalizedPath.startsWith('/')) {
+    if (avatarPath.includes('localhost') || avatarPath.includes('127.0.0.1')) {
+      console.log('✅ getAvatarUrl: Нормализован путь с localhost:', avatarPath, '->', normalizedPath);
+    }
+    return normalizedPath;
   }
   
   // Если BASE_URL пустой (development с HTTPS через прокси), добавляем / перед путем
   const baseUrl = API_CONFIG.BASE_URL;
   if (!baseUrl) {
-    return `/${avatarPath}`;
+    return `/${normalizedPath}`;
   }
   
   // Иначе добавляем BASE_URL
-  return `${baseUrl}${avatarPath.startsWith('/') ? '' : '/'}${avatarPath}`;
+  return `${baseUrl}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`;
 };
 
 // Функция для получения дефолтного аватара
@@ -77,12 +137,14 @@ export const getFullAvatarUrl = (avatarPath, gender = 'male') => {
   return avatarUrl || getDefaultAvatarUrl(gender);
 };
 
-// Логирование конфигурации
-console.log('🔧 API Configuration:', {
-  baseUrl: API_CONFIG.BASE_URL,
-  environment: envConfig.env,
-  isProduction: envConfig.isProduction(),
-  isDevelopment: envConfig.isDevelopment(),
-  sslEnabled: envConfig.isSSLEnabled(),
-  hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
-});
+// Логирование конфигурации (только в development)
+if (envConfig.isDevelopment()) {
+  console.log('🔧 API Configuration:', {
+    baseUrl: API_CONFIG.BASE_URL,
+    environment: envConfig.env,
+    isProduction: envConfig.isProduction(),
+    isDevelopment: envConfig.isDevelopment(),
+    sslEnabled: envConfig.isSSLEnabled(),
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
+  });
+}

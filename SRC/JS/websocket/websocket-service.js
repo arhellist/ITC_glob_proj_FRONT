@@ -106,9 +106,18 @@ export async function connect() {
                csrfToken: wsCSRFToken // CSRF токен для защиты от атак
              },
              transports: ['websocket', 'polling'], // Список транспортов для соединения (WebSocket приоритетный)
-             timeout: 10000, // Таймаут подключения в миллисекундах
+             timeout: 20000, // Увеличиваем таймаут подключения до 20 секунд
              forceNew: true, // Принудительно создавать новое соединение
-             autoConnect: false // Отключаем автоматическое подключение, чтобы контролировать его вручную
+             autoConnect: false, // Отключаем автоматическое подключение, чтобы контролировать его вручную
+             reconnection: true, // Включаем автоматическое переподключение
+             reconnectionDelay: 1000, // Задержка перед переподключением
+             reconnectionDelayMax: 5000, // Максимальная задержка переподключения
+             reconnectionAttempts: 5, // Количество попыток переподключения
+             // Для production добавляем дополнительные настройки безопасности
+             ...(envConfig.isProduction() && {
+               secure: true, // Используем безопасное соединение (WSS)
+               rejectUnauthorized: false // Разрешаем самоподписанные сертификаты (если используется)
+             })
            };
            
            socket = io(socketConfig.url, socketOptions); // Создаем экземпляр Socket.IO клиента с URL и опциями
@@ -155,6 +164,10 @@ export async function connect() {
         isConnecting = false; // Сбрасываем флаг процесса подключения
         console.error('🔌 WebSocket: Ошибка подключения:', error.message); // Логируем сообщение об ошибке
         console.error('🔌 WebSocket: Детали ошибки:', error); // Логируем полные детали ошибки
+        console.error('🔌 WebSocket: URL подключения:', socketConfig.url); // Логируем URL подключения
+        console.error('🔌 WebSocket: Тип ошибки:', error.type); // Логируем тип ошибки
+        console.error('🔌 WebSocket: Описание ошибки:', error.description); // Логируем описание ошибки
+        console.error('🔌 WebSocket: Контекст ошибки:', error.context); // Логируем контекст ошибки
         
         // Обрабатываем ошибки аутентификации с попыткой refresh токена
         if (error.message.includes('Token expired')) { // Если токен истёк
@@ -201,9 +214,28 @@ export async function connect() {
         
         resolve(false); // Возвращаем false при ошибке подключения
       });
+
+      // Обработчик общих ошибок WebSocket
+      socket.on('error', (error) => {
+        console.error('🔌 WebSocket: Общая ошибка:', error);
+        console.error('🔌 WebSocket: Тип ошибки:', error.type);
+        console.error('🔌 WebSocket: Сообщение ошибки:', error.message);
+        isConnecting = false;
+      });
+
+      // Обработчик ошибок транспорта
+      socket.io?.engine?.on('error', (error) => {
+        console.error('🔌 WebSocket: Ошибка транспорта:', error);
+        console.error('🔌 WebSocket: Детали транспорта:', {
+          type: error.type,
+          message: error.message,
+          description: error.description
+        });
+      });
     });
     } catch (error) {
     console.error('WebSocket: Ошибка подключения:', error);
+    console.error('WebSocket: Стек ошибки:', error.stack);
     isConnecting = false;
       return false;
     }
@@ -297,6 +329,12 @@ function setupEventHandlers() {
   socket.on('disconnect', (reason) => {
     isConnected = false;
     console.log('⚠️ WebSocket отключен:', reason); // Минимальный лог
+    console.log('🔌 WebSocket: Причина отключения:', reason);
+    console.log('🔌 WebSocket: Socket ID до отключения:', socket?.id);
+    
+    // Определяем, нужно ли переподключаться
+    // Не переподключаемся, если это было принудительное отключение
+    const shouldReconnect = reason !== 'io client disconnect' && reason !== 'io server disconnect';
     
     // Очищаем интервалы
     if (heartbeatInterval) {
@@ -304,8 +342,13 @@ function setupEventHandlers() {
       heartbeatInterval = null;
     }
     
-    // Пытаемся переподключиться
+    // Пытаемся переподключиться только если это не было принудительным отключением
+    if (shouldReconnect) {
+      console.log('🔌 WebSocket: Пытаемся переподключиться...');
     handleReconnect();
+    } else {
+      console.log('🔌 WebSocket: Переподключение не требуется (принудительное отключение)');
+    }
   });
 
   // Обработчик ошибок подключения уже настроен в connect()
@@ -353,9 +396,15 @@ function setupEventHandlers() {
   // Обработчик новых бесед в поддержке
   socket.on('support_new_conversation', (data) => {
     console.log('📬 WebSocket: Получено событие "support_new_conversation":', data);
-    const event = new CustomEvent('crm-new-conversation', { detail: data });
-    document.dispatchEvent(event);
+    // Отправляем событие для админов (CRM)
+    const adminEvent = new CustomEvent('crm-new-conversation', { detail: data });
+    document.dispatchEvent(adminEvent);
     console.log('✅ WS: Событие crm-new-conversation задиспатчено');
+    
+    // Также отправляем событие для пользователей (если это их беседа)
+    const userEvent = new CustomEvent('support-new-conversation', { detail: data });
+    document.dispatchEvent(userEvent);
+    console.log('✅ WS: Событие support-new-conversation задиспатчено для пользователя');
   });
 
   socket.on('admin:document_status_updated', (data) => {

@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import axiosAPI from '../../../../JS/auth/http/axios';
 import { useSupport } from '../../../../hooks/useSupport.js';
 import websocketService from '../../../../JS/websocket/websocket-service.js';
-import { API_CONFIG } from '../../../../config/api.js';
+import { API_CONFIG, getAvatarUrl } from '../../../../config/api.js';
 import telegramIcon from '../../../../IMG/telegram.png';
 import itcIcon from '../../../../IMG/mainLogo.png';
 import EmojiPicker from './EmojiPicker.jsx';
@@ -1142,7 +1142,7 @@ const ClientCommunication = () => {
                     <div className="comm-item-header">
                       {user.avatar && user.avatar !== 'noAvatar' ? (
                         <img 
-                          src={user.avatar.startsWith('http') ? user.avatar : (API_CONFIG.BASE_URL ? `${API_CONFIG.BASE_URL}${user.avatar.startsWith('/') ? user.avatar : `/${user.avatar}`}` : (user.avatar.startsWith('/') ? user.avatar : `/${user.avatar}`))}
+                          src={getAvatarUrl(user.avatar)}
                           alt={user.name}
                           className="comm-user-icon comm-user-avatar"
                           onError={(e) => {
@@ -1373,16 +1373,59 @@ const ClientCommunication = () => {
                                       fileUrl = baseUrl ? `${baseUrl}${normalizedPath}` : normalizedPath;
                                     }
                                   } else {
-                                    // Для обычных вложений поддержки
-                                    // Убеждаемся, что путь начинается с /
-                                    // Путь в БД: storage/support/attachments/2/file.png
-                                    // Нужно: /storage/support/attachments/2/file.png
-                                    const normalizedPath = attachment.startsWith('/') ? attachment : `/${attachment}`;
-                                    
-                                    // В development режиме используем прокси напрямую
-                                    // В production используем BASE_URL
-                                    const baseUrl = API_CONFIG.BASE_URL;
-                                    fileUrl = baseUrl ? `${baseUrl}${normalizedPath}` : normalizedPath;
+                                    // Для обычных вложений поддержки используем API endpoint
+                                    // Путь в БД: storage/support/attachments/{conversationId}/{filename}
+                                    // Нужно: /admin/support/attachments/{conversationId}/{filename}
+                                    if (attachment.includes('storage/support/attachments')) {
+                                      // ПРИОРИТЕТ: Используем conversation_id из сообщения (наиболее надежно)
+                                      // Fallback: извлекаем из пути или используем ID текущей беседы
+                                      let conversationId = msg.conversation_id || selectedConversation?.id;
+                                      
+                                      // Если conversation_id нет в сообщении, пытаемся извлечь из пути
+                                      if (!conversationId) {
+                                        const pathParts = attachment.split('/');
+                                        const attachmentsIndex = pathParts.indexOf('attachments');
+                                        if (attachmentsIndex !== -1 && pathParts[attachmentsIndex + 1]) {
+                                          conversationId = pathParts[attachmentsIndex + 1];
+                                          console.log('⚠️ [CRM] conversationId не найден в сообщении, извлечен из пути:', conversationId);
+                                        }
+                                      }
+                                      
+                                      if (conversationId) {
+                                        const filename = fileName;
+                                        
+                                        console.log('✅ [CRM] Используемый conversationId для вложения:', {
+                                          conversationId,
+                                          source: msg.conversation_id ? 'message' : (selectedConversation?.id ? 'selectedConversation' : 'path'),
+                                          fileName: filename,
+                                          attachment
+                                        });
+                                        
+                                        // Используем API endpoint с токеном в query параметре
+                                        const token = localStorage.getItem('accessToken');
+                                        const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
+                                        const baseUrl = API_CONFIG.BASE_URL || '';
+                                        fileUrl = `${baseUrl}/admin/support/attachments/${conversationId}/${encodeURIComponent(filename)}${tokenParam}`;
+                                        
+                                        console.log('🔗 [CRM] Сформированный URL для вложения:', fileUrl);
+                                      } else {
+                                        console.error('❌ [CRM] Не удалось определить conversationId для вложения:', {
+                                          attachment,
+                                          fileName,
+                                          msgConversationId: msg.conversation_id,
+                                          selectedConversationId: selectedConversation?.id
+                                        });
+                                        // Последний fallback: прямой путь (может не работать без аутентификации)
+                                        const normalizedPath = attachment.startsWith('/') ? attachment : `/${attachment}`;
+                                        const baseUrl = API_CONFIG.BASE_URL;
+                                        fileUrl = baseUrl ? `${baseUrl}${normalizedPath}` : normalizedPath;
+                                      }
+                                    } else {
+                                      // Для других типов вложений используем прямой путь
+                                      const normalizedPath = attachment.startsWith('/') ? attachment : `/${attachment}`;
+                                      const baseUrl = API_CONFIG.BASE_URL;
+                                      fileUrl = baseUrl ? `${baseUrl}${normalizedPath}` : normalizedPath;
+                                    }
                                   }
                                   
                                   // Логирование для отладки
@@ -1432,9 +1475,22 @@ const ClientCommunication = () => {
                                               src: e.target.src
                                             });
                                             
-                                            // Пробуем загрузить через прямой URL к бэкенду
-                                            const directUrl = `http://localhost:3000${fileUrl}`;
-                                            console.log('🔄 Пробуем загрузить через прямой URL:', directUrl);
+                                            // Если URL уже содержит baseUrl, не дублируем его
+                                            // Пробуем загрузить через API endpoint, если еще не использовали
+                                            if (attachment.includes('storage/support/attachments') && !fileUrl.includes('/admin/support/attachments')) {
+                                              const pathParts = attachment.split('/');
+                                              const attachmentsIndex = pathParts.indexOf('attachments');
+                                              if (attachmentsIndex !== -1 && pathParts[attachmentsIndex + 1]) {
+                                                const conversationId = pathParts[attachmentsIndex + 1];
+                                                const token = localStorage.getItem('accessToken');
+                                                const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
+                                                const baseUrl = API_CONFIG.BASE_URL || '';
+                                                const apiUrl = `${baseUrl}/admin/support/attachments/${conversationId}/${encodeURIComponent(fileName)}${tokenParam}`;
+                                                console.log('🔄 Пробуем загрузить через API endpoint:', apiUrl);
+                                                e.target.src = apiUrl;
+                                                return; // Не показываем fallback сразу, даем шанс загрузиться через API
+                                              }
+                                            }
                                             
                                             // Скрываем изображение и показываем fallback
                                             e.target.style.display = 'none';

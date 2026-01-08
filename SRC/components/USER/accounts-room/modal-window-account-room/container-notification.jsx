@@ -57,6 +57,11 @@ function ContainerNotification() { // Компонент контейнера д
         console.log('ContainerNotification: 401 ошибка при загрузке INFO уведомлений, токен будет обновлен автоматически');
         return;
       }
+      // Игнорируем сетевые ошибки и ERR_TOO_MANY_RETRIES
+      if (e.code === 'ERR_NETWORK' || e.code === 'ERR_TOO_MANY_RETRIES' || e.message?.includes('ERR_TOO_MANY_RETRIES')) {
+        console.warn('ContainerNotification: Сетевая ошибка при загрузке INFO уведомлений, пропускаем');
+        return;
+      }
       console.error('ContainerNotification: Ошибка загрузки уведомлений:', e);
       // молча, не ломаем UI
     }
@@ -99,6 +104,11 @@ function ContainerNotification() { // Компонент контейнера д
       // Игнорируем 401 ошибки, они обрабатываются axios interceptor
       if (e.response?.status === 401) {
         console.log('ContainerNotification: 401 ошибка при загрузке POST уведомлений, токен будет обновлен автоматически');
+        return;
+      }
+      // Игнорируем сетевые ошибки и ERR_TOO_MANY_RETRIES
+      if (e.code === 'ERR_NETWORK' || e.code === 'ERR_TOO_MANY_RETRIES' || e.message?.includes('ERR_TOO_MANY_RETRIES')) {
+        console.warn('ContainerNotification: Сетевая ошибка при загрузке POST уведомлений, пропускаем');
         return;
       }
       console.error('ContainerNotification: Ошибка загрузки POST уведомлений:', e);

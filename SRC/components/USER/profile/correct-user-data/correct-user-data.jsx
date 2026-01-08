@@ -64,7 +64,8 @@ function CorrectUserData({ onClose }) {
     firstname: user?.firstname || '',
     patronymic: user?.patronymic || '',
     phone: user?.phone || '',
-    telegram: user?.telegram || '',
+    // Очищаем telegram от токенов (REVOKE_TOKEN или TOKEN)
+    telegram: user?.telegram ? user.telegram.split('|REVOKE_TOKEN:')[0].split('|TOKEN:')[0].trim() : '',
     geography: user?.geography || '',
     dateborn: user?.dateborn || ''
   });
@@ -157,7 +158,8 @@ function CorrectUserData({ onClose }) {
         firstname: user.firstname || '',
         patronymic: user.patronymic || '',
         phone: user.phone || '',
-        telegram: user.telegram || '',
+        // Очищаем telegram от токенов (REVOKE_TOKEN или TOKEN)
+        telegram: user.telegram ? user.telegram.split('|REVOKE_TOKEN:')[0].split('|TOKEN:')[0].trim() : '',
         geography: user.geography || '',
         dateborn: user.dateBorn ? new Date(user.dateBorn).toISOString().split('T')[0] : ''
       });
@@ -219,6 +221,19 @@ function CorrectUserData({ onClose }) {
     try {
       setLoadingBiometric(true);
       const credentials = await webauthnService.getUserCredentials();
+      console.log('🔍 Загружены биометрические ключи:', credentials);
+      // Логируем каждый ключ для отладки
+      credentials.forEach((cred, index) => {
+        console.log(`🔍 Ключ ${index + 1}:`, {
+          id: cred.id,
+          device_name: cred.device_name,
+          user_agent: cred.user_agent,
+          platform: cred.platform,
+          created_at_device: cred.created_at_device,
+          created_at: cred.created_at,
+          allKeys: Object.keys(cred) // Показываем все ключи объекта
+        });
+      });
       setBiometricCredentials(credentials);
     } catch (error) {
       console.error('Ошибка загрузки биометрических ключей:', error);
@@ -881,8 +896,9 @@ function CorrectUserData({ onClose }) {
   }
 
   return (
-    <div class="correct-data-profile-container flex flex-column">
-      <div class="correct-data-profile-container-panel flex flex-row">
+    <>
+    <div class="correct-data-profile-container-panel flex flex-column">
+      <div class="correct-data-profile-top-section flex flex-row">
          <div class="correct-data-profile-avatar flex flex-column">
            <div class="correct-data-profile-avatar-item gradient-border  bru">
              <img
@@ -1060,6 +1076,10 @@ function CorrectUserData({ onClose }) {
                <div class="correct-data-gender-container-chked bru"></div>
              </div>
           </div>
+        </div>
+      </div>
+      
+      <div class="correct-data-profile-bottom-section flex flex-column">
           <div class="correct-data-profile-delete-form gradient-border bru flex flex-column">
             <div class="correct-data-profile-delete-form-title">
               действия с аккаунтом
@@ -1471,17 +1491,35 @@ function CorrectUserData({ onClose }) {
                           {biometricCredentials.map((cred) => {
                             // Извлекаем device_name без токена (если есть)
                             const deviceName = cred.device_name?.split('|TOKEN:')[0] || cred.device_name || 'Устройство';
-                            const userAgent = cred.user_agent ? (cred.user_agent.length > 50 ? cred.user_agent.substring(0, 50) + '...' : cred.user_agent) : 'Не указан';
-                            const platform = cred.platform || 'Не указана';
+                            // КРИТИЧНО: Проверяем все возможные варианты имен полей
+                            const userAgent = cred.user_agent || cred.userAgent || null;
+                            const platform = cred.platform || null;
                             const createdDate = cred.created_at_device ? new Date(cred.created_at_device).toLocaleDateString('ru-RU') : (cred.created_at ? new Date(cred.created_at).toLocaleDateString('ru-RU') : 'Не указана');
+                            
+                            // Форматируем userAgent для отображения
+                            const userAgentDisplay = userAgent 
+                              ? (userAgent.length > 50 ? userAgent.substring(0, 50) + '...' : userAgent)
+                              : 'Не указан';
+                            
+                            // Форматируем platform для отображения
+                            const platformDisplay = platform || 'Не указана';
+                            
+                            console.log('🔍 Биометрический ключ:', {
+                              id: cred.id,
+                              device_name: deviceName,
+                              user_agent: userAgent,
+                              platform: platform,
+                              userAgent: cred.userAgent,
+                              Platform: cred.Platform
+                            });
                             
                             return (
                               <div key={cred.id} className="correct-data-biometric-credential-item gradient-border bru flex flex-column">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', marginBottom: '0.5vw', minWidth: 0 }}>
                                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', minWidth: 0, maxWidth: '100%' }}>
                                     <span style={{ fontWeight: 'bold', marginBottom: '0.3vw', wordBreak: 'break-word' }}>{deviceName}</span>
-                                    <span style={{ fontSize: '0.8vw', color: '#666', marginBottom: '0.2vw', wordBreak: 'break-word' }}>User Agent: {userAgent}</span>
-                                    <span style={{ fontSize: '0.8vw', color: '#666', marginBottom: '0.2vw', wordBreak: 'break-word' }}>Платформа: {platform}</span>
+                                    <span style={{ fontSize: '0.8vw', color: '#666', marginBottom: '0.2vw', wordBreak: 'break-word' }}>User Agent: {userAgentDisplay}</span>
+                                    <span style={{ fontSize: '0.8vw', color: '#666', marginBottom: '0.2vw', wordBreak: 'break-word' }}>Платформа: {platformDisplay}</span>
                                     <span style={{ fontSize: '0.8vw', color: '#666', wordBreak: 'break-word' }}>Дата добавления: {createdDate}</span>
                                     {!cred.is_approved ? (
                                       <span style={{ fontSize: '0.8vw', color: '#ff6b6b', marginTop: '0.3vw', fontWeight: 'bold', wordBreak: 'break-word' }}>
@@ -1785,24 +1823,24 @@ function CorrectUserData({ onClose }) {
               </div>
             )}
           </div>
+      </div>
+      
+      <div class="correct-data-profile-buttons flex flex-row">
+        <button 
+          type="button"
+          class="correct-data-profile-container-panel-button gradient-border flex bru pointer saveUserData"
+          onClick={handleSaveData}
+        >
+          сохранить изменения
+        </button>
+        <div
+          class="correct-data-profile-container-panel-button gradient-border flex bru pointer cancelUserData"
+          onClick={onClose}
+        >
+          назад
         </div>
       </div>
-
-       <div class="correct-data-profile-container-panel-button-container flex flex-row">
-         <button 
-           type="button"
-           class="correct-data-profile-container-panel-button gradient-border flex bru pointer saveUserData"
-           onClick={handleSaveData}
-         >
-           сохранить изменения
-         </button>
-         <div
-           class="correct-data-profile-container-panel-button gradient-border flex bru pointer cancelUserData"
-           onClick={onClose}
-         >
-           назад
-         </div>
-       </div>
+    </div>
 
        {/* Модальное окно подтверждения удаления биометрического ключа */}
        {showRevokeModal && credentialToRevoke && (
@@ -1852,7 +1890,7 @@ function CorrectUserData({ onClose }) {
              : "После отзыва разрешения это устройство не сможет использоваться для входа в ваш аккаунт."}
          />
        )}
-    </div>
+    </>
   );
 }
 

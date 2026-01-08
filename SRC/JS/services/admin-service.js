@@ -255,14 +255,20 @@ class AdminService {
     }
   }
 
-  async updateRequestStatus(requestId, requestType, status, rejectReason = null) { // Функция обновления статуса заявки
+  async updateRequestStatus(requestId, requestType, status, rejectReason = null, course = null, sendReceipt = true) { // Функция обновления статуса заявки (course - курс валюты для выводов, sendReceipt - отправлять ли чек для депозитов)
     try { // Начинаем блок обработки ошибок
-      console.log('AdminService: Обновление статуса заявки', { requestId, requestType, status, rejectReason }); // Логируем начало
+      console.log('AdminService: Обновление статуса заявки', { requestId, requestType, status, rejectReason, course, sendReceipt }); // Логируем начало
       
       // Формируем тело запроса
       const body = { status }; // Тело запроса с статусом
       if (rejectReason) { // Если есть причина отклонения
         body.rejectReason = rejectReason; // Добавляем причину
+      }
+      if (course !== null && course !== undefined) { // Если передан курс валюты (для выводов)
+        body.course = course; // Добавляем курс
+      }
+      if (requestType === 'deposit' && sendReceipt !== null && sendReceipt !== undefined) { // Если это депозит и передан флаг отправки чека
+        body.sendReceipt = sendReceipt; // Добавляем флаг отправки чека
       }
       
       // Используем axiosAPI для автоматического refresh токена

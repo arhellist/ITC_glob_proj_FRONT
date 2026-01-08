@@ -1,0 +1,315 @@
+/* Стили для страницы активации аккаунта */
+
+.activation-container {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 2vw;
+}
+
+.activation-card {
+  position: relative;
+  width: 30vw;
+  min-width: 400px;
+  max-width: 600px;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%);
+  border-radius: 1.5vw;
+  padding: 3vw 2.5vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vw;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Логотип */
+.activation-card .form-login-logo {
+  width: 10vw;
+  height: 7vw;
+  margin-bottom: 1vw;
+}
+
+/* Иконка статуса */
+.activation-icon {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1vw 0;
+  position: relative;
+}
+
+/* Анимация загрузки */
+.spinner {
+  width: 80px;
+  height: 80px;
+  border: 6px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Успешная галочка */
+.success-checkmark {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3;
+  stroke: #4caf50;
+  stroke-miterlimit: 10;
+  animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+}
+
+.success-checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  stroke: #4caf50;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.success-checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 3;
+  stroke: #4caf50;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+@keyframes fill {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #4caf50;
+  }
+}
+
+/* Ошибка - крестик */
+.error-cross {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3;
+  stroke: #f44336;
+  stroke-miterlimit: 10;
+  animation: fill-error 0.4s ease-in-out 0.4s forwards;
+}
+
+.error-cross-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  stroke: #f44336;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.error-cross-line {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 3;
+  stroke: #f44336;
+  stroke-linecap: round;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+.error-cross-line1 {
+  transform-origin: 50% 50%;
+}
+
+@keyframes fill-error {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px rgba(244, 67, 54, 0.1);
+  }
+}
+
+/* Заголовок */
+.activation-title {
+  color: white;
+  font-size: 2vw;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+/* Сообщение */
+.activation-message {
+  color: white;
+  font-size: 1.1vw;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 1vw;
+}
+
+.activation-message-loading {
+  color: #ffa500;
+}
+
+.activation-message-success {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.activation-message-error {
+  color: #f44336;
+}
+
+/* Блок редиректа */
+.activation-redirect {
+  margin-top: 1vw;
+  text-align: center;
+}
+
+.activation-redirect-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9vw;
+  margin: 0;
+}
+
+.activation-countdown {
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Кнопки */
+.activation-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  width: 80%;
+  margin-top: 1vw;
+}
+
+.activation-button {
+  padding: 1vw 2vw;
+  border-radius: 0.5vw;
+  font-size: 1vw;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  width: 100%;
+  min-height: 50px;
+}
+
+.activation-button-primary {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.activation-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.activation-button-primary:active {
+  transform: translateY(0);
+}
+
+.activation-button-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.activation-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .activation-card {
+    width: 90vw;
+    min-width: unset;
+    padding: 8vw 5vw;
+    gap: 5vw;
+  }
+
+  .activation-card .form-login-logo {
+    width: 20vw;
+    height: 14vw;
+  }
+
+  .activation-icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .activation-title {
+    font-size: 6vw;
+  }
+
+  .activation-message {
+    font-size: 4vw;
+    padding: 0;
+  }
+
+  .activation-redirect-text {
+    font-size: 3.5vw;
+  }
+
+  .activation-button {
+    padding: 4vw 6vw;
+    font-size: 4vw;
+    min-height: 60px;
+  }
+
+  .activation-buttons {
+    width: 100%;
+    gap: 3vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .activation-card {
+    padding: 10vw 6vw;
+    border-radius: 4vw;
+  }
+
+  .activation-title {
+    font-size: 7vw;
+  }
+
+  .activation-message {
+    font-size: 4.5vw;
+  }
+}
+

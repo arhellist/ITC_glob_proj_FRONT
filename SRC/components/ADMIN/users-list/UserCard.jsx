@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { getAvatarUrl } from '../../../config/api';
 import './UsersList.css';
 
 const getInitials = (name = '') => {
@@ -111,7 +112,7 @@ const UserCard = ({ user, docDefinitions = [], products = [], onClick }) => {
         <div className="admin-client-card__avatar">
           {user.avatar && user.avatar !== 'noAvatar' ? (
             <img
-              src={user.avatar.startsWith('http') ? user.avatar : `${import.meta.env.VITE_API_URL}${user.avatar}`}
+              src={getAvatarUrl(user.avatar)}
               alt={fullName}
             />
           ) : (

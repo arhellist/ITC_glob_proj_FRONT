@@ -302,8 +302,8 @@ export const useAuthStore = create()(
         login: async (email, password, deviceInfo = null) => {
           const response = await authLogin(email, password, null, deviceInfo)
           get().handleAuthResponse(response)
-          await get().checkAuth()
           // После успешного логина загружаем полные данные пользователя
+          // checkAuth не нужен, так как handleAuthResponse уже устанавливает isAuth: true
           await get().fetchUserProfile()
           return response
         },
@@ -313,8 +313,8 @@ export const useAuthStore = create()(
           try { referralCode = localStorage.getItem('itc_ref_link_partner') || ''; } catch(error) {console.error('registration: ошибка при получении referralCode:', error)}
           const response = await authRegistration(email, password, name, surname, patronymic, phone, captcha, referralCode)
           get().handleAuthResponse(response)
-          await get().checkAuth()
           // После успешной регистрации загружаем полные данные пользователя
+          // checkAuth не нужен, так как handleAuthResponse уже устанавливает isAuth: true
           await get().fetchUserProfile()
           return response
         },

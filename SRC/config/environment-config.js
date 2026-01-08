@@ -66,30 +66,31 @@ class FrontendEnvironmentConfig {
    * Получение WebSocket URL для подключения
    */
   getWebSocketUrl() {
-    // В development при использовании HTTPS используем текущий origin через прокси Vite
-    if (this.isDevelopment() && typeof window !== 'undefined' && window.location.protocol === 'https:') {
-      // Используем текущий origin (https://localhost:5173), прокси Vite перенаправит на бэкенд
-      return window.location.origin; // https://localhost:5173 - прокси обработает /socket.io
+    // В development используем текущий origin через прокси Vite dev сервера
+    if (this.isDevelopment()) {
+      return window.location.origin;
     }
     
-    const { protocol, host, port } = this.config.websocket;
-    return `${protocol}://${host}:${port}`;
+    // В production используем текущий origin (SSL уже настроен на сервере)
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    return `${protocol}://${host}${port}`;
   }
 
   /**
    * Получение API URL для HTTP запросов
    */
   getApiUrl() {
-    // В development используем пустую строку, чтобы запросы шли через прокси Vite
-    // Это позволяет избежать проблем с CORS и смешанным контентом (HTTPS -> HTTP)
-    // Прокси Vite перехватывает запросы к /auth, /api, /profile, /admin, /uploads
+    // В development используем пустую строку для работы через прокси Vite dev сервера
+    // В production всегда используем полный URL (прокси не используется)
     if (this.isDevelopment()) {
-      return ''; // Используем относительные пути через прокси Vite
+      return ''; // Относительные пути через прокси Vite dev сервера
     }
     
-    // В production используем полный URL
-    const { protocol, host, port } = this.config.api;
-    return `${protocol}://${host}:${port}`;
+    // В production используем текущий origin (window.location.origin уже включает протокол, хост и порт)
+    // Это гарантирует правильный URL даже для стандартных портов 80/443
+    return window.location.origin;
   }
 
   /**

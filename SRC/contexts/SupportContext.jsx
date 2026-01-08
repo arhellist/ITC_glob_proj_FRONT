@@ -116,10 +116,29 @@ export const SupportProvider = ({ children }) => {
             [conversationId]: [...additionalMessages, ...existingMessages]
           };
         } else {
-          // При первой загрузке или обновлении
+          // При первой загрузке или обновлении сохраняем временные сообщения
+          const existingMessages = prev[conversationId] || [];
+          // Находим временные сообщения (с ID начинающимся с 'temp-')
+          const tempMessages = existingMessages.filter(msg => msg.id && msg.id.toString().startsWith('temp-'));
+          
+          // Объединяем временные сообщения с новыми данными с сервера
+          // Удаляем дубликаты по ID
+          const existingIds = new Set(newMessages.map(m => m.id));
+          const uniqueTempMessages = tempMessages.filter(msg => !existingIds.has(msg.id));
+          
+          // Объединяем: сначала временные, потом реальные сообщения
+          const mergedMessages = [...uniqueTempMessages, ...newMessages];
+          
+          // Сортируем по времени создания
+          const sortedMessages = mergedMessages.sort((a, b) => {
+            const timeA = new Date(a.createdAt || a.created_at || 0).getTime();
+            const timeB = new Date(b.createdAt || b.created_at || 0).getTime();
+            return timeA - timeB;
+          });
+          
           return {
             ...prev,
-            [conversationId]: newMessages
+            [conversationId]: sortedMessages
           };
         }
       });
@@ -150,16 +169,62 @@ export const SupportProvider = ({ children }) => {
   // Отправка сообщения
   const sendMessage = useCallback(async (conversationId, messageText) => {
     try {
-      await axiosAPI.post(`/admin/support/conversations/${conversationId}/messages`, {
+      // КРИТИЧНО: Оптимистичное обновление - добавляем сообщение СРАЗУ, до отправки на сервер
+      const tempMessageId = `temp-${Date.now()}`;
+      const optimisticMessage = {
+        id: tempMessageId,
+        conversation_id: conversationId,
+        sender_type: 'admin',
+        sender_name: 'Администратор',
+        message_text: messageText.trim(),
+        createdAt: new Date().toISOString(),
+        is_read_user: false,
+        is_read_admin: true,
+      };
+
+      // Добавляем сообщение в состояние сразу
+      setMessages(prev => {
+        const existingMessages = prev[conversationId] || [];
+        // Проверяем, что сообщение еще не добавлено
+        if (!existingMessages.find(m => m.id === tempMessageId)) {
+          return {
+            ...prev,
+            [conversationId]: [...existingMessages, optimisticMessage]
+          };
+        }
+        return prev;
+      });
+      
+      // Обновляем время последнего сообщения в беседе
+      setConversations(prev => prev.map(conv => 
+        conv.id === conversationId 
+          ? { 
+              ...conv, 
+              last_message_at: new Date().toISOString()
+            }
+          : conv
+      ));
+      
+      const response = await axiosAPI.post(`/admin/support/conversations/${conversationId}/messages`, {
         messageText: messageText.trim()
       });
       
-      // Обновляем сообщения после отправки
+      // После успешной отправки перезагружаем сообщения для получения полных данных (реальный ID, вложения и т.д.)
       await loadMessages(conversationId);
       
       return true;
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
+      
+      // Удаляем оптимистичное сообщение при ошибке
+      setMessages(prev => {
+        const existingMessages = prev[conversationId] || [];
+        return {
+          ...prev,
+          [conversationId]: existingMessages.filter(m => m.id !== tempMessageId)
+        };
+      });
+      
       return false;
     }
   }, [loadMessages]);
@@ -211,11 +276,15 @@ export const SupportProvider = ({ children }) => {
       });
       
       // Обновляем список бесед
-      setConversations(prev => prev.map(conv => 
-        conv.id === conversationId 
-          ? { ...conv, unread_count_admin: 0 }
-          : conv
-      ));
+      setConversations(prev => {
+        const updated = prev.map(conv => 
+          conv.id === conversationId 
+            ? { ...conv, unread_count_admin: 0 }
+            : conv
+        );
+        console.log(`🔍 SupportContext: Обновлен список бесед после отметки как прочитанных. Беседа ${conversationId}: unread_count_admin = 0`);
+        return updated;
+      });
       
       console.log(`✅ SupportContext: Сообщения отмечены как прочитанные для беседы ${conversationId}`);
       

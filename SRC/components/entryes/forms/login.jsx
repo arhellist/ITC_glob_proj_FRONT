@@ -1,7 +1,7 @@
 import "../entryes.css"; // Импорт CSS стилей для формы входа
 import { useNavigate } from "react-router-dom"; // Импорт хука для программной навигации
 import { useAuthStore } from "../../../JS/auth/store/store"; // Импорт Zustand store для управления аутентификацией
-import { useState, useEffect } from "react"; // Импорт React хуков для состояния и побочных эффектов
+import { useState, useEffect, useRef, useMemo } from "react"; // Импорт React хуков для состояния и побочных эффектов
 import Captcha from "../captcha.jsx"; // Импорт компонента капчи для защиты от ботов
 import { collectBasicFingerprint, collectFullFingerprint, parseUserAgent } from "../../../utils/fingerprint-collector.js"; // Импорт утилит для сбора отпечатка
 import FingerprintPermissionsModal from "../fingerprint-permissions-modal.jsx"; // Импорт модального окна для разрешений
@@ -38,6 +38,8 @@ function Login() { // Компонент формы входа пользова�
   const [preferredAuthMethod, setPreferredAuthMethod] = useState(null); // Предпочтительный способ аутентификации
   const [showMoreAuthMethods, setShowMoreAuthMethods] = useState(false); // Показать дополнительные способы входа
   const [selectedAuthMethod, setSelectedAuthMethod] = useState(null); // Выбранный способ входа (если отличается от предпочтительного)
+  // КРИТИЧНО: Используем useRef для сохранения явного выбора 'password', чтобы он не терялся при изменении email
+  const userExplicitlyChosePasswordRef = useRef(false);
 
   // Получаем методы стора для аутентификации
   const login = useAuthStore((s) => s.login); // Получаем функцию входа из store
@@ -102,12 +104,24 @@ function Login() { // Компонент формы входа пользова�
   // Проверка наличия биометрических ключей и Telegram аккаунта при изменении email
   useEffect(() => {
     const checkCredentials = async () => {
+      // КРИТИЧНО: Проверяем явный выбор password в самом начале, до любых операций
+      // Это предотвращает установку preferredAuthMethod, если пользователь явно выбрал password
+      const userExplicitlyChosePassword = userExplicitlyChosePasswordRef.current || selectedAuthMethod === 'password';
+      
       if (!email.trim()) {
         setHasBiometricCredentials(false);
         setCanUseBiometric(false);
         setHasTelegram(false);
-        setPreferredAuthMethod(null);
-        setSelectedAuthMethod(null);
+        // КРИТИЧНО: НЕ сбрасываем preferredAuthMethod, если пользователь явно выбрал password
+        if (!userExplicitlyChosePassword) {
+          setPreferredAuthMethod(null);
+        }
+        // КРИТИЧНО: НЕ сбрасываем selectedAuthMethod, если пользователь явно выбрал password
+        if (!userExplicitlyChosePassword) {
+          setSelectedAuthMethod(null);
+        }
+        // КРИТИЧНО: Сбрасываем флаг явного выбора password только если email пустой
+        userExplicitlyChosePasswordRef.current = false;
         setShowMoreAuthMethods(false);
         setTokenSent(false);
         setToken("");
@@ -121,14 +135,31 @@ function Login() { // Компонент формы входа пользова�
         setHasBiometricCredentials(false);
         setCanUseBiometric(false);
         setHasTelegram(false);
-        setPreferredAuthMethod(null);
-        setSelectedAuthMethod(null);
+        // КРИТИЧНО: НЕ сбрасываем preferredAuthMethod, если пользователь явно выбрал password
+        if (!userExplicitlyChosePassword) {
+          setPreferredAuthMethod(null);
+        }
+        // КРИТИЧНО: НЕ сбрасываем selectedAuthMethod если email невалидный, 
+        // чтобы пользователь мог продолжить ввод email без потери выбранного способа
+        // setSelectedAuthMethod(null);
         setShowMoreAuthMethods(false);
         setEmailLinkSent(false);
         return;
       }
-
-      const apiUrl = import.meta.env.VITE_API_URL || '';
+      
+      // КРИТИЧНО: Если пользователь явно выбрал password, НЕ выполняем проверку и НЕ устанавливаем preferredAuthMethod
+      if (userExplicitlyChosePassword) {
+        // Убеждаемся, что selectedAuthMethod установлен в 'password'
+        if (selectedAuthMethod !== 'password') {
+          setSelectedAuthMethod('password');
+        }
+        // Принудительно сбрасываем preferredAuthMethod
+        setPreferredAuthMethod(null);
+        // НЕ выполняем проверку биометрии и Telegram, чтобы не перезаписать выбор пользователя
+        setCheckingBiometric(false);
+        setCheckingTelegram(false);
+        return;
+      }
 
       try {
         setCheckingBiometric(true);
@@ -145,9 +176,8 @@ function Login() { // Компонент формы входа пользова�
           );
 
           // Проверяем наличие биометрических ключей и устройства через специальный эндпоинт
-          const checkUrl = apiUrl 
-            ? `${apiUrl}/auth/webauthn/check-credentials?email=${encodeURIComponent(email.trim())}&deviceId=${encodeURIComponent(deviceId)}&userAgent=${encodeURIComponent(basicFingerprint.user_agent)}`
-            : `/auth/webauthn/check-credentials?email=${encodeURIComponent(email.trim())}&deviceId=${encodeURIComponent(deviceId)}&userAgent=${encodeURIComponent(basicFingerprint.user_agent)}`;
+          const baseUrl = API_CONFIG.BASE_URL || '';
+          const checkUrl = `${baseUrl}/auth/webauthn/check-credentials?email=${encodeURIComponent(email.trim())}&deviceId=${encodeURIComponent(deviceId)}&userAgent=${encodeURIComponent(basicFingerprint.user_agent)}`;
           
           const checkResponse = await fetch(checkUrl, {
             method: 'GET',
@@ -171,9 +201,8 @@ function Login() { // Компонент формы входа пользова�
         }
 
         // Проверяем наличие Telegram аккаунта
-        const telegramCheckUrl = apiUrl 
-          ? `${apiUrl}/auth/user-token/check-telegram?email=${encodeURIComponent(email.trim())}`
-          : `/auth/user-token/check-telegram?email=${encodeURIComponent(email.trim())}`;
+        const baseUrlForTelegram = API_CONFIG.BASE_URL || '';
+        const telegramCheckUrl = `${baseUrlForTelegram}/auth/user-token/check-telegram?email=${encodeURIComponent(email.trim())}`;
         
         const telegramResponse = await fetch(telegramCheckUrl, {
           method: 'GET',
@@ -187,22 +216,43 @@ function Login() { // Компонент формы входа пользова�
           const telegramData = await telegramResponse.json();
           setHasTelegram(telegramData.success && telegramData.hasTelegram === true);
           // Получаем предпочтительный способ аутентификации
-          // Если способ 'password' - устанавливаем 'password', если не указан - null
-          if (telegramData.authway) {
-            setPreferredAuthMethod(telegramData.authway);
+          // КРИТИЧНО: Если пользователь явно выбрал 'password', НЕ меняем preferredAuthMethod
+          // и НЕ сбрасываем selectedAuthMethod - это позволяет пользователю выбрать 'password' 
+          // из "Больше способов входа" даже если есть предпочтительный способ
+          if (userExplicitlyChosePassword) {
+            // Пользователь явно выбрал password - сохраняем его выбор
+            // КРИТИЧНО: НЕ меняем preferredAuthMethod и НЕ сбрасываем selectedAuthMethod
+            // Также убеждаемся, что selectedAuthMethod установлен в 'password'
+            if (selectedAuthMethod !== 'password') {
+              setSelectedAuthMethod('password');
+            }
+            // КРИТИЧНО: Принудительно сбрасываем preferredAuthMethod, чтобы не показывать предпочтительный способ
+            setPreferredAuthMethod(null);
           } else {
-            setPreferredAuthMethod(null); // Если не указан - форма остается в исходном состоянии
+            // Пользователь не выбрал password явно - обновляем preferredAuthMethod как обычно
+            if (telegramData.authway) {
+              setPreferredAuthMethod(telegramData.authway);
+            } else {
+              setPreferredAuthMethod(null);
+            }
           }
         } else {
           setHasTelegram(false);
-          setPreferredAuthMethod(null); // Если нет данных - форма остается в исходном состоянии
+          // Если нет данных - форма остается в исходном состоянии
+          // Но если пользователь выбрал 'password', не сбрасываем preferredAuthMethod
+          if (!userExplicitlyChosePassword) {
+            setPreferredAuthMethod(null);
+          }
         }
       } catch (error) {
         console.warn('Ошибка проверки учетных данных:', error);
         setHasBiometricCredentials(false);
         setCanUseBiometric(false);
         setHasTelegram(false);
-        setPreferredAuthMethod(null); // При ошибке оставляем null - форма останется в исходном состоянии
+        // КРИТИЧНО: При ошибке не сбрасываем preferredAuthMethod, если пользователь явно выбрал 'password'
+        if (!userExplicitlyChosePassword) {
+          setPreferredAuthMethod(null);
+        }
       } finally {
         setCheckingBiometric(false);
         setCheckingTelegram(false);
@@ -215,7 +265,17 @@ function Login() { // Компонент формы входа пользова�
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [email, isWebAuthnSupported, isPlatformAuthenticatorAvailable]);
+  }, [email, isWebAuthnSupported, isPlatformAuthenticatorAvailable, selectedAuthMethod]);
+
+  // КРИТИЧНО: useEffect для принудительного сохранения выбора 'password'
+  // Если пользователь явно выбрал 'password', но selectedAuthMethod не равен 'password',
+  // принудительно устанавливаем его в 'password'
+  useEffect(() => {
+    if (userExplicitlyChosePasswordRef.current && selectedAuthMethod !== 'password') {
+      console.log('🔧 Принудительно устанавливаем selectedAuthMethod = password, так как ref установлен');
+      setSelectedAuthMethod('password');
+    }
+  }, [selectedAuthMethod]);
 
   // Запрос email-ссылки для входа
   const handleRequestEmailLink = async () => {
@@ -232,12 +292,54 @@ function Login() { // Компонент формы входа пользова�
 
     try {
       setEmailLinkRequesting(true);
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const requestUrl = apiUrl 
-        ? `${apiUrl}/auth/email-link/request`
-        : `/auth/email-link/request`;
+      const baseUrl = API_CONFIG.BASE_URL || '';
+      const requestUrl = `${baseUrl}/auth/email-link/request`;
       
-      const response = await axios.post(requestUrl, { email: email.trim() }, {
+      // КРИТИЧНО: Получаем московское время на фронтенде
+      // Формируем строку в формате, который PostgreSQL поймет как московское время
+      const getMoscowTime = () => {
+        const now = new Date();
+        // Получаем компоненты московского времени
+        const formatter = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Europe/Moscow',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          fractionalSecondDigits: 3,
+          hour12: false
+        });
+        
+        const parts = formatter.formatToParts(now);
+        const year = parts.find(p => p.type === 'year').value;
+        const month = parts.find(p => p.type === 'month').value;
+        const day = parts.find(p => p.type === 'day').value;
+        const hour = parts.find(p => p.type === 'hour').value;
+        const minute = parts.find(p => p.type === 'minute').value;
+        const second = parts.find(p => p.type === 'second').value;
+        const fractionalSecond = parts.find(p => p.type === 'fractionalSecond')?.value || '000';
+        
+        // Формируем строку БЕЗ 'Z' - PostgreSQL интерпретирует это как локальное время
+        // Формат: YYYY-MM-DDTHH:mm:ss.sss (без Z, чтобы PostgreSQL интерпретировал как московское)
+        const moscowTimeStr = `${year}-${month}-${day}T${hour}:${minute}:${second}.${fractionalSecond}`;
+        
+        console.log('Frontend: Московское время:', {
+          nowUTC: now.toISOString(),
+          moscowTimeStr: moscowTimeStr,
+          moscowTimeParts: { year, month, day, hour, minute, second, fractionalSecond }
+        });
+        
+        return moscowTimeStr;
+      };
+      
+      const moscowTime = getMoscowTime();
+      
+      const response = await axios.post(requestUrl, { 
+        email: email.trim(),
+        moscowTime: moscowTime
+      }, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -269,10 +371,8 @@ function Login() { // Компонент формы входа пользова�
 
     try {
       setRequestingToken(true);
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const requestUrl = apiUrl 
-        ? `${apiUrl}/auth/user-token/generate`
-        : `/auth/user-token/generate`;
+      const baseUrl = API_CONFIG.BASE_URL || '';
+      const requestUrl = `${baseUrl}/auth/user-token/generate`;
       
       const response = await axios.post(requestUrl, { email: email.trim() }, {
         headers: {
@@ -311,10 +411,8 @@ function Login() { // Компонент формы входа пользова�
 
     try {
       setTokenLoginLoading(true);
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const loginUrl = apiUrl 
-        ? `${apiUrl}/auth/user-token/login`
-        : `/auth/user-token/login`;
+      const baseUrl = API_CONFIG.BASE_URL || '';
+      const loginUrl = `${baseUrl}/auth/user-token/login`;
       
       // Собираем информацию об устройстве
       // КРИТИЧНО: Все поля должны быть одинаковыми для всех способов входа,
@@ -362,7 +460,11 @@ function Login() { // Компонент формы входа пользова�
         await checkAuth();
         await fetchUserProfile();
         
-        navigate('/personal-room');
+        // Проверяем fingerprint_permissions после успешной авторизации
+        const shouldShowModal = checkFingerprintPermissionsAfterAuth();
+        if (!shouldShowModal) {
+          navigate('/personal-room');
+        }
       } else {
         emitEntryError(response.data.message || 'Ошибка входа по токену');
       }
@@ -442,7 +544,11 @@ function Login() { // Компонент формы входа пользова�
           detail: { type: 'success', text: 'Вход выполнен через биометрию' } 
         }));
         
-        navigate("/personal-room");
+        // Проверяем fingerprint_permissions после успешной авторизации
+        const shouldShowModal = checkFingerprintPermissionsAfterAuth();
+        if (!shouldShowModal) {
+          navigate("/personal-room");
+        }
       }
     } catch (error) {
       console.error('Ошибка входа через биометрию:', error);
@@ -677,6 +783,22 @@ function Login() { // Компонент формы входа пользова�
     }
   };
 
+  // Функция для проверки fingerprint_permissions после успешной авторизации
+  const checkFingerprintPermissionsAfterAuth = () => {
+    try {
+      const storedPermissions = localStorage.getItem('fingerprint_permissions');
+      if (!storedPermissions) {
+        // Если разрешения не были запрошены - показываем модальное окно
+        setShowFingerprintModal(true);
+        return true; // Возвращаем true, если нужно показать модальное окно
+      }
+      return false; // Разрешения уже есть
+    } catch (e) {
+      console.warn('Ошибка чтения разрешений из localStorage:', e);
+      return false;
+    }
+  };
+
   // Функция для выполнения входа (вынесена отдельно для переиспользования)
   const performLogin = async (email, password, deviceInfo) => {
     setLoading(true);
@@ -686,7 +808,12 @@ function Login() { // Компонент формы входа пользова�
       document.dispatchEvent(new CustomEvent('main-notify', { 
         detail: { type: 'success', text: 'Вход выполнен' } 
       }));
-      navigate("/personal-room");
+      
+      // Проверяем fingerprint_permissions после успешной авторизации
+      const shouldShowModal = checkFingerprintPermissionsAfterAuth();
+      if (!shouldShowModal) {
+        navigate("/personal-room");
+      }
     } catch (err) {
       console.error("=== ОШИБКА ВХОДА В performLogin ===");
       console.error("Полный объект ошибки:", err);
@@ -727,89 +854,56 @@ function Login() { // Компонент формы входа пользова�
     }
   };
 
-  // Обработчик подтверждения разрешений
+  // Обработчик подтверждения разрешений (после успешной авторизации)
   const handlePermissionsGranted = async (grantedPermissions) => {
     setShowFingerprintModal(false);
     setFingerprintPermissions(grantedPermissions);
     
-    // Собираем базовый отпечаток
-    const basicFingerprint = collectBasicFingerprint();
-    const browserInfo = parseUserAgent(basicFingerprint.user_agent);
-    
-    // Формируем deviceInfo
-    const deviceInfo = {
-      userAgent: basicFingerprint.user_agent,
-      ipAddress: '',
-      screenResolution: basicFingerprint.screen_resolution,
-      deviceName: `${browserInfo.browser} на ${browserInfo.os}`,
-      browser: browserInfo.browser,
-      os: browserInfo.os,
-      platform: basicFingerprint.platform || '',
-      timezone: basicFingerprint.timezone || '',
-      language: basicFingerprint.language || '',
-      location: '',
-      fingerprintData: basicFingerprint
-    };
-    
-    // Собираем расширенный отпечаток с разрешениями
+    // Сохраняем разрешения в localStorage
     try {
-      if (Object.values(grantedPermissions).some(p => p === true)) {
-        const fullFingerprint = await collectFullFingerprint(grantedPermissions);
-        deviceInfo.fingerprintData = fullFingerprint;
-      }
-    } catch (fingerprintError) {
-      console.warn('Ошибка сбора расширенного отпечатка:', fingerprintError);
+      localStorage.setItem('fingerprint_permissions', JSON.stringify(grantedPermissions));
+    } catch (e) {
+      console.warn('Ошибка сохранения разрешений в localStorage:', e);
     }
     
-    // Выполняем вход
-    await performLogin(email, password, deviceInfo);
+    // Авторизация уже выполнена, просто переходим в личный кабинет
+    navigate('/personal-room');
   };
 
-  // Обработчик отказа от разрешений
-  const handlePermissionsDenied = async () => {
+  // Обработчик отказа от разрешений (после успешной авторизации)
+  const handlePermissionsDenied = () => {
     setShowFingerprintModal(false);
-    
-    // Собираем только базовый отпечаток
-    const basicFingerprint = collectBasicFingerprint();
-    const browserInfo = parseUserAgent(basicFingerprint.user_agent);
-    
-    const deviceInfo = {
-      userAgent: basicFingerprint.user_agent,
-      ipAddress: '',
-      screenResolution: basicFingerprint.screen_resolution,
-      deviceName: `${browserInfo.browser} на ${browserInfo.os}`,
-      browser: browserInfo.browser,
-      os: browserInfo.os,
-      platform: basicFingerprint.platform || '',
-      timezone: basicFingerprint.timezone || '',
-      language: basicFingerprint.language || '',
-      location: '',
-      fingerprintData: basicFingerprint
-    };
-    
-    // Выполняем вход с базовым отпечатком
-    await performLogin(email, password, deviceInfo);
+    // Авторизация уже выполнена, просто переходим в личный кабинет
+    navigate('/personal-room');
   };
 
-  // Определяем, какие способы доступны
-  const availableMethods = ['password', 'email_link']; // Всегда доступны
-  // Биометрия доступна, если есть биометрические ключи (canUseBiometric проверяется при попытке входа)
-  if (hasBiometricCredentials) {
-    availableMethods.push('biometric');
-    console.log('✅ Биометрия добавлена в список способов входа');
-  } else {
-    console.log('❌ Биометрия НЕ добавлена:', { canUseBiometric, hasBiometricCredentials });
-  }
-  if (hasTelegram) availableMethods.push('telegram_token');
+  // КРИТИЧНО: Мемоизируем список доступных способов, чтобы избежать лишних перерендеров
+  const availableMethods = useMemo(() => {
+    const methods = ['password', 'email_link']; // Всегда доступны
+    // Биометрия доступна, если есть биометрические ключи (canUseBiometric проверяется при попытке входа)
+    if (hasBiometricCredentials) {
+      methods.push('biometric');
+    }
+    if (hasTelegram) {
+      methods.push('telegram_token');
+    }
+    return methods;
+  }, [hasBiometricCredentials, hasTelegram]);
   
   // Функция для выбора способа входа
   const handleSelectAuthMethod = (method) => {
     if (method === 'password') {
       // При выборе пароля показываем стандартную форму
       setSelectedAuthMethod('password');
+      // КРИТИЧНО: Сохраняем явный выбор password в ref, чтобы он не терялся при изменении email
+      userExplicitlyChosePasswordRef.current = true;
+      // КРИТИЧНО: Сбрасываем preferredAuthMethod, чтобы не показывать предпочтительный способ
+      setPreferredAuthMethod(null);
       setShowMoreAuthMethods(false);
     } else {
       setSelectedAuthMethod(method);
+      // Если выбран другой способ, сбрасываем флаг явного выбора password
+      userExplicitlyChosePasswordRef.current = false;
       setShowMoreAuthMethods(false);
     }
   };
@@ -817,16 +911,10 @@ function Login() { // Компонент формы входа пользова�
   // Обработчик переключения "Больше способов входа"
   const handleToggleMoreMethods = () => {
     const newValue = !showMoreAuthMethods;
-    console.log('🔄 Переключение "Больше способов входа":', { 
-      oldValue: showMoreAuthMethods, 
-      newValue,
-      availableMethods,
-      preferredAuthMethod,
-      selectedAuthMethod
-    });
     setShowMoreAuthMethods(newValue);
-    // При открытии меню сбрасываем выбранный способ, чтобы скрыть поля
-    if (newValue) {
+    // КРИТИЧНО: При открытии меню НЕ сбрасываем выбранный способ, если пользователь явно выбрал 'password'
+    // Это позволяет пользователю открыть меню и выбрать другой способ, не теряя выбор password
+    if (newValue && !userExplicitlyChosePasswordRef.current) {
       setSelectedAuthMethod(null);
     }
   };
@@ -1291,7 +1379,8 @@ function Login() { // Компонент формы входа пользова�
         </div>
 
         {/* Показываем предпочтительный способ входа, если email введен и способ определен (но НЕ показываем если выбран password или способ = password) */}
-        {selectedAuthMethod !== 'password' && email.trim() && preferredAuthMethod && preferredAuthMethod !== 'password' && preferredAuthMethod !== null && preferredAuthMethod !== 'biometric' && !checkingBiometric && !checkingTelegram && !selectedAuthMethod && (
+        {/* КРИТИЧНО: НЕ показываем предпочтительный способ, если пользователь явно выбрал 'password' */}
+        {!userExplicitlyChosePasswordRef.current && selectedAuthMethod !== 'password' && email.trim() && preferredAuthMethod && preferredAuthMethod !== 'password' && preferredAuthMethod !== null && preferredAuthMethod !== 'biometric' && !checkingBiometric && !checkingTelegram && !selectedAuthMethod && (
           <div className="form-login-buttons flex flex-column" style={{ gap: '1vw', marginTop: '2vw', width: '80%' }}>
             {renderAuthMethod(preferredAuthMethod)}
             
@@ -1315,7 +1404,8 @@ function Login() { // Компонент формы входа пользова�
         )}
         
         {/* Показываем предпочтительный способ БИОМЕТРИЯ отдельно */}
-        {selectedAuthMethod !== 'password' && email.trim() && preferredAuthMethod === 'biometric' && !checkingBiometric && !checkingTelegram && !selectedAuthMethod && (
+        {/* КРИТИЧНО: НЕ показываем предпочтительный способ биометрии, если пользователь явно выбрал 'password' */}
+        {!userExplicitlyChosePasswordRef.current && selectedAuthMethod !== 'password' && email.trim() && preferredAuthMethod === 'biometric' && !checkingBiometric && !checkingTelegram && !selectedAuthMethod && (
           <div className="form-login-buttons flex flex-column" style={{ gap: '1vw', marginTop: '2vw', width: '80%' }}>
             {renderAuthMethod('biometric')}
             
@@ -1342,13 +1432,6 @@ function Login() { // Компонент формы входа пользова�
         {showMoreAuthMethods && email.trim() && availableMethods.length > 1 && (!preferredAuthMethod || preferredAuthMethod === 'password') && (() => {
           // Показываем все доступные способы, кроме password (он уже показан в стандартной форме)
           const methodsToShow = availableMethods.filter(method => method !== 'password');
-          console.log('📋 Способы для показа (стандартная форма):', { 
-            methodsToShow, 
-            availableMethods, 
-            preferredAuthMethod,
-            showMoreAuthMethods,
-            methodsToShowLength: methodsToShow.length
-          });
           
           if (methodsToShow.length === 0) {
             console.warn('⚠️ Список способов пустой после фильтрации!');
@@ -1413,13 +1496,6 @@ function Login() { // Компонент формы входа пользова�
         {showMoreAuthMethods && email.trim() && availableMethods.length > 1 && preferredAuthMethod && preferredAuthMethod !== 'password' && preferredAuthMethod !== null && (() => {
           // Показываем все доступные способы, кроме предпочтительного
           const methodsToShow = availableMethods.filter(method => method !== preferredAuthMethod);
-          console.log('📋 Способы для показа (предпочтительный способ):', { 
-            methodsToShow, 
-            availableMethods, 
-            preferredAuthMethod,
-            showMoreAuthMethods,
-            methodsToShowLength: methodsToShow.length
-          });
           
           return (
             <div className="form-login-buttons flex flex-column" style={{ gap: '0', marginTop: '0.5vw', width: '80%' }}>
@@ -1526,54 +1602,41 @@ function Login() { // Компонент формы входа пользова�
 
         {/* Показываем стандартную форму (пароль, капча, согласие) */}
         {(() => {
+          // КРИТИЧНО: Если пользователь явно выбрал password, показываем форму ВСЕГДА
+          const userChosePassword = userExplicitlyChosePasswordRef.current || selectedAuthMethod === 'password';
+          
           // НЕ показываем если открыто меню "Больше способов входа"
           if (showMoreAuthMethods) {
-            console.log('❌ Форма скрыта: showMoreAuthMethods = true');
             return false;
           }
           
           // НЕ показываем если выбран другой способ (не password)
           if (selectedAuthMethod && selectedAuthMethod !== 'password') {
-            console.log('❌ Форма скрыта: selectedAuthMethod =', selectedAuthMethod);
             return false;
           }
           
-          // Показываем если:
-          // - email не введен, ИЛИ
-          // - предпочтительный способ = null/password, ИЛИ
-          // - выбран password явно, ИЛИ
-          // - идет проверка биометрии/телеграма
-          // НЕ показываем если есть предпочтительный способ (не null, не password, не biometric) и НЕ выбран password
-          const shouldShow = !email.trim() || 
-                            !preferredAuthMethod || 
-                            preferredAuthMethod === 'password' || 
-                            preferredAuthMethod === null ||
-                            selectedAuthMethod === 'password' ||
-                            checkingBiometric || 
-                            checkingTelegram;
-          
-          // НЕ показываем если показывается предпочтительный способ (не password, не null, не biometric)
-          if (preferredAuthMethod && preferredAuthMethod !== 'password' && preferredAuthMethod !== null && preferredAuthMethod !== 'biometric' && !selectedAuthMethod) {
-            return false;
+          // КРИТИЧНО: Если пользователь явно выбрал password, показываем форму ВСЕГДА
+          if (userChosePassword) {
+            return true;
           }
           
-          // НЕ показываем если показывается предпочтительный способ биометрии и НЕ выбран password
-          if (preferredAuthMethod === 'biometric' && !selectedAuthMethod && email.trim()) {
-            console.log('❌ Форма скрыта: preferredAuthMethod = biometric');
-            return false;
+          // Если email не введен, показываем форму
+          if (!email.trim()) {
+            return true;
           }
           
-          if (!shouldShow) {
-            console.log('❌ Форма скрыта: preferredAuthMethod =', preferredAuthMethod, 'selectedAuthMethod =', selectedAuthMethod);
-          } else {
-            console.log('✅ Форма показывается:', { 
-              preferredAuthMethod, 
-              selectedAuthMethod, 
-              showMoreAuthMethods, 
-              email: email.trim() 
-            });
+          // Если нет предпочтительного способа, показываем форму
+          if (!preferredAuthMethod || preferredAuthMethod === 'password' || preferredAuthMethod === null) {
+            return true;
           }
-          return shouldShow;
+          
+          // Если идет проверка биометрии/телеграма, показываем форму
+          if (checkingBiometric || checkingTelegram) {
+            return true;
+          }
+          
+          // Во всех остальных случаях НЕ показываем форму
+          return false;
         })() && (
           <>
             <div className="form-password-inputs flex flex-column">

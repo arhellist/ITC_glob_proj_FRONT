@@ -103,10 +103,10 @@ class SecurityService {
     }
   }
 
-  // Получение заблокированных IP
-  async getBlockedIPs() {
+  // Получение заблокированных IP (новая система)
+  async getBlockedIPs(filters = {}) {
     try {
-      console.log('SecurityService: Запрос заблокированных IP');
+      console.log('SecurityService: Запрос заблокированных IP', filters);
       
       const token = localStorage.getItem('accessToken');
       if (!token) {
@@ -118,9 +118,12 @@ class SecurityService {
         'Content-Type': 'application/json'
       };
       
-      const response = await axiosAPI.get(`${this.baseURL}/blocked-ips`, { headers });
+      const queryParams = new URLSearchParams(filters).toString();
+      const url = `${this.baseURL}/ip-blocks${queryParams ? `?${queryParams}` : ''}`;
+      
+      const response = await axiosAPI.get(url, { headers });
       console.log('SecurityService: Получены заблокированные IP:', response.data);
-      return response.data.blockedIPs;
+      return response.data.data || [];
     } catch (error) {
       console.error('SecurityService: Ошибка получения заблокированных IP:', error);
       // Возвращаем пустой массив при ошибке
@@ -128,10 +131,10 @@ class SecurityService {
     }
   }
 
-  // Разблокировка IP
-  async unblockIP(ip) {
+  // Блокировка IP вручную (новая система)
+  async blockIP(ipAddress, blockData = {}) {
     try {
-      console.log('SecurityService: Разблокировка IP:', ip);
+      console.log('SecurityService: Блокировка IP:', ipAddress, blockData);
       
       const token = localStorage.getItem('accessToken');
       if (!token) {
@@ -143,13 +146,95 @@ class SecurityService {
         'Content-Type': 'application/json'
       };
       
-      const response = await axiosAPI.post(`${this.baseURL}/unblock-ip/${ip}`, {}, { headers });
+      const response = await axiosAPI.post(
+        `${this.baseURL}/ip-blocks`,
+        { ipAddress, ...blockData },
+        { headers }
+      );
+      console.log('SecurityService: IP заблокирован:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('SecurityService: Ошибка блокировки IP:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Разблокировка IP (новая система)
+  async unblockIP(ipAddress) {
+    try {
+      console.log('SecurityService: Разблокировка IP:', ipAddress);
+      
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+      
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+      
+      const response = await axiosAPI.delete(`${this.baseURL}/ip-blocks/${encodeURIComponent(ipAddress)}`, { headers });
       console.log('SecurityService: IP разблокирован:', response.data);
       return response.data;
     } catch (error) {
       console.error('SecurityService: Ошибка разблокировки IP:', error);
       // Возвращаем ошибку вместо throw
       return { success: false, error: error.message };
+    }
+  }
+
+  // Получение статистики нарушений для IP
+  async getIPStatistics(ipAddress, hours = 24) {
+    try {
+      console.log('SecurityService: Запрос статистики IP:', ipAddress, hours);
+      
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+      
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+      
+      const response = await axiosAPI.get(
+        `${this.baseURL}/ip-blocks/${encodeURIComponent(ipAddress)}/statistics?hours=${hours}`,
+        { headers }
+      );
+      console.log('SecurityService: Получена статистика IP:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('SecurityService: Ошибка получения статистики IP:', error);
+      return null;
+    }
+  }
+
+  // Проверка статуса блокировки IP
+  async checkIPStatus(ipAddress) {
+    try {
+      console.log('SecurityService: Проверка статуса IP:', ipAddress);
+      
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+      
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+      
+      const response = await axiosAPI.get(
+        `${this.baseURL}/ip-blocks/${encodeURIComponent(ipAddress)}/status`,
+        { headers }
+      );
+      console.log('SecurityService: Статус IP получен:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('SecurityService: Ошибка проверки статуса IP:', error);
+      return null;
     }
   }
 
@@ -305,9 +390,12 @@ class SecurityService {
   async getRolesPermissionsConfig() {
     try {
       console.log('SecurityService: Запрос ролей и разрешений');
+      console.log('SecurityService: baseURL:', this.baseURL);
+      console.log('SecurityService: Полный URL:', `${this.baseURL}/roles`);
 
       const token = localStorage.getItem('accessToken');
       if (!token) {
+        console.error('SecurityService: Токен отсутствует');
         throw new Error('Пользователь не авторизован');
       }
 
@@ -316,10 +404,34 @@ class SecurityService {
         'Content-Type': 'application/json'
       };
 
+      console.log('SecurityService: Отправляем GET запрос на', `${this.baseURL}/roles`);
       const response = await axiosAPI.get(`${this.baseURL}/roles`, { headers });
-      return response.data?.data || { roles: [], permissions: [], menu: [] };
+      console.log('SecurityService: Ответ получен:', {
+        status: response.status,
+        hasData: !!response.data,
+        hasSuccess: !!response.data?.success,
+        hasDataData: !!response.data?.data,
+        rolesCount: response.data?.data?.roles?.length || 0,
+        permissionsCount: response.data?.data?.permissions?.length || 0
+      });
+      
+      const result = response.data?.data || { roles: [], permissions: [], menu: [] };
+      console.log('SecurityService: Возвращаем данные:', {
+        roles: result.roles?.length || 0,
+        permissions: result.permissions?.length || 0,
+        menu: result.menu?.length || 0
+      });
+      
+      return result;
     } catch (error) {
       console.error('SecurityService: Ошибка получения ролей:', error);
+      console.error('SecurityService: Детали ошибки:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        url: error.config?.url
+      });
       return { roles: [], permissions: [], menu: [] };
     }
   }
@@ -738,6 +850,130 @@ class SecurityService {
     }
   }
 
+  // Публикации
+  async getPublications() {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axiosAPI.get(`${this.adminBaseURL}/publications`, { headers });
+      return response.data.publications || [];
+    } catch (error) {
+      console.error('SecurityService: Ошибка получения публикаций:', error);
+      throw error;
+    }
+  }
+
+  async getPublication(id) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axiosAPI.get(`${this.adminBaseURL}/publications/${id}`, { headers });
+      return response.data.publication;
+    } catch (error) {
+      console.error('SecurityService: Ошибка получения публикации:', error);
+      throw error;
+    }
+  }
+
+  async createPublication(publicationData) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axiosAPI.post(`${this.adminBaseURL}/publications`, publicationData, { headers });
+      return response.data.publication;
+    } catch (error) {
+      console.error('SecurityService: Ошибка создания публикации:', error);
+      throw error;
+    }
+  }
+
+  async updatePublication(id, publicationData) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axiosAPI.put(`${this.adminBaseURL}/publications/${id}`, publicationData, { headers });
+      return response.data.publication;
+    } catch (error) {
+      console.error('SecurityService: Ошибка обновления публикации:', error);
+      throw error;
+    }
+  }
+
+  async deletePublication(id) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      await axiosAPI.delete(`${this.adminBaseURL}/publications/${id}`, { headers });
+      return true;
+    } catch (error) {
+      console.error('SecurityService: Ошибка удаления публикации:', error);
+      throw error;
+    }
+  }
+
+  async uploadPublicationFile(file) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axiosAPI.post(`${this.adminBaseURL}/publications/upload`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('SecurityService: Ошибка загрузки файла публикации:', error);
+      throw error;
+    }
+  }
 }
 
 export default new SecurityService();

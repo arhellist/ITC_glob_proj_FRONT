@@ -1,4 +1,5 @@
 import "./landing.css";
+import "./landing-responsive.css"; // Импорт адаптивных стилей для лендинга (мобильная и планшетная версия)
 import Entryes from "../entryes/entryes";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";

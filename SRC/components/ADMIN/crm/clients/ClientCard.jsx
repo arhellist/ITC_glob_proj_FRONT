@@ -1,5 +1,5 @@
 import React from 'react';
-import { API_CONFIG } from '../../../../config/api';
+import { getAvatarUrl } from '../../../../config/api';
 
 const ClientCard = ({ client, onClick }) => {
   // Форматирование ФИО
@@ -44,11 +44,7 @@ const ClientCard = ({ client, onClick }) => {
             const avatar = getAvatar();
             return avatar ? (
               <img
-                src={
-                  avatar.startsWith("http")
-                    ? avatar
-                    : `${API_CONFIG.BASE_URL}${avatar}`
-                }
+                src={getAvatarUrl(avatar)}
                 alt="Avatar"
               />
             ) : (

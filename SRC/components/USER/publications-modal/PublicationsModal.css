@@ -1,0 +1,463 @@
+.publications-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 0;
+}
+
+/* Детальный просмотр (как в Telegram Stories) */
+.publications-detail-view {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Лента публикаций сверху (кружочки) */
+.publications-stories-bar-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 16;
+}
+
+.publications-stories-bar {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: default;
+}
+
+.publications-stories-bar.dragging {
+  cursor: grabbing;
+}
+
+/* Grab курсор только при наведении на пустую область ленты */
+.publications-stories-bar:not(.dragging):hover {
+  cursor: grab;
+}
+
+.publications-stories-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.publication-story-circle {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  border: 3px solid transparent;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.publication-story-circle:hover {
+  transform: scale(1.1);
+}
+
+.publication-story-circle.active {
+  border-color: #fff;
+  border-width: 3px;
+}
+
+.publication-story-circle.unviewed {
+  border-color: #f44336;
+  border-width: 3px;
+}
+
+.publication-story-circle.active.unviewed {
+  border-color: #fff;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px #f44336;
+}
+
+.publication-story-circle-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.publication-story-circle-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.publication-new-pill {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  z-index: 30;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.publications-stories-scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  cursor: pointer;
+  user-select: none;
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.75;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.publications-stories-scroll-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.publications-stories-scroll-btn.left {
+  left: 8px;
+}
+
+.publications-stories-scroll-btn.right {
+  right: 8px;
+}
+
+.publication-story-circle-placeholder {
+  font-size: 28px;
+  color: #666;
+}
+
+.publications-progress-bar-container {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  padding-top: 80px; /* Отступ сверху для ленты публикаций */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.publications-progress-bar-item {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.publications-progress-bar-fill {
+  height: 100%;
+  background: #fff;
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+.publications-progress-bar-fill.active {
+  animation: progress-fill 5s linear forwards;
+}
+
+@keyframes progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.publications-close-btn {
+  position: absolute;
+  top: 80px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.publications-close-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.publications-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #fff;
+  font-size: 18px;
+}
+
+.publications-empty-detail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #fff;
+  font-size: 18px;
+}
+
+.publications-slide-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px 20px;
+  overflow: hidden;
+}
+
+.publication-slide-text {
+  color: #fff;
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 90%;
+}
+
+.publication-slide-image,
+.publication-slide-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* чтобы подпись позиционировать поверх снизу */
+}
+
+.publication-slide-image img,
+.publication-slide-video video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.publication-slide-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #fff;
+  text-align: center;
+  padding: 12px 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0,0,0,0.2));
+  width: 100%;
+  z-index: 2;
+}
+
+.publication-slide-document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #fff;
+}
+
+.publication-document-link {
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  color: #fff;
+}
+
+.publication-document-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.publications-nav-left,
+.publications-nav-right {
+  position: absolute;
+  top: 80px;
+  bottom: 0;
+  width: 30%;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.publications-slide-nav-chevron {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 40px;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  pointer-events: none; /* кликабельность остаётся у зоны */
+}
+
+.publications-slide-nav-chevron.left {
+  left: 12px;
+}
+
+.publications-slide-nav-chevron.right {
+  right: 12px;
+}
+
+.publications-nav-left {
+  left: 0;
+}
+
+.publications-nav-right {
+  right: 0;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .publications-detail-view {
+    max-width: 100%;
+  }
+
+  .publication-story-circle {
+    width: 48px;
+    height: 48px;
+  }
+
+  .publications-stories-bar {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+}
+
+/* Десктопная версия */
+@media (min-width: 1024px) {
+  .publications-modal-overlay {
+    padding: 24px;
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+
+  .publications-detail-view {
+    max-width: 1200px;
+    height: 86vh;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    background: #000;
+    position: relative;
+  }
+
+  .publications-stories-bar {
+    gap: 14px;
+    padding: 16px 24px 8px 24px;
+  }
+
+  .publication-story-circle {
+    width: 64px;
+    height: 64px;
+  }
+
+  .publications-progress-bar-container {
+    gap: 6px;
+    padding: 0 24px;
+    padding-top: 96px; /* отступ под крупные кружочки */
+  }
+
+  .publications-close-btn {
+    top: 28px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    font-size: 28px;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .publications-slide-content {
+    /* Контентная область ниже прогрессбара */
+    padding: 0;
+    margin: 110px 24px 24px 24px; /* ниже stories + progress */
+    height: calc(100% - 134px); /* учитываем верхний блок + нижний отступ */
+    border-radius: 16px;
+    background: #0b0b0b;
+    overflow: hidden; /* скругление для медиа */
+  }
+
+  .publication-slide-image,
+  .publication-slide-video {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .publication-slide-image img,
+  .publication-slide-video video {
+    /* Масштабируем контент по размеру области и центрируем */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* без обрезки */
+    border-radius: 0; /* скругление уже у контейнера */
+  }
+
+  .publication-slide-caption {
+    padding: 14px 18px;
+    font-size: 15px;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .publication-document-link {
+    padding: 18px 34px;
+    font-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .publications-nav-left,
+  .publications-nav-right {
+    top: 110px; /* соответствует высоте stories bar + прогрессбар */
+    width: 24%;
+  }
+}

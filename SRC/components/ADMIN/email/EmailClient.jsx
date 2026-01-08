@@ -43,6 +43,9 @@ const EmailClient = () => {
     const loadFolders = useCallback(async () => {
         try {
       console.log('📁 EmailClient: Загружаем папки...');
+      console.log('📁 EmailClient: axiosAPI.defaults.baseURL =', axiosAPI.defaults.baseURL);
+      console.log('📁 EmailClient: Запрос к URL:', '/admin/email/folders');
+      console.log('📁 EmailClient: Полный URL будет:', `${axiosAPI.defaults.baseURL || window.location.origin}/admin/email/folders`);
       const { data } = await axiosAPI.get('/admin/email/folders');
       console.log('📁 EmailClient: Получены данные папок:', data);
       
@@ -73,12 +76,17 @@ const EmailClient = () => {
         });
             }
         } catch (error) {
-            console.error('Ошибка загрузки папок:', error);
+            console.error('❌ EmailClient: Ошибка загрузки папок:', error);
+            console.error('❌ EmailClient: URL запроса:', '/admin/email/folders');
+            console.error('❌ EmailClient: BASE_URL:', axiosAPI.defaults.baseURL);
+            console.error('❌ EmailClient: Полный URL:', `${axiosAPI.defaults.baseURL || ''}/admin/email/folders`);
+            console.error('❌ EmailClient: Error details:', error.response?.data || error.message);
     }
   }, []); // Убираем зависимость selectedFolder
 
   // Загружаем папки только один раз при монтировании компонента
   useEffect(() => {
+    console.log('📁 EmailClient: Компонент смонтирован, запускаем loadFolders и checkActiveQueues');
     loadFolders();
     checkActiveQueues();
   }, [loadFolders, checkActiveQueues]); // Добавляем loadFolders в зависимости

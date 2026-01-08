@@ -1,36 +1,54 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../JS/auth/store/store";
 import { API_CONFIG } from "../../config/api.js";
 import axiosAPI from "../../JS/auth/http/axios";
-// Убираем импорт useSupport - это админский интерфейс
-import ProfileUser from "../USER/profile/profile-user";
-import CorrectUserData from "../USER/profile/correct-user-data/correct-user-data";
-import PartnerProgs from "../USER/partner-progs/partner-progs";
-import AccountsRoom from "../USER/accounts-room/accounts-room";
-import TransactionRoom from "../USER/transaction-room/transaction-room.jsx";
-import ReportRoom from "../USER/report-room/report-room.jsx";
-import DocsRoom from "../USER/docs-room/docs-room.jsx";
-import ContainerNotification from "../USER/accounts-room/modal-window-account-room/container-notification.jsx";
-import InfoModal from "../USER/accounts-room/modal-window-account-room/info-modal.jsx";
-import MessagesModal from "../USER/messages-modal/MessagesModal.jsx";
 import websocketService from "../../JS/websocket/websocket-service.js";
 import defaultAvatarUrl from "../../IMG/male/ava.png";
-import RunAdminPanelButton from "../ADMIN/admBTN/admBTN.jsx";
-import NavPanelAdmin from "../ADMIN/nav/nav.jsx";
-import UsersList from "../ADMIN/users-list/users-list.jsx";
-import AdminLogin from "../ADMIN/login/admin-login.jsx";
-import SecurityDashboard from "../ADMIN/security-dashboard/security-dashboard.jsx";
-import UserRequests from "../ADMIN/user-requests/user-requests.jsx"; // Импорт компонента заявок
-import AccountsMonitoring from "../ADMIN/accounts-monitoring/accounts-monitoring.jsx"; // Импорт компонента мониторинга счетов
-import ProfitabilityCalculation from "../ADMIN/profitability-calculation/profitability-calculation.jsx"; // Импорт компонента расчета доходности
-import CRMMain from "../ADMIN/crm/crm-main.jsx"; // Импорт CRM-модуля
-import EmailClient from "../ADMIN/email/EmailClient.jsx"; // Импорт Email клиента
 import { CRMProvider } from "../../contexts/CRMContext.jsx";
 import adminAuthService from "../../JS/services/admin-auth-service.js";
 import securityService from "../../JS/services/security-service.js";
 import adminService from "../../JS/services/admin-service.js";
 import { initializeBehavioralBiometrics, getBehavioralBiometricsCollector } from "../../utils/behavioral-biometrics-collector.js";
+
+// Ленивая загрузка пользовательских компонентов
+const ProfileUser = lazy(() => import("../USER/profile/profile-user"));
+const CorrectUserData = lazy(() => import("../USER/profile/correct-user-data/correct-user-data"));
+const PartnerProgs = lazy(() => import("../USER/partner-progs/partner-progs"));
+const AccountsRoom = lazy(() => import("../USER/accounts-room/accounts-room"));
+const TransactionRoom = lazy(() => import("../USER/transaction-room/transaction-room.jsx"));
+const ReportRoom = lazy(() => import("../USER/report-room/report-room.jsx"));
+const DocsRoom = lazy(() => import("../USER/docs-room/docs-room.jsx"));
+const ContainerNotification = lazy(() => import("../USER/accounts-room/modal-window-account-room/container-notification.jsx"));
+const InfoModal = lazy(() => import("../USER/accounts-room/modal-window-account-room/info-modal.jsx"));
+const MessagesModal = lazy(() => import("../USER/messages-modal/MessagesModal.jsx"));
+const PublicationsModal = lazy(() => import("../USER/publications-modal/PublicationsModal.jsx"));
+
+// Ленивая загрузка админских компонентов
+const RunAdminPanelButton = lazy(() => import("../ADMIN/admBTN/admBTN.jsx"));
+const NavPanelAdmin = lazy(() => import("../ADMIN/nav/nav.jsx"));
+const UsersList = lazy(() => import("../ADMIN/users-list/users-list.jsx"));
+const AdminLogin = lazy(() => import("../ADMIN/login/admin-login.jsx"));
+const SecurityDashboard = lazy(() => import("../ADMIN/security-dashboard/security-dashboard.jsx"));
+const UserRequests = lazy(() => import("../ADMIN/user-requests/user-requests.jsx"));
+const AccountsMonitoring = lazy(() => import("../ADMIN/accounts-monitoring/accounts-monitoring.jsx"));
+const ProfitabilityCalculation = lazy(() => import("../ADMIN/profitability-calculation/profitability-calculation.jsx"));
+const CRMMain = lazy(() => import("../ADMIN/crm/crm-main.jsx"));
+const EmailClient = lazy(() => import("../ADMIN/email/EmailClient.jsx"));
+
+// Компонент загрузки для Suspense
+const ComponentLoader = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    minHeight: '200px',
+    fontSize: '16px',
+    color: '#666'
+  }}>
+    Загрузка...
+  </div>
+);
 
 const ADMIN_MENU_CONFIG = [
   { key: 'users', permission: 'viewUsers' },
@@ -52,20 +70,51 @@ function Main() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminChecking, setAdminChecking] = useState(true);
   const [isInWhitelist, setIsInWhitelist] = useState(false);
-  const [navItemsVisible, setNavItemsVisible] = useState({});
+  // Кнопки видимы сразу, не используем состояние для управления видимостью
   const [adminActiveView, setAdminActiveView] = useState('users');
   const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [showPublicationsModal, setShowPublicationsModal] = useState(false);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [unviewedPublicationsCount, setUnviewedPublicationsCount] = useState(0);
   const [adminMenuAccess, setAdminMenuAccess] = useState(null);
   const [adminMenuConfig, setAdminMenuConfig] = useState([]);
   const [pendingDocumentsCount, setPendingDocumentsCount] = useState(0);
   const [supportUnreadCount, setSupportUnreadCount] = useState(0);
   const [emailUnreadCount, setEmailUnreadCount] = useState(0);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [showNavigation, setShowNavigation] = useState(false); // Для мобильной навигации (как в миниапке)
   
   // Получаем методы стора
   const isAuth = useAuthStore(s => s.isAuth);
   const logout = useAuthStore(s => s.logout);
   const user = useAuthStore(s => s.user);
+  
+  // Массив кнопок навигации для мобильной версии (как в миниапке)
+  const navigationButtons = [
+    { id: 'profile', label: 'Профиль', iconClass: 'root-nav-icon-profile', path: '/personal-room' },
+    { id: 'partners', label: 'Партнеры', iconClass: 'root-nav-icon-partners', path: '/personal-room/partners' },
+    { id: 'accounts', label: 'Счета', iconClass: 'root-nav-icon-accounts', path: '/personal-room/accounts' },
+    { id: 'transactions', label: 'Транзакции', iconClass: 'root-nav-icon-transactions', path: '/personal-room/transactions' },
+    { id: 'reports', label: 'Отчеты', iconClass: 'root-nav-icon-reports', path: '/personal-room/reports' },
+    { id: 'documents', label: 'Документы', iconClass: 'root-nav-icon-documents', path: '/personal-room/documents' },
+  ];
+  
+  // Функция обработки навигации для мобильной версии (как в миниапке)
+  const handleMobileNavigation = (path) => {
+    navigate(path);
+    setShowNavigation(false);
+    // Обновляем activeView на основе пути
+    if (path.includes('/partners')) setActiveView('partners');
+    else if (path.includes('/accounts')) setActiveView('accounts');
+    else if (path.includes('/transactions')) setActiveView('transactions');
+    else if (path.includes('/reports')) setActiveView('reports');
+    else if (path.includes('/documents')) setActiveView('documents');
+    else if (path.includes('/admin')) setActiveView('admin');
+    else {
+      setActiveView('profile');
+      setShowProfileSettings(false);
+    }
+  };
   
   // НЕ ИСПОЛЬЗУЕМ SupportContext в клиентском интерфейсе
   // Клиентский интерфейс должен работать только с клиентскими сообщениями
@@ -80,7 +129,9 @@ function Main() {
           
           // Периодическая отправка данных на анализ (каждые 5 минут)
           const analysisInterval = setInterval(async () => {
-            if (isAuth && user?.id) {
+            // Проверяем наличие токена перед отправкой
+            const token = localStorage.getItem('accessToken');
+            if (isAuth && user?.id && token) {
               try {
                 const result = await collector.sendDataForAnalysis(user.id);
                 if (result?.analysis?.isSuspicious) {
@@ -89,7 +140,10 @@ function Main() {
                 // Очищаем данные после отправки
                 collector.clearAllData();
               } catch (error) {
-                console.error('Ошибка отправки Behavioral Biometrics данных:', error);
+                // Игнорируем 401 ошибки - они обрабатываются axios interceptor'ом
+                if (error.response?.status !== 401) {
+                  console.error('Ошибка отправки Behavioral Biometrics данных:', error);
+                }
               }
             }
           }, 5 * 60 * 1000); // 5 минут
@@ -97,8 +151,14 @@ function Main() {
           // Отправка данных при размонтировании компонента
           return () => {
             clearInterval(analysisInterval);
-            if (isAuth && user?.id) {
-              collector.sendDataForAnalysis(user.id).catch(console.error);
+            const token = localStorage.getItem('accessToken');
+            if (isAuth && user?.id && token) {
+              collector.sendDataForAnalysis(user.id).catch((error) => {
+                // Игнорируем 401 ошибки при размонтировании
+                if (error.response?.status !== 401) {
+                  console.error('Ошибка отправки Behavioral Biometrics данных при размонтировании:', error);
+                }
+              });
             }
             collector.disable();
           };
@@ -132,103 +192,122 @@ function Main() {
     }
   };
 
-  // Проверка whitelist администратора (без проверки аутентификации)
+  // Единая загрузка всех начальных данных параллельно
   useEffect(() => {
-    console.log('Main: useEffect checkAdminStatus triggered', { isAuth, user: user?.email });
-    
-    const checkAdminStatus = async () => {
+    if (!isAuth || !user) {
+      setIsInitialLoading(false);
+      setAdminChecking(false);
+      return;
+    }
+
+    const loadInitialData = async () => {
       try {
-        console.log('Main: Начинаем проверку whitelist для пользователя:', user?.email);
+        console.log('Main: Начинаем параллельную загрузку всех данных...');
         
-        // Проверяем только whitelist
-        const whitelistResult = await adminAuthService.checkWhitelist();
-        console.log('Main: Результат проверки whitelist:', whitelistResult);
-        
-        setIsInWhitelist(whitelistResult.isAdmin);
-        
-        // Всегда сбрасываем аутентификацию при загрузке
+        // Загружаем все данные параллельно
+        const [whitelistResult, unreadCountResult, unviewedPublicationsResult] = await Promise.allSettled([
+          adminAuthService.checkWhitelist().catch(err => {
+            console.error('Ошибка проверки whitelist:', err);
+            return { isAdmin: false };
+          }),
+          axiosAPI.get('/profile/notifications/unread/count').catch(err => {
+            if (err.response?.status === 401) {
+              return { data: { total: 0 } };
+            }
+            console.error('Ошибка загрузки счетчика:', err);
+            return { data: { total: 0 } };
+          }),
+          axiosAPI.get('/profile/publications/unviewed/count').catch(err => {
+            if (err.response?.status === 401) {
+              return { data: { count: 0 } };
+            }
+            console.error('Ошибка загрузки счетчика публикаций:', err);
+            return { data: { count: 0 } };
+          })
+        ]);
+
+        // Обрабатываем результаты
+        if (whitelistResult.status === 'fulfilled') {
+          const result = whitelistResult.value;
+          setIsInWhitelist(result.isAdmin);
+          console.log('Main: isInWhitelist установлен в:', result.isAdmin);
+        } else {
+          setIsInWhitelist(false);
+        }
+
+        if (unreadCountResult.status === 'fulfilled') {
+          const result = unreadCountResult.value.data;
+          const total = result?.data?.total || result?.total || 0;
+          setUnreadMessagesCount(total);
+          console.log('✅ Main: Обновляем бейдж клиентских сообщений на:', total);
+        }
+
+        if (unviewedPublicationsResult.status === 'fulfilled') {
+          const result = unviewedPublicationsResult.value.data;
+          const count = result?.data?.count || result?.count || 0;
+          setUnviewedPublicationsCount(count);
+          console.log('✅ Main: Обновляем бейдж публикаций на:', count);
+        }
+
         setIsAdminAuthenticated(false);
         setIsAdminPanelActive(false);
+        setAdminChecking(false);
         
-        console.log('Main: isInWhitelist установлен в:', whitelistResult.isAdmin);
+        console.log('Main: Все начальные данные загружены');
       } catch (error) {
-        console.error('Ошибка проверки админ-статуса:', error);
+        console.error('Ошибка загрузки начальных данных:', error);
         setIsInWhitelist(false);
         setIsAdminAuthenticated(false);
-      } finally {
         setAdminChecking(false);
-        console.log('Main: Проверка whitelist завершена, adminChecking = false');
+      } finally {
+        setIsInitialLoading(false);
+        // Видимость кнопок устанавливается в отдельном useEffect для одновременной анимации
       }
     };
 
-    if (isAuth && user) {
-      console.log('Main: Пользователь авторизован, запускаем проверку whitelist');
-      checkAdminStatus();
-    } else {
-      console.log('Main: Пользователь не авторизован, сбрасываем adminChecking');
-      setAdminChecking(false);
-    }
+    loadInitialData();
   }, [isAuth, user]);
 
-  // Загрузка счетчика непрочитанных сообщений
-  useEffect(() => {
-    const loadUnreadCount = async () => {
-      if (!isAuth) {
-        console.log('⚠️ Main: Пропускаем загрузку счетчика - пользователь не авторизован');
-        return;
+  // Функция для загрузки счетчика непросмотренных публикаций
+  const loadUnviewedPublicationsCount = async () => {
+    try {
+      const response = await axiosAPI.get('/profile/publications/unviewed/count');
+      const data = response.data;
+      const count = data?.data?.count || data?.count || 0;
+      setUnviewedPublicationsCount(count);
+    } catch (error) {
+      if (error.response?.status !== 401) {
+        console.error('Ошибка загрузки счетчика публикаций:', error);
       }
-      
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        console.log('⚠️ Main: Пропускаем загрузку счетчика - токен отсутствует');
-        return;
-      }
-      
-      // Дополнительная проверка токена
-      try {
-        const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-        const isExpired = tokenPayload.exp * 1000 < Date.now();
-        if (isExpired) {
-          console.log('⚠️ Main: Пропускаем загрузку счетчика - токен истек');
-          return;
-        }
-      } catch {
-        console.log('⚠️ Main: Пропускаем загрузку счетчика - токен невалиден');
-        return;
-      }
-      
-      // КЛИЕНТСКИЙ ИНТЕРФЕЙС: используем только API для клиентских сообщений
-      // НЕ используем SupportContext (это админский интерфейс)
-      try {
-        console.log('🔄 Main: Запрос счетчика клиентских непрочитанных через API...');
-        // Проверяем наличие токена перед запросом
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          console.log('Main: Токен отсутствует, пропускаем загрузку счетчика непрочитанных');
-          return;
-        }
+      setUnviewedPublicationsCount(0);
+    }
+  };
 
-        const response = await axiosAPI.get('/profile/notifications/unread/count');
-        const result = response.data;
-        console.log('📊 Main: Ответ от API (клиентские сообщения):', result);
-        const total = result?.data?.total || result?.total || 0;
+  // Периодическое обновление счетчика непрочитанных (после начальной загрузки)
+  useEffect(() => {
+    if (!isAuth || isInitialLoading) return;
+
+    const loadUnreadCount = async () => {
+      try {
+        const [notificationsResponse, publicationsResponse] = await Promise.all([
+          axiosAPI.get('/profile/notifications/unread/count').catch(() => ({ data: { total: 0 } })),
+          axiosAPI.get('/profile/publications/unviewed/count').catch(() => ({ data: { count: 0 } }))
+        ]);
         
-        console.log('✅ Main: Обновляем бейдж клиентских сообщений на:', total);
-        setUnreadMessagesCount(total);
+        const notificationsTotal = notificationsResponse.data?.data?.total || notificationsResponse.data?.total || 0;
+        const publicationsCount = publicationsResponse.data?.data?.count || publicationsResponse.data?.count || 0;
+        
+        setUnreadMessagesCount(notificationsTotal);
+        setUnviewedPublicationsCount(publicationsCount);
       } catch (error) {
-        // Игнорируем 401 ошибки, они обрабатываются axios interceptor
-        if (error.response?.status === 401) {
-          console.log('Main: 401 ошибка при загрузке счетчика непрочитанных, токен будет обновлен автоматически');
-          return;
+        if (error.response?.status !== 401) {
+          console.error('Ошибка загрузки счетчиков:', error);
         }
-        console.error('❌ Main: Ошибка загрузки счетчика клиентских непрочитанных:', error);
       }
     };
 
-    // Задержка для полной инициализации токена
-    const timeoutId = setTimeout(() => {
-      loadUnreadCount();
-    }, 1000);
+    // Первое обновление через 5 секунд после начальной загрузки
+    const timeoutId = setTimeout(loadUnreadCount, 5000);
 
     // WebSocket слушатели для обновления счетчика КЛИЕНТСКИХ сообщений
     const handleRefresh = (event) => {
@@ -247,12 +326,24 @@ function Main() {
     // Polling каждые 60 секунд (на случай если WS пропустит)
     const interval = setInterval(loadUnreadCount, 60000);
 
+    // Обновляем счетчики при возврате на вкладку/в окно (чтобы бейдж публикаций загорался быстрее)
+    const handleFocus = () => loadUnreadCount();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadUnreadCount();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       clearTimeout(timeoutId);
       document.removeEventListener('main-notify-info-refresh', handleRefresh);
       document.removeEventListener('main-notify-post-refresh', handleRefresh);
       document.removeEventListener('client-messages-read', handleRefresh);
       document.removeEventListener('support-new-message', handleRefresh);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(interval);
     };
   }, [isAuth]); // Убираем зависимость от supportContext - это админский интерфейс
@@ -355,39 +446,7 @@ function Main() {
     };
   }, [isAdminPanelActive, isAdminAuthenticated]);
 
-  // Эффект "грибов на поляне" - случайное появление кнопок навигации
-  useEffect(() => {
-    if (isAuth && user && !isChecking) {
-      console.log('Main: Запускаем эффект "грибов на поляне"');
-      
-      // Создаем массив кнопок навигации
-      const navItems = [
-        'profile', 'partners', 'accounts', 
-        'transactions', 'reports', 'documents'
-      ];
-      
-      // Перемешиваем массив случайным образом
-      const shuffledItems = [...navItems].sort(() => Math.random() - 0.5);
-      console.log('Main: Случайный порядок кнопок:', shuffledItems);
-      
-      // Сбрасываем видимость всех кнопок
-      setNavItemsVisible({});
-      
-      // Показываем кнопки по очереди с случайными задержками
-      shuffledItems.forEach((item, index) => {
-        const delay = Math.random() * 1000 + 200; // 200-1200ms
-        const totalDelay = index * 300 + delay; // базовая задержка + случайная
-        
-        setTimeout(() => {
-          //console.log(`Main: Показываем кнопку ${item} через ${totalDelay}ms`);
-          setNavItemsVisible(prev => ({
-            ...prev,
-            [item]: true
-          }));
-        }, totalDelay);
-      });
-    }
-  }, [isAuth, user, isChecking]);
+  // Кнопки видимы сразу, не ждем загрузки данных
 
   // Функция для переключения админ-панели
   const toggleAdminPanel = () => {
@@ -599,6 +658,7 @@ function Main() {
         }
       } else {
         console.log('Main: Пользователь не аутентифицирован');
+        setIsInitialLoading(false);
         // Отключаем WebSocket при выходе
         websocketService.disconnect();
         
@@ -714,6 +774,37 @@ function Main() {
     };
   }, [isAdminPanelActive, isAdminAuthenticated]);
 
+  // WebSocket: обновляем бейдж публикаций у онлайн пользователя сразу после создания публикации
+  useEffect(() => {
+    if (!isAuth) return;
+    let socket = null;
+    let intervalId = null;
+    const handler = () => {
+      // Сразу обновляем счетчик непросмотренных публикаций
+      loadUnviewedPublicationsCount();
+    };
+
+    const tryAttach = () => {
+      socket = websocketService.getSocket();
+      if (!socket || !socket.connected) return;
+      // чтобы не навесить несколько раз
+      socket.off('publications:new', handler);
+      socket.on('publications:new', handler);
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    tryAttach();
+    intervalId = setInterval(tryAttach, 500);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      if (socket) socket.off('publications:new', handler);
+    };
+  }, [isAuth]);
+
        // Обработка принудительного завершения сессии
        useEffect(() => {
          const handleSessionTerminated = (event) => {
@@ -747,7 +838,7 @@ function Main() {
 
   // Обновляем аватары в DOM при изменении пользователя
   useEffect(() => {
-    if (user && !isChecking) {
+    if (user && !isInitialLoading) {
       console.log('Main: Пользователь загружен, обновляем аватары в DOM:', user);
       
       // Получаем функцию обновления аватаров из стора
@@ -764,38 +855,182 @@ function Main() {
             updateAvatarsInDOM(defaultAvatarUrlLocal);
           }
     }
-  }, [user, isChecking]);
+  }, [user, isInitialLoading]);
 
-  // Убираем блокирующий экран загрузки - показываем интерфейс сразу
+  // Показываем индикатор загрузки до полной готовности
+  if (isAuth && isInitialLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        fontSize: '18px',
+        color: '#666',
+        backgroundColor: 'var(--bg-color-main)'
+      }}>
+        Загрузка...
+      </div>
+    );
+  }
 
   return (
     <section className="root bg-color-main flex flex-row">
+    {/* Мобильный хедер (показывается только на мобильных через CSS) */}
+    <header className="root-header-mobile">
+      <div className="root-header-logo">
+        <div className="root-header-logo-img img"></div>
+      </div>
+      <div className="root-header-icons flex flex-row">
+        <div 
+          className="root-messages-icon flex pointer"
+          onClick={() => setShowMessagesModal(true)}
+          title="История сообщений"
+          style={{ position: 'relative' }}
+        >
+          <div className="root-messages-icon-img img"></div>
+          {unreadMessagesCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-5px',
+              right: '-5px',
+              background: '#f44336',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              border: '2px solid #141414'
+            }}>
+              {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+            </span>
+          )}
+        </div>
+        <div 
+          className="root-publications-icon flex pointer"
+          onClick={() => {
+            // На всякий случай обновим бейдж перед открытием
+            loadUnviewedPublicationsCount();
+            setShowPublicationsModal(true);
+          }}
+          title="Публикации"
+          style={{ position: 'relative' }}
+        >
+          <div className="root-publications-icon-img img"></div>
+          {unviewedPublicationsCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-5px',
+              right: '-5px',
+              background: '#f44336',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              border: '2px solid #141414'
+            }}>
+              {unviewedPublicationsCount > 99 ? '99+' : unviewedPublicationsCount}
+            </span>
+          )}
+        </div>
+        <button 
+          className="root-burger-menu"
+          onClick={() => {
+            console.log('Burger clicked'); // Debug log
+            setShowNavigation(!showNavigation);
+          }}
+          aria-label="Меню"
+        >
+          <span className={`burger-line ${showNavigation ? 'open' : ''}`}></span>
+          <span className={`burger-line ${showNavigation ? 'open' : ''}`}></span>
+          <span className={`burger-line ${showNavigation ? 'open' : ''}`}></span>
+        </button>
+      </div>
+    </header>
+
+    {/* Страница навигации для мобильных (показывается только на мобильных через CSS) */}
+    {showNavigation && (
+      <div className="root-navigation-page">
+        <div className="root-navigation-grid">
+          {navigationButtons.map((button) => (
+            <button
+              key={button.id}
+              className="root-nav-button"
+              onClick={() => handleMobileNavigation(button.path)}
+            >
+              <div className={`root-nav-button-icon img ${button.iconClass}`}></div>
+              <div className="root-nav-button-label">{button.label}</div>
+            </button>
+          ))}
+          {/* Кнопка АДМИН (только для админов) */}
+          {!adminChecking && isInWhitelist && (
+            <button
+              className="root-nav-button root-admin-button-wrapper"
+              onClick={() => {
+                toggleAdminPanel();
+                setShowNavigation(false);
+              }}
+            >
+              <div className="root-admin-button-circle">
+                <div className="root-admin-button-icons a img"></div>
+                <div className="root-admin-button-icons d img"></div>
+                <div className="root-admin-button-icons m img"></div>
+                <div className="root-admin-button-icons i img"></div>
+                <div className="root-admin-button-icons n img"></div>
+              </div>
+              <div className="root-nav-button-label">АДМИН</div>
+            </button>
+          )}
+          {/* Кнопка выхода */}
+          <button
+            className="root-nav-button"
+            onClick={() => {
+              handleLogout();
+              setShowNavigation(false);
+            }}
+          >
+            <div className="root-nav-button-icon img root-nav-icon-exit"></div>
+            <div className="root-nav-button-label">ВЫХОД</div>
+          </button>
+        </div>
+      </div>
+    )}
+
     <nav className="root-nav flex flex-column">
       <div className="root-nav-logo pointer">
         <div className="root-nav-logo-img img"></div>
       </div>
 
       <ul className="root-nav-list flex flex-column">
-        <li className={`root-nav-item flex mushroom-grow ${navItemsVisible.profile ? 'visible' : 'hidden'} ${activeView === 'profile' ? 'active' : ''}`} onClick={() => { setActiveView('profile'); setShowProfileSettings(false); navigate('/personal-room'); }}>
+        <li className={`root-nav-item flex ${activeView === 'profile' ? 'active' : ''}`} onClick={() => { setActiveView('profile'); setShowProfileSettings(false); navigate('/personal-room'); }}>
           <div className="root-nav-item-icon pointer img root-nav-item-profile"></div>
         </li>
 
-        <li className={`root-nav-item flex mushroom-grow ${navItemsVisible.partners ? 'visible' : 'hidden'} ${activeView === 'partners' ? 'active' : ''}`} onClick={() => { setActiveView('partners'); setShowProfileSettings(false); navigate('/personal-room/partners'); }}>
+        <li className={`root-nav-item flex ${activeView === 'partners' ? 'active' : ''}`} onClick={() => { setActiveView('partners'); setShowProfileSettings(false); navigate('/personal-room/partners'); }}>
           <div className="root-nav-item-icon pointer img root-nav-item-partners"></div>
         </li>
-        <li className={`root-nav-item flex mushroom-grow ${navItemsVisible.accounts ? 'visible' : 'hidden'} ${activeView === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveView('accounts'); setShowProfileSettings(false); navigate('/personal-room/accounts'); }}>
+        <li className={`root-nav-item flex ${activeView === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveView('accounts'); setShowProfileSettings(false); navigate('/personal-room/accounts'); }}>
           <div className="root-nav-item-icon pointer img root-nav-item-accounts"></div>
         </li>
 
-        <li className={`root-nav-item flex mushroom-grow ${navItemsVisible.transactions ? 'visible' : 'hidden'} ${activeView === 'transactions' ? 'active' : ''}`} onClick={() => { setActiveView('transactions'); setShowProfileSettings(false); navigate('/personal-room/transactions'); }}>
+        <li className={`root-nav-item flex ${activeView === 'transactions' ? 'active' : ''}`} onClick={() => { setActiveView('transactions'); setShowProfileSettings(false); navigate('/personal-room/transactions'); }}>
           <div className="root-nav-item-icon pointer img root-nav-item-transactions"></div>
         </li>
 
-        <li className={`root-nav-item flex mushroom-grow ${navItemsVisible.reports ? 'visible' : 'hidden'} ${activeView === 'reports' ? 'active' : ''}`} onClick={() => { setActiveView('reports'); setShowProfileSettings(false); navigate('/personal-room/reports'); }}>
+        <li className={`root-nav-item flex ${activeView === 'reports' ? 'active' : ''}`} onClick={() => { setActiveView('reports'); setShowProfileSettings(false); navigate('/personal-room/reports'); }}>
           <div className="root-nav-item-icon pointer img root-nav-item-reports"></div>
         </li>
 
-        <li className={`root-nav-item flex mushroom-grow ${navItemsVisible.documents ? 'visible' : 'hidden'} ${activeView === 'documents' ? 'active' : ''}`} onClick={() => { setActiveView('documents'); setShowProfileSettings(false); navigate('/personal-room/documents'); }}>
+        <li className={`root-nav-item flex ${activeView === 'documents' ? 'active' : ''}`} onClick={() => { setActiveView('documents'); setShowProfileSettings(false); navigate('/personal-room/documents'); }}>
           <div className="root-nav-item-icon pointer img root-nav-item-documents"></div>
         </li>
 
@@ -803,19 +1038,23 @@ function Main() {
           className={`admin-button-container ${!adminChecking && isInWhitelist ? 'visible' : 'hidden'}`}
           onClick={toggleAdminPanel}
         >
-          <RunAdminPanelButton isActive={isAdminPanelActive} />
+          <Suspense fallback={null}>
+            <RunAdminPanelButton isActive={isAdminPanelActive} />
+          </Suspense>
         </div>
 
         {isAdminPanelActive && (
-          <NavPanelAdmin 
-            isActive={isAdminPanelActive} 
-            activeView={adminActiveView}
-            onViewChange={setAdminActiveView}
-            menuAccess={adminMenuAccess || {}}
-            pendingDocumentsCount={pendingDocumentsCount}
-            supportUnreadCount={supportUnreadCount}
-            emailUnreadCount={emailUnreadCount}
-          />
+          <Suspense fallback={<ComponentLoader />}>
+            <NavPanelAdmin 
+              isActive={isAdminPanelActive} 
+              activeView={adminActiveView}
+              onViewChange={setAdminActiveView}
+              menuAccess={adminMenuAccess || {}}
+              pendingDocumentsCount={pendingDocumentsCount}
+              supportUnreadCount={supportUnreadCount}
+              emailUnreadCount={emailUnreadCount}
+            />
+          </Suspense>
         )}
       </ul>
 
@@ -824,7 +1063,7 @@ function Main() {
       </div>
     </nav>
 
-    <article className="root-content flex flex-column bru-max">
+    <article className={`root-content flex flex-column bru-max ${showNavigation ? 'show-navigation' : ''}`}>
       <div className="root-content-container flex flex-column">
         <div className="root-header flex flex-row">
           <h1>{getHeaderTitle()}</h1>
@@ -857,6 +1096,37 @@ function Main() {
                 </span>
               )}
             </div>
+            <div 
+              className="root-publications-icon flex pointer"
+              onClick={() => {
+                loadUnviewedPublicationsCount();
+                setShowPublicationsModal(true);
+              }}
+              title="Публикации"
+              style={{ position: 'relative' }}
+            >
+              <div className="root-publications-icon-img img"></div>
+              {unviewedPublicationsCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: '#f44336',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  border: '2px solid #141414'
+                }}>
+                  {unviewedPublicationsCount > 99 ? '99+' : unviewedPublicationsCount}
+                </span>
+              )}
+            </div>
 
             <div className="root-avatarmini-icon flex pointer">
               <span className="root-avatarmini-icon-email">{user?.email || ''}</span>
@@ -874,37 +1144,50 @@ function Main() {
         </div>
 
 {/* Notification */}
-<ContainerNotification />
-<InfoModal />
+        <Suspense fallback={null}>
+          <ContainerNotification />
+          <InfoModal />
+        </Suspense>
 
         <div className="main-content flex flex-column">
-          {isAdminPanelActive && !isAdminAuthenticated && <AdminLogin onLoginSuccess={handleAdminLoginSuccess} />}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'users' && <UsersList />}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'security' && <SecurityDashboard />}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'requests' && <UserRequests />}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'monitoring' && <AccountsMonitoring />}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'profitability' && <ProfitabilityCalculation />}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'crm' && (
-            <CRMProvider>
-              <CRMMain />
-            </CRMProvider>
-          )}
-          {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'email' && <EmailClient />}
-          {!isAdminPanelActive && activeView === 'profile' && !showProfileSettings && <ProfileUser onSettingsClick={() => setShowProfileSettings(true)} />}
-          {!isAdminPanelActive && activeView === 'profile' && showProfileSettings && <CorrectUserData onClose={() => setShowProfileSettings(false)} />}
-          {!isAdminPanelActive && activeView === 'partners' && <PartnerProgs />}
-          {!isAdminPanelActive && activeView === 'accounts' && <AccountsRoom />}
-          {!isAdminPanelActive && activeView === 'transactions' && <TransactionRoom />}
-          {!isAdminPanelActive && activeView === 'reports' && <ReportRoom />}
-          {!isAdminPanelActive && activeView === 'documents' && <DocsRoom />}
+          <Suspense fallback={<ComponentLoader />}>
+            {isAdminPanelActive && !isAdminAuthenticated && <AdminLogin onLoginSuccess={handleAdminLoginSuccess} />}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'users' && <UsersList />}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'security' && <SecurityDashboard />}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'requests' && <UserRequests />}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'monitoring' && <AccountsMonitoring />}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'profitability' && <ProfitabilityCalculation />}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'crm' && (
+              <CRMProvider>
+                <CRMMain />
+              </CRMProvider>
+            )}
+            {isAdminPanelActive && isAdminAuthenticated && adminActiveView === 'email' && <EmailClient />}
+            {!isAdminPanelActive && activeView === 'profile' && !showProfileSettings && <ProfileUser onSettingsClick={() => setShowProfileSettings(true)} onOpenMessagesModal={(openNewMessageForm) => {
+              setShowMessagesModal(true);
+              // Сохраняем флаг для автоматического открытия формы нового обращения
+              if (openNewMessageForm) {
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent('open-new-message-form'));
+                }, 100);
+              }
+            }} />}
+            {!isAdminPanelActive && activeView === 'profile' && showProfileSettings && <CorrectUserData onClose={() => setShowProfileSettings(false)} />}
+            {!isAdminPanelActive && activeView === 'partners' && <PartnerProgs />}
+            {!isAdminPanelActive && activeView === 'accounts' && <AccountsRoom />}
+            {!isAdminPanelActive && activeView === 'transactions' && <TransactionRoom />}
+            {!isAdminPanelActive && activeView === 'reports' && <ReportRoom />}
+            {!isAdminPanelActive && activeView === 'documents' && <DocsRoom />}
+          </Suspense>
         </div>
       </div>
     </article>
 
       {/* Модальное окно истории сообщений */}
       {showMessagesModal && (
-        <MessagesModal onClose={() => {
-          setShowMessagesModal(false);
+        <Suspense fallback={<ComponentLoader />}>
+          <MessagesModal onClose={() => {
+            setShowMessagesModal(false);
           // Обновляем счетчик после закрытия модального окна
           const token = localStorage.getItem('accessToken');
           if (token) {
@@ -924,6 +1207,18 @@ function Main() {
               });
           }
         }} />
+        </Suspense>
+      )}
+
+      {/* Модальное окно публикаций */}
+      {showPublicationsModal && (
+        <Suspense fallback={<ComponentLoader />}>
+          <PublicationsModal onClose={() => {
+            setShowPublicationsModal(false);
+            // Обновляем счетчик непросмотренных публикаций после закрытия модального окна
+            loadUnviewedPublicationsCount();
+          }} />
+        </Suspense>
       )}
   </section>
   );

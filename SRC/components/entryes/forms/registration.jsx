@@ -1,12 +1,14 @@
 import "../entryes.css"; // Импорт CSS стилей для формы регистрации
 import { useNavigate } from "react-router-dom"; // Импорт хука для программной навигации
 import { useAuthStore } from "../../../JS/auth/store/store"; // Импорт Zustand store для управления аутентификацией
-import { useState, useEffect } from "react"; // Импорт React хуков для состояния и побочных эффектов
+import { useState, useEffect, useRef } from "react"; // Импорт React хуков для состояния и побочных эффектов
 import Captcha from "../captcha.jsx"; // Импорт компонента капчи для защиты от ботов
+import FingerprintPermissionsModal from "../fingerprint-permissions-modal.jsx"; // Импорт модального окна для разрешений
 
 function Registration() { // Компонент формы регистрации нового пользователя
     console.log('Registration: Компонент регистрации загружен'); // Логирование загрузки компонента
     const navigate = useNavigate(); // Хук для программной навигации между страницами
+    const formContainerRef = useRef(null); // Реф для контейнера формы
     const [formData, setFormData] = useState({ // Состояние для хранения данных формы регистрации
         lastName: '', // Фамилия пользователя
         name: '', // Имя пользователя
@@ -21,6 +23,7 @@ function Registration() { // Компонент формы регистраци�
     const [showCaptcha, setShowCaptcha] = useState(false); // Состояние показа капчи
     const [captchaVerified, setCaptchaVerified] = useState(false); // Состояние проверки капчи
     const [captchaCompleted, setCaptchaCompleted] = useState(false); // Состояние завершения капчи
+    const [showFingerprintModal, setShowFingerprintModal] = useState(false); // Состояние показа модального окна разрешений
     
     // Получаем методы стора для регистрации
     const registration = useAuthStore(s => s.registration); // Получаем функцию регистрации из store
@@ -33,6 +36,29 @@ function Registration() { // Компонент формы регистраци�
             console.error('Registration: Ошибка получения CSRF токена:', err);
         });
     }, [fetchCSRFToken]);
+
+    // Прокручиваем форму в начало при монтировании
+    useEffect(() => {
+        const scrollToTop = () => {
+            if (formContainerRef.current) {
+                formContainerRef.current.scrollTop = 0;
+            }
+        };
+        
+        // Используем requestAnimationFrame для более надежной прокрутки
+        requestAnimationFrame(() => {
+            scrollToTop();
+            requestAnimationFrame(() => {
+                scrollToTop();
+                // Дополнительные проверки через задержки
+                setTimeout(scrollToTop, 50);
+                setTimeout(scrollToTop, 100);
+                setTimeout(scrollToTop, 200);
+                setTimeout(scrollToTop, 300);
+                setTimeout(scrollToTop, 500);
+            });
+        });
+    }, []);
 
     // Подставляем реф-код из localStorage, если есть
     useEffect(() => {
@@ -168,11 +194,33 @@ function Registration() { // Компонент формы регистраци�
                 captchaCompleted ? 'captcha_verified' : 'no_captcha',
                 formData.referralCode
             );
-            // Отправляем SUCCESS уведомление напрямую через событие
-            document.dispatchEvent(new CustomEvent('main-notify', { 
-                detail: { type: 'success', text: 'Регистрация успешна' } 
-            }));
-            navigate('/personal-room'); // Успешная регистрация
+            
+            // Проверяем, были ли уже запрошены разрешения на fingerprint
+            let permissions = null;
+            try {
+                const storedPermissions = localStorage.getItem('fingerprint_permissions');
+                if (storedPermissions) {
+                    permissions = JSON.parse(storedPermissions);
+                }
+            } catch (e) {
+                console.warn('Ошибка чтения разрешений из localStorage:', e);
+            }
+            
+            // Если разрешения не были запрошены - показываем модальное окно
+            if (!permissions) {
+                setRegistrationSuccess(true);
+                setShowFingerprintModal(true);
+                // Отправляем SUCCESS уведомление
+                document.dispatchEvent(new CustomEvent('main-notify', { 
+                    detail: { type: 'success', text: 'Регистрация успешна' } 
+                }));
+            } else {
+                // Если разрешения уже есть - сразу переходим в личный кабинет
+                document.dispatchEvent(new CustomEvent('main-notify', { 
+                    detail: { type: 'success', text: 'Регистрация успешна' } 
+                }));
+                navigate('/personal-room');
+            }
         } catch (err) {
             console.error('Ошибка регистрации:', err);
             const msg = err?.response?.data?.message || 'Ошибка регистрации';
@@ -184,6 +232,7 @@ function Registration() { // Компонент формы регистраци�
     return (
       <>
       <div 
+        ref={formContainerRef}
         className="form-login-container formm-shadow form-registration-container flex flex-column bru-max bg-color-main txt-size-07"
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !loading) {
@@ -340,6 +389,20 @@ function Registration() { // Компонент формы регистраци�
           </label>
           <input className="bg-color-main" type="checkbox" id="form-disclame-checkbox" required disabled={loading} />
         </div>
+
+        {/* Модальное окно для запроса разрешений на сбор отпечатка (показывается после успешной регистрации) */}
+        {showFingerprintModal && (
+          <FingerprintPermissionsModal
+            onPermissionsGranted={() => {
+              setShowFingerprintModal(false);
+              navigate('/personal-room');
+            }}
+            onPermissionsDenied={() => {
+              setShowFingerprintModal(false);
+              navigate('/personal-room');
+            }}
+          />
+        )}
 
         <div className="form-login-buttons flex">
           <div 

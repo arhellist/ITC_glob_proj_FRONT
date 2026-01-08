@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import axiosAPI from "../../../../JS/auth/http/axios";
 import adminService from "../../../../JS/services/admin-service";
-import { API_CONFIG } from "../../../../config/api";
+import { API_CONFIG, getAvatarUrl } from "../../../../config/api";
 import CreateAccountModal from "./create-account-modal";
 import { useCRM } from "../../../../contexts/CRMContext.jsx";
 import { useSupport } from "../../../../hooks/useSupport.js";
@@ -74,7 +74,11 @@ const ClientDetailsModal = ({ client, onClose }) => {
   
   // Получаем данные из SupportContext
   const supportContext = useSupport();
-  const conversations = getClientConversations(client.userId);
+  // КРИТИЧНО: Используем supportContext.conversations напрямую для реактивности
+  const allConversations = supportContext.conversations || [];
+  const conversations = allConversations.filter(conv => 
+    conv.user_id === client.userId || conv.User?.id === client.userId
+  );
   const unreadMessagesCount = getClientUnreadCount(client.userId);
   const messages = selectedConversation ? (supportContext.messages[selectedConversation.id] || []) : [];
   
@@ -369,14 +373,26 @@ const ClientDetailsModal = ({ client, onClose }) => {
   };
 
   const getDocumentIdForStatusUpdate = (doc) => {
+    // Приоритет 1: используем fileId, если он есть (это реальный ID документа в БД)
     if (doc?.fileId) {
+      console.log('getDocumentIdForStatusUpdate: используем fileId:', doc.fileId);
       return doc.fileId;
     }
+    // Приоритет 2: извлекаем ID из составного id (passport_123, other_456)
     if (typeof doc?.id === "string" && doc.id.includes("_")) {
       const maybeId = parseInt(doc.id.split("_").pop(), 10);
-      return Number.isNaN(maybeId) ? null : maybeId;
+      if (!Number.isNaN(maybeId)) {
+        console.log('getDocumentIdForStatusUpdate: извлечен ID из составного id:', maybeId);
+        return maybeId;
+      }
     }
-    return doc?.id || null;
+    // Приоритет 3: используем doc.id напрямую, если это число
+    if (doc?.id && typeof doc.id === 'number') {
+      console.log('getDocumentIdForStatusUpdate: используем doc.id (number):', doc.id);
+      return doc.id;
+    }
+    console.warn('getDocumentIdForStatusUpdate: не удалось определить ID документа', doc);
+    return null;
   };
 
   const handleDocumentStatusChange = async (doc, action) => {
@@ -389,12 +405,55 @@ const ClientDetailsModal = ({ client, onClose }) => {
       notify("error", "Не удалось определить документ");
       return;
     }
+    
+    // КРИТИЧНО: Определяем kind на основе префикса id (passport_ vs other_)
+    // Это более надежно, чем полагаться только на doc.kind, так как doc.kind может быть неправильным
+    let kind = null;
+    if (typeof doc?.id === 'string') {
+      if (doc.id.startsWith('passport_')) {
+        kind = 'passport';
+      } else if (doc.id.startsWith('other_')) {
+        // Для других документов используем kind из doc.kind, если он есть
+        kind = doc?.kind || null;
+        if (kind && typeof kind === 'string') {
+          kind = kind.toLowerCase();
+        }
+      }
+    }
+    
+    // Если не удалось определить по префиксу, используем doc.kind как fallback
+    if (!kind && doc?.kind) {
+      kind = typeof doc.kind === 'string' ? doc.kind.toLowerCase() : null;
+      // Нормализуем "pasport" -> "passport" (для совместимости с опечаткой в БД)
+      if (kind === 'pasport') {
+        kind = 'passport';
+      }
+    }
+    
+    console.log('handleDocumentStatusChange: doc:', { 
+      id: doc.id, 
+      originalKind: doc.kind, 
+      determinedKind: kind, 
+      documentId, 
+      action,
+      fileId: doc.fileId,
+      source: doc.source,
+      idPrefix: typeof doc?.id === 'string' ? doc.id.split('_')[0] : null
+    });
+    
+    if (!kind) {
+      console.warn('handleDocumentStatusChange: не удалось определить kind для документа:', doc);
+      notify("error", "Не удалось определить тип документа");
+      return;
+    }
+    
     const status = action === "approve" ? "approve" : "not approve";
     const loadingKey = `${doc.id}-${action}`;
     setDocumentActionLoading(loadingKey);
     try {
-      await adminService.updateDocumentStatus(client.userId, documentId, status);
-      notify("success", action === "approve" ? "Документ утвержден" : "Документ отклонен");
+      await adminService.updateDocumentStatus(client.userId, documentId, status, kind);
+      const documentTitle = resolveDocumentTitle(doc);
+      notify("success", action === "approve" ? `${documentTitle} утвержден` : `${documentTitle} отклонен`);
       await loadClientDetails();
     } catch (error) {
       console.error("Ошибка обновления статуса документа:", error);
@@ -570,7 +629,9 @@ const ClientDetailsModal = ({ client, onClose }) => {
     
     // Автоматически отмечаем сообщения как прочитанные при загрузке
     if (!loadMore) {
+      console.log(`🔍 ClientDetailsModal: Отмечаем сообщения как прочитанные для беседы ${conversationId}`);
       await markMessagesAsRead(conversationId);
+      console.log(`✅ ClientDetailsModal: Сообщения отмечены как прочитанные для беседы ${conversationId}`);
     }
     
     // Автопрокрутка к последнему сообщению при первой загрузке
@@ -1663,13 +1724,8 @@ const ClientDetailsModal = ({ client, onClose }) => {
 
     const params = {};
 
-    // Добавляем токен для запросов к /admin/documents/*
-    if (path && path.includes('/admin/documents/')) {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        params.token = token;
-      }
-    }
+    // НЕ добавляем токен в query параметры - axiosAPI использует куки автоматически
+    // Токен должен быть в куках, а не в URL для безопасности
 
     if (inline) {
       params.inline = "true";
@@ -1757,13 +1813,26 @@ const ClientDetailsModal = ({ client, onClose }) => {
             forPreview: true
           });
           if (!path) {
+            console.warn('⚠️ Превью документа: путь не определен для документа', doc.id, doc.originalName);
             continue;
           }
+          console.log('🔍 Загрузка превью документа:', {
+            docId: doc.id,
+            docTitle: doc.originalName,
+            path,
+            params,
+            viewUrl: doc.viewUrl,
+            filePath: doc.filePath
+          });
           const response = await axiosAPI.get(path, {
             responseType: "blob",
             params
           });
           const blobUrl = URL.createObjectURL(response.data);
+          console.log('✅ Превью документа загружено:', {
+            docId: doc.id,
+            blobUrl: blobUrl.substring(0, 50) + '...'
+          });
           if (cancelled) {
             URL.revokeObjectURL(blobUrl);
             continue;
@@ -1779,7 +1848,15 @@ const ClientDetailsModal = ({ client, onClose }) => {
             return next;
           });
         } catch (error) {
-          console.error("Ошибка загрузки превью документа:", error);
+          console.error("❌ Ошибка загрузки превью документа:", {
+            docId: doc.id,
+            docTitle: doc.originalName,
+            viewUrl: doc.viewUrl,
+            filePath: doc.filePath,
+            error: error.message,
+            status: error.response?.status,
+            statusText: error.response?.statusText
+          });
         }
       }
     };
@@ -1933,14 +2010,21 @@ const ClientDetailsModal = ({ client, onClose }) => {
               <div className="client-avatar">
                 {(() => {
                   const avatar = clientData?.avatar || clientData?.User?.avatar;
-                  return avatar && avatar !== "noAvatar" ? (
+                  console.log('🔍 Модалка - аватар в шапке:', {
+                    avatar,
+                    normalized: avatar ? getAvatarUrl(avatar) : null,
+                    hasLocalhost: avatar?.includes('localhost')
+                  });
+                  const avatarUrl = avatar && avatar !== "noAvatar" ? getAvatarUrl(avatar) : null;
+                  return avatarUrl ? (
                     <img
-                      src={
-                        avatar.startsWith("http")
-                          ? avatar
-                          : `${API_CONFIG.BASE_URL}${avatar}`
-                      }
+                      src={avatarUrl}
                       alt="Avatar"
+                      onError={(e) => {
+                        console.error('❌ Ошибка загрузки аватара в шапке модалки:', avatarUrl);
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<div class="avatar-placeholder">${(clientData?.User?.firstname?.[0] || clientData?.firstName?.[0] || "К").toUpperCase()}</div>`;
+                      }}
                     />
                   ) : (
                   <div className="avatar-placeholder">
@@ -2032,6 +2116,33 @@ const ClientDetailsModal = ({ client, onClose }) => {
             {activeTab === "personal" && (
               <div className="personal-info">
                 <h4>Личная информация</h4>
+                <div className="user-profile-avatar">
+                  {(() => {
+                    const avatar = clientData?.avatar || clientData?.User?.avatar;
+                    const fullName = `${clientData?.User?.surname || clientData?.lastName || ""} ${clientData?.User?.firstname || clientData?.firstName || ""}`.trim();
+                    console.log('🔍 Модалка - аватар на вкладке личной информации:', {
+                      avatar,
+                      normalized: avatar ? getAvatarUrl(avatar) : null,
+                      hasLocalhost: avatar?.includes('localhost')
+                    });
+                    const avatarUrl = avatar && avatar !== "noAvatar" ? getAvatarUrl(avatar) : null;
+                    return avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={fullName || "Avatar"}
+                        onError={(e) => {
+                          console.error('❌ Ошибка загрузки аватара на вкладке личной информации:', avatarUrl);
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = `<span>${(clientData?.User?.firstname?.[0] || clientData?.firstName?.[0] || "К").toUpperCase()}</span>`;
+                        }}
+                      />
+                    ) : (
+                      <span>
+                        {(clientData?.User?.firstname?.[0] || clientData?.firstName?.[0] || "К").toUpperCase()}
+                      </span>
+                    );
+                  })()}
+                </div>
                 <div className="info-grid">
                   <div className="info-item">
                     <label>Фамилия:</label>

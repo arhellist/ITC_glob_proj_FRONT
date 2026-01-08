@@ -237,12 +237,36 @@ export async function registerBiometricKey(deviceName = null, preloadedOptions =
       throw startError;
     }
 
+    // Получаем CSRF токен из куков или запрашиваем его
+    let csrfToken = null;
+    try {
+      // Пробуем получить CSRF токен из куков
+      const cookies = document.cookie.split(';');
+      const csrfCookie = cookies.find(c => c.trim().startsWith('csrfToken='));
+      if (csrfCookie) {
+        csrfToken = csrfCookie.split('=')[1];
+      }
+      
+      // Если токен не найден в куках, запрашиваем его
+      if (!csrfToken) {
+        const csrfResponse = await axiosAPI.get('/auth/csrf');
+        csrfToken = csrfResponse.data.csrfToken || csrfResponse.data.token;
+      }
+    } catch (csrfError) {
+      console.warn('registerBiometricKey: Не удалось получить CSRF токен:', csrfError);
+    }
+    
     // Отправляем credential на сервер для верификации (challenge проверяется из БД по challenge_id)
     console.log('registerBiometricKey: Отправка credential на сервер для верификации...');
     const verifyResponse = await axiosAPI.post('/auth/webauthn/register/verify', {
       response: credential,
       deviceName: deviceName || navigator.userAgent,
-      challenge_id: challenge_id // Передаем challenge_id для проверки в БД
+      challenge_id: challenge_id, // Передаем challenge_id для проверки в БД
+      _csrf: csrfToken // Добавляем CSRF токен в тело запроса
+    }, {
+      headers: csrfToken ? {
+        'X-CSRF-Token': csrfToken // Также отправляем в заголовке
+      } : {}
     });
     console.log('registerBiometricKey: Ответ верификации:', verifyResponse.data);
 

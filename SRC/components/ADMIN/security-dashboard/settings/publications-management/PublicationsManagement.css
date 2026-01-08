@@ -1,0 +1,655 @@
+.publications-management {
+  padding: 20px;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border-radius: 8px;
+}
+
+.publications-management-loading {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+}
+
+.publications-management-error {
+  background: #3d1f1f;
+  color: #ff6b6b;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #5a2a2a;
+}
+
+.publications-management-error button {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.publications-management-error button:hover {
+  color: #ff8787;
+}
+
+.publications-management-form {
+  background: #242424;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #333;
+}
+
+.publications-management-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.publications-management-form-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #e0e0e0;
+}
+
+.publications-management-form-field {
+  margin-bottom: 16px;
+}
+
+.publications-management-form-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #d0d0d0;
+}
+
+.publications-management-form-field input[type="text"],
+.publications-management-form-field textarea,
+.publications-management-form-field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  transition: border-color 0.2s;
+}
+
+.publications-management-form-field input[type="text"]:focus,
+.publications-management-form-field textarea:focus,
+.publications-management-form-field select:focus {
+  outline: none;
+  border-color: #4a9eff;
+}
+
+.publications-management-form-field textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.publications-management-form-field input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+  accent-color: #4a9eff;
+}
+
+.publications-management-slides {
+  margin-top: 20px;
+}
+
+.publications-management-slides-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.publications-management-slides-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #e0e0e0;
+}
+
+.publications-management-add-slide-btn {
+  background: #2d5a2d;
+  color: #90ee90;
+  border: 1px solid #3d7a3d;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.publications-management-add-slide-btn:hover {
+  background: #3d6a3d;
+  border-color: #4d8a4d;
+}
+
+.publications-management-slide {
+  background: #1a1a1a;
+  padding: 16px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.publications-management-slide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.publications-management-slide-header span {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.publications-management-remove-slide-btn {
+  background: #5a2a2a;
+  color: #ff6b6b;
+  border: 1px solid #6a3a3a;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.publications-management-remove-slide-btn:hover {
+  background: #6a3a3a;
+  border-color: #7a4a4a;
+}
+
+.publications-management-slide-field {
+  margin-bottom: 12px;
+}
+
+.publications-management-slide-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #b0b0b0;
+  font-size: 13px;
+}
+
+.publications-management-slide-field input,
+.publications-management-slide-field textarea,
+.publications-management-slide-field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background: #242424;
+  color: #e0e0e0;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.publications-management-slide-field input:focus,
+.publications-management-slide-field textarea:focus,
+.publications-management-slide-field select:focus {
+  outline: none;
+  border-color: #4a9eff;
+}
+
+.publications-management-slide-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.publications-management-no-slides {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  background: #1a1a1a;
+  border: 2px dashed #333;
+  border-radius: 4px;
+}
+
+.publications-management-form-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.publications-management-save-btn {
+  background: #1e3a5f;
+  color: #90c5ff;
+  border: 1px solid #2e4a6f;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.publications-management-save-btn:hover:not(:disabled) {
+  background: #2e4a6f;
+  border-color: #3e5a7f;
+}
+
+.publications-management-save-btn:disabled {
+  background: #2a2a2a;
+  color: #666;
+  border-color: #333;
+  cursor: not-allowed;
+}
+
+.publications-management-cancel-btn {
+  background: #3a3a3a;
+  color: #c0c0c0;
+  border: 1px solid #4a4a4a;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.publications-management-cancel-btn:hover {
+  background: #4a4a4a;
+  border-color: #5a5a5a;
+}
+
+.publications-management-list {
+  margin-top: 30px;
+}
+
+.publications-management-list h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: #e0e0e0;
+}
+
+.publications-management-empty {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.publications-management-table {
+  overflow-x: auto;
+}
+
+.publications-management-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #242424;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.publications-management-table thead {
+  background: #2a2a2a;
+}
+
+.publications-management-table th,
+.publications-management-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+.publications-management-table th {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.publications-management-table tbody tr:hover {
+  background: #2a2a2a;
+}
+
+.publications-management-table td {
+  color: #d0d0d0;
+}
+
+.publications-management-status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.publications-management-status.active {
+  background: #1e3a1e;
+  color: #90ee90;
+  border: 1px solid #2e4a2e;
+}
+
+.publications-management-status.inactive {
+  background: #3a1e1e;
+  color: #ff6b6b;
+  border: 1px solid #4a2e2e;
+}
+
+.publications-management-edit-btn,
+.publications-management-delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-right: 8px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.publications-management-edit-btn {
+  background: #1e3a5f;
+  color: #90c5ff;
+  border: 1px solid #2e4a6f;
+}
+
+.publications-management-edit-btn:hover {
+  background: #2e4a6f;
+  border-color: #3e5a7f;
+}
+
+.publications-management-delete-btn {
+  background: #5a2a2a;
+  color: #ff6b6b;
+  border: 1px solid #6a3a3a;
+}
+
+.publications-management-delete-btn:hover {
+  background: #6a3a3a;
+  border-color: #7a4a4a;
+}
+
+/* Кружковая визуализация главного фото (чуть больше, чем в ленте) */
+.publications-management-preview-circle-wrapper {
+  margin-top: 12px;
+}
+
+.publications-management-preview-circle {
+  width: 80px;  /* больше, чем 56/64 в пользовательской ленте */
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #2a2a2a;
+  box-shadow: 0 0 0 2px #1a1a1a; /* тонкая окантовка вокруг белой рамки */
+}
+
+.publications-management-preview-circle-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.publications-management-preview-circle-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.publications-management-preview-circle-placeholder {
+  font-size: 28px;
+  color: #666;
+}
+
+/* Превью файлов в карточках слайдов */
+.publications-management-file-preview {
+  margin-top: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.publications-management-file-preview img,
+.publications-management-file-preview video {
+  max-width: 100%;
+  max-height: 300px;
+  display: block;
+  border-radius: 4px;
+}
+
+/* Модалка просмотра публикации */
+.publications-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 0;
+}
+
+.publications-detail-view {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.publications-progress-bar-container {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  padding-top: 60px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.publication-progress-bar-wrapper {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.publication-progress-bar {
+  height: 100%;
+  background: #fff;
+  transition: width 0.1s linear;
+}
+
+.publications-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.publications-close-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.publications-slide-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px 20px;
+  overflow: hidden;
+}
+
+.publication-slide-text {
+  color: #fff;
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 90%;
+}
+
+.publication-slide-image,
+.publication-slide-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.publication-slide-image img,
+.publication-slide-video video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.publication-slide-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #fff;
+  text-align: center;
+  padding: 12px 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0,0,0,0) 100%);
+  width: 100%;
+  z-index: 2;
+}
+
+.publication-slide-document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.publication-document-link {
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  color: #fff;
+}
+
+.publication-document-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.publications-nav-left,
+.publications-nav-right {
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  width: 30%;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.publications-nav-left {
+  left: 0;
+}
+
+.publications-nav-right {
+  right: 0;
+}
+
+/* Десктопная версия модалки */
+@media (min-width: 1024px) {
+  .publications-modal-overlay {
+    padding: 24px;
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+
+  .publications-detail-view {
+    max-width: 1200px;
+    height: 86vh;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .publications-progress-bar-container {
+    padding-top: 110px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .publications-close-btn {
+    top: 24px;
+    right: 32px;
+    width: 48px;
+    height: 48px;
+    font-size: 36px;
+  }
+
+  .publications-slide-content {
+    margin: 110px 24px 24px;
+    height: calc(100% - 134px);
+    border-radius: 16px;
+    background: #1a1a1a;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .publication-slide-image img,
+  .publication-slide-video video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+  }
+
+  .publications-nav-left,
+  .publications-nav-right {
+    top: 110px;
+    width: 22%;
+  }
+}

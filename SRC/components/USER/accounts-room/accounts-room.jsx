@@ -37,6 +37,10 @@ function AccountsRoom() {
   const [loadingWithdrawRequests, setLoadingWithdrawRequests] = useState(false);
   const [hasPendingWithdrawals, setHasPendingWithdrawals] = useState(false);
   const [cancelConfirmRequest, setCancelConfirmRequest] = useState(null); // ID заявки для отмены
+  const [depositRequests, setDepositRequests] = useState([]);
+  const [showDepositRequestsModal, setShowDepositRequestsModal] = useState(false);
+  const [loadingDepositRequests, setLoadingDepositRequests] = useState(false);
+  const [hasPendingDeposits, setHasPendingDeposits] = useState(false);
   const [transferRequests, setTransferRequests] = useState([]);
   const [showTransferRequestsModal, setShowTransferRequestsModal] = useState(false);
   const [loadingTransferRequests, setLoadingTransferRequests] = useState(false);
@@ -71,6 +75,21 @@ function AccountsRoom() {
         console.log('Проверка заявок на вывод:', { pendings, allRequests: allRequests.length, hasPending, hasAnyRequests, hasRequests });
         setHasPendingWithdrawals(hasRequests);
         
+        // Загружаем заявки на пополнение
+        try {
+          const { data: depositRequestsData } = await axiosAPI.get('/profile/deposit/requests').catch(() => ({ data: { requests: [] } }));
+          const allDepositRequests = Array.isArray(depositRequestsData?.requests) ? depositRequestsData.requests : [];
+          const hasDepositRequests = allDepositRequests.length > 0;
+          console.log('Проверка заявок на пополнение:', { 
+            allDepositRequests: allDepositRequests.length, 
+            hasDepositRequests,
+            requests: allDepositRequests 
+          });
+          setHasPendingDeposits(hasDepositRequests);
+        } catch (e) {
+          console.error('Ошибка загрузки заявок на пополнение:', e);
+        }
+        
         // Загружаем заявки на перевод
         try {
           const { data: transferRequestsData } = await axiosAPI.get('/profile/transfers/requests').catch(() => ({ data: { requests: [] } }));
@@ -90,6 +109,11 @@ function AccountsRoom() {
     })();
     return () => { isMounted = false; };
   }, []);
+
+  // Отладочный useEffect для проверки hasPendingDeposits
+  useEffect(() => {
+    console.log('hasPendingDeposits изменился:', hasPendingDeposits);
+  }, [hasPendingDeposits]);
 
   // Загружаем список продуктов
   useEffect(() => {
@@ -228,6 +252,66 @@ function AccountsRoom() {
     return false;
   };
 
+  // Проверка паспорта (по аналогии с миниапкой)
+  const checkPassportApproved = () => {
+    if (!documentsStatus.loaded) {
+      return null;
+    }
+
+    const passportKinds = ['PASPORT', 'pasport', 'passport'];
+    const normalizedUploadedKinds = documentsStatus.kinds.map(k => normalizeKindName(k));
+
+    for (const passportKind of passportKinds) {
+      const normalizedKind = normalizeKindName(passportKind);
+      const originalKindInList = documentsStatus.kinds.find(k => normalizeKindName(k) === normalizedKind);
+
+      if (originalKindInList || normalizedUploadedKinds.includes(normalizedKind)) {
+        const originalKind = originalKindInList || passportKind;
+        const status = documentsStatus.statusByKind[originalKind] ||
+                      documentsStatus.statusByKind[normalizedKind] ||
+                      documentsStatus.statusByKind[passportKind];
+
+        const isApproved = status === 'approve' || status === 'approved';
+
+        if (isApproved) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
+  // Проверка банковской выписки (по аналогии с миниапкой)
+  const checkBankInfoApproved = () => {
+    if (!documentsStatus.loaded) {
+      return null;
+    }
+
+    const bankKinds = ['bank-information', 'bankinformation', 'bank_information', 'BANK_INFO'];
+    const normalizedUploadedKinds = documentsStatus.kinds.map(k => normalizeKindName(k));
+
+    for (const bankKind of bankKinds) {
+      const normalizedKind = normalizeKindName(bankKind);
+      const originalKindInList = documentsStatus.kinds.find(k => normalizeKindName(k) === normalizedKind);
+
+      if (originalKindInList || normalizedUploadedKinds.includes(normalizedKind)) {
+        const originalKind = originalKindInList || bankKind;
+        const status = documentsStatus.statusByKind[originalKind] ||
+                      documentsStatus.statusByKind[normalizedKind] ||
+                      documentsStatus.statusByKind[bankKind];
+
+        const isApproved = status === 'approve' || status === 'approved';
+
+        if (isApproved) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   // Закрытие по ESC
   useEffect(() => {
     const onKey = (e) => {
@@ -266,8 +350,22 @@ function AccountsRoom() {
               <div className="account-empty">У вас еще нет открытых счетов, чтобы начать инвестировать откройте счет</div>
             )}
             {!loading && !error && accounts.length > 0 && accounts.map((acc) => {
+              const passportApproved = checkPassportApproved();
+              const bankInfoApproved = checkBankInfoApproved();
               const isRulesApproved = checkInvestmentRulesApproved(acc.product);
-              const shouldBlur = isRulesApproved === false; // blur только если точно известно, что правила не утверждены
+
+              const docsBlocking = documentsStatus.loaded && (passportApproved === false || bankInfoApproved === false);
+              const shouldBlur = docsBlocking || isRulesApproved === false;
+
+              let blurTooltipText = '';
+              if (docsBlocking) {
+                const missingDocs = [];
+                if (passportApproved === false) missingDocs.push('паспорт');
+                if (bankInfoApproved === false) missingDocs.push('банковская выписка');
+                blurTooltipText = `Загрузите и дождитесь проверки следующих документов: ${missingDocs.join(', ')}. После проверки вы сможете просматривать информацию по счетам.`;
+              } else if (isRulesApproved === false) {
+                blurTooltipText = `Подпишите инвестиционные правила по продукту ${acc.product || 'выбранного продукта'}, чтобы снова иметь возможность просматривать информацию по этому счету.`;
+              }
               
               return (
                 <div 
@@ -281,9 +379,9 @@ function AccountsRoom() {
                     <div className="account-container-myaccounts-table-item-currency"><span>валюта:</span><span className="account-currency">{acc.currency || '-'}</span></div>
                     <div className="account-container-myaccounts-table-item-value"><span>Сумма:</span><span className="account-value">{(acc.value ?? 0).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span className="dollar">$</span></div>
                   </div>
-                  {shouldBlur && (
+                  {shouldBlur && blurTooltipText && (
                     <div className="account-blur-tooltip">
-                      Подпишите инвестиционные правила чтобы снова иметь возможность просматривать информацию по счетам
+                      {blurTooltipText}
                     </div>
                   )}
                 </div>
@@ -318,17 +416,74 @@ function AccountsRoom() {
         <div className="account-container-buttons flex flex-row">
           <div className="account-container-buttons-item gradient-border flex flex-column bru-max">
             <div className="account-container-buttons-item-title">открыть новый инвестиционный счет</div>
-            <div className="account-container-buttons-item-button gradient-border flex bru pointer" onClick={() => setOpenModal('open')}>открыть счет</div>
+            <div
+              className={`account-container-buttons-item-button gradient-border flex bru ${documentsStatus.loaded && (checkPassportApproved() === false || checkBankInfoApproved() === false) ? '' : 'pointer'}`}
+              onClick={() => {
+                if (!documentsStatus.loaded) return;
+                const passportApproved = checkPassportApproved();
+                const bankInfoApproved = checkBankInfoApproved();
+                if (passportApproved === false || bankInfoApproved === false) {
+                  document.dispatchEvent(new CustomEvent('main-notify', {
+                    detail: {
+                      type: 'info',
+                      text: 'Загрузите необходимые документы (паспорт и банковскую выписку), чтобы открыть счет.'
+                    }
+                  }));
+                  return;
+                }
+                setOpenModal('open');
+              }}
+            >
+              открыть счет
+            </div>
           </div>
-          <div className="account-container-buttons-item gradient-border flex flex-column bru-max">
+          <div className="account-container-buttons-item gradient-border flex flex-column bru-max" style={{ position: 'relative' }}>
             <div className="account-container-buttons-item-title">подать заявку на пополнение инвестиционного счета</div>
-            <div className="account-container-buttons-item-button gradient-border flex bru pointer" onClick={() => setOpenModal('deposit')}>подать заявку</div>
+            {hasPendingDeposits && (
+              <div className="account-container-buttons-item-button gradient-border flex bru pointer" 
+                   style={{ position: 'absolute', bottom: '5vw', width: '80%', zIndex: 10, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                   onClick={async () => {
+                     setLoadingDepositRequests(true);
+                     try {
+                       const { data } = await axiosAPI.get('/profile/deposit/requests');
+                       setDepositRequests(data?.requests || []);
+                       setShowDepositRequestsModal(true);
+                     } catch (e) {
+                       console.error('Ошибка загрузки заявок на пополнение:', e);
+                       document.dispatchEvent(new CustomEvent('main-notify', { detail: { type: 'error', text: 'Не удалось загрузить заявки' } }));
+                     } finally {
+                       setLoadingDepositRequests(false);
+                     }
+                   }}>
+                {loadingDepositRequests ? 'Загрузка...' : 'МОИ ЗАЯВКИ'}
+              </div>
+            )}
+            <div
+              className={`account-container-buttons-item-button gradient-border flex bru ${documentsStatus.loaded && (checkPassportApproved() === false || checkBankInfoApproved() === false) ? '' : 'pointer'}`}
+              onClick={() => {
+                if (!documentsStatus.loaded) return;
+                const passportApproved = checkPassportApproved();
+                const bankInfoApproved = checkBankInfoApproved();
+                if (passportApproved === false || bankInfoApproved === false) {
+                  document.dispatchEvent(new CustomEvent('main-notify', {
+                    detail: {
+                      type: 'info',
+                      text: 'Загрузите необходимые документы (паспорт и банковскую выписку), чтобы подать заявку.'
+                    }
+                  }));
+                  return;
+                }
+                setOpenModal('deposit');
+              }}
+            >
+              подать заявку
+            </div>
           </div>
-          <div className="account-container-buttons-item gradient-border flex flex-column bru-max">
+          <div className="account-container-buttons-item gradient-border flex flex-column bru-max" style={{ position: 'relative' }}>
             <div className="account-container-buttons-item-title">подать заявку на перевод средств между счетами</div>
             {hasPendingTransfers && (
               <div className="account-container-buttons-item-button gradient-border flex bru pointer" 
-                   style={{ position: 'absolute', bottom: '5vw', width: '80%' }}
+                   style={{ position: 'absolute', bottom: '5vw', width: '80%', zIndex: 10 }}
                    onClick={async () => {
                      setLoadingTransferRequests(true);
                      try {
@@ -345,7 +500,26 @@ function AccountsRoom() {
                 {loadingTransferRequests ? 'Загрузка...' : 'МОИ ЗАЯВКИ'}
               </div>
             )}
-            <div className="account-container-buttons-item-button gradient-border flex bru pointer" onClick={() => setOpenModal('transfer')}>подать заявку</div>
+            <div
+              className={`account-container-buttons-item-button gradient-border flex bru ${documentsStatus.loaded && (checkPassportApproved() === false || checkBankInfoApproved() === false) ? '' : 'pointer'}`}
+              onClick={() => {
+                if (!documentsStatus.loaded) return;
+                const passportApproved = checkPassportApproved();
+                const bankInfoApproved = checkBankInfoApproved();
+                if (passportApproved === false || bankInfoApproved === false) {
+                  document.dispatchEvent(new CustomEvent('main-notify', {
+                    detail: {
+                      type: 'info',
+                      text: 'Загрузите необходимые документы (паспорт и банковскую выписку), чтобы подать заявку.'
+                    }
+                  }));
+                  return;
+                }
+                setOpenModal('transfer');
+              }}
+            >
+              подать заявку
+            </div>
           </div>
           <div className="account-container-buttons-item gradient-border flex flex-column bru-max">
             <div className="account-container-buttons-item-title">подать заявку на вывод средств</div>
@@ -368,7 +542,26 @@ function AccountsRoom() {
                 {loadingWithdrawRequests ? 'Загрузка...' : 'МОИ ЗАЯВКИ'}
               </div>
             )}
-            <div className="account-container-buttons-item-button gradient-border flex bru pointer" onClick={() => setOpenModal('withdraw')}>подать заявку</div>
+            <div
+              className={`account-container-buttons-item-button gradient-border flex bru ${documentsStatus.loaded && (checkPassportApproved() === false || checkBankInfoApproved() === false) ? '' : 'pointer'}`}
+              onClick={() => {
+                if (!documentsStatus.loaded) return;
+                const passportApproved = checkPassportApproved();
+                const bankInfoApproved = checkBankInfoApproved();
+                if (passportApproved === false || bankInfoApproved === false) {
+                  document.dispatchEvent(new CustomEvent('main-notify', {
+                    detail: {
+                      type: 'info',
+                      text: 'Загрузите необходимые документы (паспорт и банковскую выписку), чтобы подать заявку.'
+                    }
+                  }));
+                  return;
+                }
+                setOpenModal('withdraw');
+              }}
+            >
+              подать заявку
+            </div>
           </div>
         </div>
       </div>
@@ -535,6 +728,98 @@ function AccountsRoom() {
                           Отменить
                         </button>
                       )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </RootPortal>
+  )}
+  {showDepositRequestsModal && (
+    <RootPortal>
+      <div className="notification-withdrawl-modal-window flex flex-column" onClick={() => setShowDepositRequestsModal(false)}>
+        <div className="notification-withdrawl-modal-window-menu gradient-border flex flex-column bru-max" onClick={(e) => e.stopPropagation()}>
+          <div className="notification-withdrawl-modal-window-menu-cancel flex pointer" onClick={() => setShowDepositRequestsModal(false)}>
+            <div className="notification-withdrawl-modal-window-menu-cancel-icon img"></div>
+          </div>
+          <div className="notification-withdrawl-modal-window-menu-titleImg flex pointer" onClick={() => setShowDepositRequestsModal(false)} style={{ marginTop: '1vw' }}>
+            <div className="notification-withdrawl-modal-window-menu-titleImg-icon img" style={{ backgroundImage: `url("${mainLogo}")` }}></div>
+          </div>
+          <h2 className="notification-withdrawl-modal-window-menu-title" style={{ width: '100%', marginTop: '1vw', marginBottom: '1vw' }}>МОИ ЗАЯВКИ НА ПОПОЛНЕНИЕ</h2>
+          <div style={{ flex: 1, overflow: 'auto', padding: '1vw 2vw 2vw 2vw', width: '100%', boxSizing: 'border-box' }}>
+            {depositRequests.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2vw', color: '#fff' }}>Заявок на пополнение нет</div>
+            ) : (
+              <div className="withdraw-requests-grid" style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '20px',
+                paddingTop: '1vw'
+              }}>
+                {[...depositRequests].sort((a, b) => b.id - a.id).map((req) => (
+                  <div key={req.id} className="admin-client-card">
+                    <div className="admin-client-card__header">
+                      <div className="admin-client-card__header-info">
+                        <span className="admin-client-card__name">Заявка №{req.id}</span>
+                        <span className="admin-client-card__email" style={{ 
+                          color: req.status === 'credited' ? '#4caf50' : req.status === 'rejected' ? '#f44336' : '#ffc107'
+                        }}>
+                          {req.status === 'credited' ? 'Исполнена' : req.status === 'rejected' ? 'Отклонена' : 'В обработке'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="admin-client-card__body">
+                      <div className="admin-client-card__row">
+                        <span className="admin-client-card__label">Счет</span>
+                        <span className="admin-client-card__value">№{req.account_number} {req.product_type || ''}</span>
+                      </div>
+                      <div className="admin-client-card__row">
+                        <span className="admin-client-card__label">Сумма в валюте</span>
+                        <span className="admin-client-card__value">
+                          {req.amount_currency.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {req.currency}
+                        </span>
+                      </div>
+                      <div className="admin-client-card__row">
+                        <span className="admin-client-card__label">Сумма в рублях</span>
+                        <span className="admin-client-card__value">
+                          {req.amount_rub.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} RUB
+                        </span>
+                      </div>
+                      <div className="admin-client-card__row">
+                        <span className="admin-client-card__label">Курс валюты</span>
+                        <span className="admin-client-card__value">
+                          {req.course.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} RUB/{req.currency}
+                        </span>
+                      </div>
+                      {req.rejection_reason && (
+                        <div className="admin-client-card__row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                          <span className="admin-client-card__label" style={{ color: '#f44336' }}>Причина отклонения</span>
+                          <span className="admin-client-card__value" style={{ wordBreak: 'break-word', textAlign: 'left', color: '#f44336', fontSize: '12px' }}>
+                            {req.rejection_reason}
+                          </span>
+                        </div>
+                      )}
+                      {req.receipt && (
+                        <div className="admin-client-card__row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                          <span className="admin-client-card__label">Чек</span>
+                          <a 
+                            href={req.receipt.startsWith('http') ? req.receipt : `/api${req.receipt}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ color: '#4caf50', textDecoration: 'underline', fontSize: '12px' }}
+                          >
+                            Просмотреть чек
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    <div className="admin-client-card__footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="admin-client-card__status" style={{ fontSize: '12px', color: '#9aa6bf' }}>
+                        {new Date(req.date).toLocaleString('ru-RU')}
+                      </span>
                     </div>
                   </div>
                 ))}

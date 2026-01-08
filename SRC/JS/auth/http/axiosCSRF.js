@@ -24,6 +24,12 @@ const axiosCSRF = axios.create({
 // Request interceptor
 axiosCSRF.interceptors.request.use(
   (config) => {
+    // Обновляем baseURL динамически на случай изменения окружения
+    const currentBaseURL = API_CONFIG.BASE_URL;
+    if (currentBaseURL !== undefined && currentBaseURL !== null && currentBaseURL !== '') {
+      config.baseURL = currentBaseURL;
+    }
+    
     const token = localStorage.getItem("accessToken");
     console.log(`accessToken axiosCSRF.interceptors.request.use: ${token}` )
     

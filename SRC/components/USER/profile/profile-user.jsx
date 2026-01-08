@@ -8,7 +8,7 @@ import defaultAvatarUrl from "../../../IMG/male/ava.png"; // Импорт изо
 import userService from "../../../JS/services/user-service.js";
 import axiosAPI from "../../../JS/auth/http/axios.js"; // Импорт сервиса для работы с подписками
 
-function ProfileUser({ onSettingsClick }) { // Компонент профиля пользователя принимает колбэк для открытия настроек
+function ProfileUser({ onSettingsClick, onOpenMessagesModal }) { // Компонент профиля пользователя принимает колбэк для открытия настроек
     
   const navigate = useNavigate(); // Хук для программной навигации между страницами
   const [isChecking, setIsChecking] = useState(true); // Состояние проверки аутентификации
@@ -42,7 +42,8 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
     .join(" ");
   const phone = user?.phone ?? "";
   const email = user?.email ?? "";
-  const telegram = user?.telegram ?? "";
+  // Очищаем telegram от токенов (REVOKE_TOKEN или TOKEN)
+  const telegram = user?.telegram ? user.telegram.split('|REVOKE_TOKEN:')[0].split('|TOKEN:')[0].trim() : "";
   const geography = user?.geography ?? "";
   const dateBorn = user?.dateBorn ? new Date(user.dateBorn).toISOString().split('T')[0] : "";
 
@@ -268,9 +269,11 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
   }
 
   return (
-    <div className="profile-container flex flex-column">
+    <div className="profile-container">
+      {/* ВЕРХНЯЯ СТРОКА: Аватар | Данные клиента (1 столбец) */}
       <div className="profile-container-lineTop flex flex-row">
-        <div className="profile-avatar gradient-border  bru-max">
+        {/* Фото */}
+        <div className="profile-avatar gradient-border bru-max">
           <img
             className="profile-avatar-img img"
             src={user?.avatar && user.avatar !== 'noAvatar' 
@@ -283,24 +286,36 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
             }}
           />
         </div>
+
+        {/* Данные клиента (1 столбец) */}
         <div className="profile-personal-info gradient-border flex bru-max">
-          <div className="profile-personal-info-panel flex flex-row">
+          <div className="profile-personal-info-header flex flex-row">
+            <div className="profile-settenings-button flex bru" onClick={() => {
+              if (onSettingsClick) {
+                onSettingsClick();
+              } else {
+                setIsCorrectOpen(true);
+              }
+            }}>
+              <div className="profile-settenings-button-img img"></div>
+            </div>
+          </div>
+          <div className="profile-personal-info-panel flex flex-column">
             <div className="flex flex-column">
               <label htmlFor="profile-name" className="profile-label">
-                Фамилия Имя Отчество
+                Фамилия и Имя
               </label>
               <div className="gradient-border bru">
                 <input
                   type="text"
                   id="profile-name"
                   className="profile-input bru"
-                  placeholder="Фамилия Имя Отчество"
+                  placeholder="Фамилия и Имя"
                   value={fullName}
                   readOnly
                 />
               </div>
             </div>
-
             <div className="flex flex-column">
               <label htmlFor="profile-phone" className="profile-label">
                 Телефон
@@ -377,19 +392,12 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
               </div>
             </div>
           </div>
-          <div className="profile-settenings-button flex bru" onClick={() => {
-            if (onSettingsClick) {
-              onSettingsClick();
-            } else {
-              setIsCorrectOpen(true);
-            }
-          }}>
-            <div className="profile-settenings-button-img img"></div>
-          </div>
         </div>
       </div>
 
+      {/* НИЖНЯЯ СТРОКА: История входов | Служба поддержки | Подписки */}
       <div className="profile-container-lineDown flex flex-row">
+        {/* История входов */}
         <div className="profile-history-entries flex flex-column gradient-border bru-max">
           <span className="profile-history-entries-title">История входов</span>
           <div className="profile-history-entries-list flex flex-column">
@@ -406,6 +414,8 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
             )}
           </div>
         </div>
+
+        {/* Служба поддержки */}
         <div className="profile-support-service gradient-border flex flex-column bru-max">
           <span className="profile-support-service-title">
             Служба
@@ -420,13 +430,29 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
             консультацию или найти ответы на часто задаваемые вопросы.
           </span>
 
-          <div className="profile-support-service-button gradient-border flex bru-min">
+          <div 
+            className="profile-support-service-button gradient-border flex bru-min"
+            onClick={() => {
+              if (onOpenMessagesModal) {
+                onOpenMessagesModal(true); // Передаем true для автоматического открытия формы нового обращения
+              }
+            }}
+            style={{ cursor: 'pointer' }}
+          >
             Задать вопрос
           </div>
-          <div className="profile-support-service-button gradient-border flex bru-min">
+          <div 
+            className="profile-support-service-button gradient-border flex bru-min"
+            onClick={() => {
+              navigate('/personal-room/partners');
+            }}
+            style={{ cursor: 'pointer' }}
+          >
             Партнерская программа
           </div>
         </div>
+
+        {/* Блок подписок */}
         <div className="profile-itcclub-form bg-color-lilac flex flex-column bru-max">
           <div className="profile-itcclub-form-header flex flex-row">
             <div className="profile-itcclub-form-logo">
@@ -1022,10 +1048,11 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
             </div>
           )}
 
-          <div className="notification-withdrawl-modal-window-menu-button-wrapper flex flex-row" style={{ gap: '1vw', marginTop: '2vw' }}>
+          <div className="notification-withdrawl-modal-window-menu-button-wrapper flex flex-row" style={{ gap: '1vw', marginTop: '2vw', flexWrap: 'wrap', justifyContent: 'center' }}>
             <div 
               className="notification-withdrawl-modal-window-menu-button gradient-border flex flex-column bru pointer" 
               onClick={() => setSubscriptionPaymentModalOpen(false)}
+              style={{ flex: '1 1 45%', minWidth: '150px', maxWidth: '250px' }}
             >
               ОТМЕНИТЬ
             </div>
@@ -1083,7 +1110,10 @@ function ProfileUser({ onSettingsClick }) { // Компонент профиля
               }}
               style={{ 
                 opacity: (!accountValidation?.canPay || validatingAccount || !selectedAccountId) ? 0.5 : 1,
-                cursor: (!accountValidation?.canPay || validatingAccount || !selectedAccountId) ? 'not-allowed' : 'pointer'
+                cursor: (!accountValidation?.canPay || validatingAccount || !selectedAccountId) ? 'not-allowed' : 'pointer',
+                flex: '1 1 45%',
+                minWidth: '150px',
+                maxWidth: '250px'
               }}
             >
               ОПЛАТИТЬ ПОДПИСКУ

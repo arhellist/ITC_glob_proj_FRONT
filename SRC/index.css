@@ -1,6 +1,8 @@
 /* Импорт стилей для скролл-баров */
 @import './styles/scrollbar.css';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+/* Импорт стилей для планшетной версии */
+@import './tablet.css';
 
 /* Эффект "грибов на поляне" для кнопок навигации */
 .mushroom-grow {
@@ -385,8 +387,8 @@ button,
   gap: 2vw;
 }
 .root-messages-icon {
-  width: 2.5vw;
-  height: 2.5vw;
+  width: 3.125vw;
+  height: 3.125vw;
   border-radius: 50%;
   transition: 0.3s ease;
 }
@@ -399,6 +401,26 @@ button,
   width: 60%;
   height: 60%;
   background-image: url("./IMG/profiles/black/Message.png");
+}
+
+.root-publications-icon {
+  width: 3.125vw;
+  height: 3.125vw;
+  border-radius: 50%;
+  transition: 0.3s ease;
+}
+
+.root-publications-icon:hover {
+  transform: scale(1.2);
+}
+
+.root-publications-icon-img {
+  width: 60%;
+  height: 60%;
+  background-image: url("./IMG/profiles/black/icon-commentroundempty.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .root-avatarmini-icon {
@@ -649,6 +671,12 @@ button,
   justify-content: start;
   align-items: start;
   padding-top: 1vw;
+  background: transparent;
+  pointer-events: none;
+}
+
+.root-content-notification-container .notification {
+  pointer-events: auto;
 }
 
 .root-content-notification-container .notification{
@@ -658,6 +686,24 @@ button,
   transform: translateX(-2%);
   justify-content: start;
   transition: .5s ease;
+  overflow: hidden;
+}
+
+/* Блок с blur-эффектом для фона уведомления */
+.root-content-notification-container .notification .notification-blur-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
 }
 
 .root-content-notification-container .error{
@@ -693,12 +739,21 @@ button,
   width: 2.5vw;
   height: 2.5vw;
   margin-left: .5vw;
+  position: relative;
+  z-index: 1;
 }
 
 .root-content-notification-container .notification .text{
   font-size: .6vw;
   font-weight: 600;
   margin-left: .5vw;
+  position: relative;
+  z-index: 1;
+}
+
+.root-content-notification-container .notification .cancel_icon_notification {
+  position: relative;
+  z-index: 2;
 }
 
 
@@ -728,15 +783,25 @@ background-image: url("./IMG/warning.png");
     left: 0;
     width: 2vw;
     height: 2vw;
+    min-width: 20px;
+    min-height: 20px;
     background-image: url("./IMG/profiles/black/Close.png");
     z-index: 10;
     opacity: 0;
     transition: .5s ease;
+    cursor: pointer;
   }
 
   .root-content-notification-container .notification:hover .cancel_icon_notification{
     opacity: 1;
     transform: translateX(-100%);
+  }
+
+  .root-content-notification-container .notification.error .cancel_icon_notification {
+    opacity: 1 !important;
+    display: block !important;
+    visibility: visible !important;
+    transform: none !important;
   }
 
 
@@ -907,6 +972,123 @@ padding: .5vw;
     font-weight: 600;
     color: #ffffff;
     background: linear-gradient(90deg, #9bc7ec 0%, #8bced6 50%, #a2d2b7 100%);
+}
+
+/* Wrapper для кнопок в модалке оплаты подписки */
+.notification-withdrawl-modal-window-menu-button-wrapper {
+    position: absolute !important;
+    bottom: 2vw !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
+    max-width: 40vw !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 1vw !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Переопределение для кнопок внутри wrapper (для модалки оплаты подписки) */
+.notification-withdrawl-modal-window-menu-button-wrapper .notification-withdrawl-modal-window-menu-button {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 2.5vw !important;
+    padding: 0.8vw 1.5vw !important;
+    box-sizing: border-box !important;
+    flex: 1 1 45% !important;
+    max-width: 18vw !important;
+}
+
+/* Мобильная версия для INFO модалки */
+@media (max-width: 768px) {
+  .notification-withdrawl-modal-window-menu {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+    padding: 4vw !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-item {
+    width: 100% !important;
+    gap: 2vw !important;
+    margin-top: 3vw !important;
+    padding: 0 3vw !important;
+    box-sizing: border-box !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-item-inputwrapper {
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding: 3vw !important;
+    box-sizing: border-box !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-item-text {
+    font-size: 3.5vw !important;
+    font-weight: 400 !important;
+    color: #ffffff !important;
+    text-transform: none !important;
+    text-align: left !important;
+    margin-top: 0 !important;
+    line-height: 1.6 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-button {
+    position: relative !important;
+    width: 90% !important;
+    min-width: 90% !important;
+    min-height: 12vw !important;
+    height: auto !important;
+    padding: 4vw 6vw !important;
+    font-size: 4vw !important;
+    font-weight: 600 !important;
+    margin: 4vw auto 2vw auto !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 2vw !important;
+    cursor: pointer !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-titleImg {
+    width: 16vw !important;
+    height: 16vw !important;
+    margin-top: 4vw !important;
+    cursor: pointer !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-title {
+    font-size: 4.5vw !important;
+    margin-top: 3vw !important;
+    margin-bottom: 3vw !important;
+  }
+
+  .notification-withdrawl-modal-window-menu-cancel {
+    width: 7vw !important;
+    height: 7vw !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    top: 2vw !important;
+    right: 2vw !important;
+    cursor: pointer !important;
+  }
 }
 
 

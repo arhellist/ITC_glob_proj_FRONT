@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import securityService from '../../../../JS/services/security-service';
 import { API_CONFIG } from '../../../../config/api.js';
 import PaymentMethodsManagement from './payment-methods-management/PaymentMethodsManagement';
+import DealTypesManagement from './deal-types-management/DealTypesManagement';
+import PublicationsManagement from './publications-management/PublicationsManagement';
 import './security-settings.css';
 
 const CATEGORY_LABELS = {
@@ -180,7 +182,9 @@ const SecuritySettings = () => {
     products: false,
     options: false,
     referral: false,
-    paymentMethods: false
+    paymentMethods: false,
+    dealTypes: false,
+    publications: false
   });
 
   const [products, setProducts] = useState([]);
@@ -253,25 +257,53 @@ const SecuritySettings = () => {
         return;
       }
 
+      console.log('🔍 SecuritySettings: Загружаем данные ролей, продуктов и опций...');
       const [rolesData, productsData, optionsData] = await Promise.all([
         securityService.getRolesPermissionsConfig(),
         securityService.getProducts(),
         securityService.getOptionsConfig()
       ]);
 
+      console.log('🔍 SecuritySettings: Данные получены:', {
+        rolesData: {
+          hasRoles: !!rolesData?.roles,
+          rolesCount: rolesData?.roles?.length || 0,
+          roles: rolesData?.roles?.map(r => r.key) || [],
+          hasPermissions: !!rolesData?.permissions,
+          permissionsCount: rolesData?.permissions?.length || 0,
+          hasMenu: !!rolesData?.menu,
+          menuCount: rolesData?.menu?.length || 0
+        },
+        productsData: {
+          isArray: Array.isArray(productsData),
+          count: Array.isArray(productsData) ? productsData.length : 0
+        },
+        optionsData: !!optionsData
+      });
+
       const fetchedRoles = rolesData.roles || [];
+      console.log('🔍 SecuritySettings: Получено ролей из данных:', fetchedRoles.length);
+      console.log('🔍 SecuritySettings: Ключи ролей:', fetchedRoles.map(r => r.key));
+      
       const filteredRoles = fetchedRoles
         .filter(role => role.key !== 'ROOT')
         .filter(role => currentRole === 'ROOT' || role.key !== 'ADMIN');
 
+      console.log('🔍 SecuritySettings: После фильтрации ролей:', filteredRoles.length);
+      console.log('🔍 SecuritySettings: Отфильтрованные ключи ролей:', filteredRoles.map(r => r.key));
+      console.log('🔍 SecuritySettings: Текущая роль пользователя:', currentRole);
+
       const fetchedPermissions = rolesData.permissions || [];
       const fetchedMenu = rolesData.menu || [];
+
+      console.log('🔍 SecuritySettings: Разрешений:', fetchedPermissions.length, 'Элементов меню:', fetchedMenu.length);
 
       const permMap = {};
       const menuMap = {};
       filteredRoles.forEach(role => {
         permMap[role.key] = new Set(role.permissions || []);
         menuMap[role.key] = normalizeMenuAccess(fetchedMenu, role.menuAccess || {});
+        console.log(`🔍 SecuritySettings: Роль ${role.key} - разрешений: ${role.permissions?.length || 0}, menuAccess ключей: ${Object.keys(menuMap[role.key] || {}).length}`);
       });
 
       setRoles(filteredRoles);
@@ -279,6 +311,14 @@ const SecuritySettings = () => {
       setMenuConfig(fetchedMenu);
       setRolePermissions(permMap);
       setRoleMenuAccess(menuMap);
+      
+      console.log('🔍 SecuritySettings: Состояние установлено:', {
+        rolesCount: filteredRoles.length,
+        permissionsCount: fetchedPermissions.length,
+        menuConfigCount: fetchedMenu.length,
+        rolePermissionsKeys: Object.keys(permMap),
+        roleMenuAccessKeys: Object.keys(menuMap)
+      });
 
       const nextSelectedRoleKey = filteredRoles.some(role => role.key === selectedRoleKey)
         ? selectedRoleKey
@@ -1393,6 +1433,34 @@ const SecuritySettings = () => {
           {sectionsOpen.paymentMethods && (
             <div className="security-settings-accordion-panel">
               <PaymentMethodsManagement />
+            </div>
+          )}
+        </div>
+
+        <div className="security-settings-accordion-item">
+          <button
+            className={`security-settings-accordion-button ${sectionsOpen.dealTypes ? 'open' : ''}`}
+            onClick={() => toggleSection('dealTypes')}
+          >
+            Типы сделок
+          </button>
+          {sectionsOpen.dealTypes && (
+            <div className="security-settings-accordion-panel">
+              <DealTypesManagement />
+            </div>
+          )}
+        </div>
+
+        <div className="security-settings-accordion-item">
+          <button
+            className={`security-settings-accordion-button ${sectionsOpen.publications ? 'open' : ''}`}
+            onClick={() => toggleSection('publications')}
+          >
+            Публикации
+          </button>
+          {sectionsOpen.publications && (
+            <div className="security-settings-accordion-panel">
+              <PublicationsManagement />
             </div>
           )}
         </div>

@@ -48,7 +48,7 @@ const SecurityDashboard = () => {
         securityService.getSecurityStats(),
         securityService.getSuspiciousActivities({ limit: 20 }),
         securityService.getActiveSessions(),
-        securityService.getBlockedIPs()
+        securityService.getBlockedIPs({ activeOnly: true, limit: 100 })
       ]);
 
       console.log('SecurityDashboard: Полученные данные:', {
@@ -384,23 +384,119 @@ const SecurityDashboard = () => {
 
       {activeTab === 'blocked' && (
         <div className="security-blocked">
-          <h3>Заблокированные IP ({blockedIPs.length})</h3>
+          <div className="security-blocked-header">
+            <h3>Заблокированные IP ({blockedIPs.length})</h3>
+            <button 
+              onClick={() => {
+                const ip = prompt('Введите IP адрес для блокировки:');
+                if (ip) {
+                  const reason = prompt('Причина блокировки (необязательно):') || 'Ручная блокировка администратором';
+                  const expiresHours = prompt('Срок блокировки в часах (0 = бессрочно):') || '0';
+                  const expiresAt = expiresHours === '0' ? null : new Date(Date.now() + parseInt(expiresHours) * 60 * 60 * 1000).toISOString();
+                  
+                  securityService.blockIP(ip, { reason, expiresAt })
+                    .then(result => {
+                      if (result.success !== false) {
+                        loadSecurityData();
+                        alert(`IP ${ip} успешно заблокирован`);
+                      } else {
+                        alert(`Ошибка блокировки IP: ${result.error || 'Неизвестная ошибка'}`);
+                      }
+                    })
+                    .catch(err => {
+                      console.error('Ошибка блокировки IP:', err);
+                      alert('Ошибка блокировки IP');
+                    });
+                }
+              }}
+              className="security-block-btn"
+            >
+              Заблокировать IP
+            </button>
+          </div>
           <div className="security-blocked-list">
-            {blockedIPs.map((blocked) => (
-              <div key={blocked.ip} className="security-blocked-item">
-                <div className="security-blocked-info">
-                  <div>IP: {blocked.ip}</div>
-                  <div>Неудачных попыток: {blocked.failedAttempts}</div>
-                  <div>Осталось времени: {formatDuration(blocked.remainingTime)}</div>
-                </div>
-                <button 
-                  onClick={() => handleUnblockIP(blocked.ip)}
-                  className="security-unblock-btn"
-                >
-                  Разблокировать
-                </button>
-              </div>
-            ))}
+            {blockedIPs.length === 0 ? (
+              <div className="security-no-blocked">Нет заблокированных IP адресов</div>
+            ) : (
+              blockedIPs.map((blocked) => {
+                const expiresAt = blocked.expires_at ? new Date(blocked.expires_at) : null;
+                const remainingTime = expiresAt ? expiresAt.getTime() - Date.now() : null;
+                const isExpired = remainingTime !== null && remainingTime <= 0;
+                
+                return (
+                  <div key={blocked.id || blocked.ip_address} className="security-blocked-item">
+                    <div className="security-blocked-info">
+                      <div className="security-blocked-ip">
+                        <strong>IP:</strong> {blocked.ip_address}
+                      </div>
+                      <div className="security-blocked-type">
+                        <strong>Тип:</strong> {
+                          blocked.block_type === 'automatic' ? 'Автоматическая' :
+                          blocked.block_type === 'manual' ? 'Ручная' :
+                          blocked.block_type === 'temporary' ? 'Временная' :
+                          blocked.block_type
+                        }
+                      </div>
+                      {blocked.reason && (
+                        <div className="security-blocked-reason">
+                          <strong>Причина:</strong> {blocked.reason}
+                        </div>
+                      )}
+                      {blocked.violation_count > 0 && (
+                        <div className="security-blocked-violations">
+                          <strong>Нарушений:</strong> {blocked.violation_count}
+                        </div>
+                      )}
+                      <div className="security-blocked-time">
+                        <strong>Заблокирован:</strong> {formatDate(blocked.blocked_at)}
+                      </div>
+                      {expiresAt ? (
+                        <div className={`security-blocked-expires ${isExpired ? 'expired' : ''}`}>
+                          <strong>Истекает:</strong> {formatDate(blocked.expires_at)}
+                          {!isExpired && remainingTime && (
+                            <span> (осталось: {formatDuration(remainingTime)})</span>
+                          )}
+                          {isExpired && <span className="expired-label"> - ИСТЕКЛА</span>}
+                        </div>
+                      ) : (
+                        <div className="security-blocked-expires">
+                          <strong>Срок:</strong> Бессрочно
+                        </div>
+                      )}
+                      {blocked.metadata && Object.keys(blocked.metadata).length > 0 && (
+                        <details className="security-blocked-details">
+                          <summary>Дополнительная информация</summary>
+                          <pre>{JSON.stringify(blocked.metadata, null, 2)}</pre>
+                        </details>
+                      )}
+                    </div>
+                    <div className="security-blocked-actions">
+                      <button 
+                        onClick={async () => {
+                          const stats = await securityService.getIPStatistics(blocked.ip_address, 24);
+                          if (stats) {
+                            alert(`Статистика нарушений для ${blocked.ip_address}:\n\n` +
+                                  `Всего нарушений: ${stats.totalViolations}\n` +
+                                  `По типам: ${JSON.stringify(stats.byType, null, 2)}\n` +
+                                  `По серьезности: ${JSON.stringify(stats.bySeverity, null, 2)}`);
+                          }
+                        }}
+                        className="security-stats-btn"
+                        title="Показать статистику нарушений"
+                      >
+                        Статистика
+                      </button>
+                      <button 
+                        onClick={() => handleUnblockIP(blocked.ip_address)}
+                        className="security-unblock-btn"
+                      >
+                        Разблокировать
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       )}

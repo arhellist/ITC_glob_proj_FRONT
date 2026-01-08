@@ -1,0 +1,417 @@
+/* ========== ПЛАНШЕТНАЯ ОРИЕНТАЦИЯ (481px - 1024px) - ОБЩИЙ ФАЙЛ ДЛЯ ВСЕГО ПРОЕКТА ========== */
+
+@media (min-width: 481px) and (max-width: 1024px) {
+  /* ========== ОСНОВНЫЕ КОНТЕЙНЕРЫ ========== */
+  .root {
+    flex-direction: row !important;
+  }
+
+  /* Боковая навигация - слева, как в десктопной версии */
+  .root-nav {
+    position: absolute !important;
+    top: 2vh !important;
+    left: 0 !important;
+    width: 10vw !important;
+    height: 96vh !important;
+    background: transparent !important;
+    justify-content: start !important;
+    flex-direction: column !important;
+  }
+
+  .root-nav-logo {
+    width: 10vw !important;
+    height: 5vw !important;
+  }
+
+  .root-nav-list {
+    width: 100% !important;
+    margin-top: 2vw !important;
+    gap: 1vw !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .root-nav-item {
+    width: 4vw !important;
+    height: 4vw !important;
+  }
+
+  .root-button-exit {
+    width: 4vw !important;
+    height: 4vw !important;
+  }
+
+  /* Основной контент */
+  .root-content {
+    position: absolute !important;
+    top: 2vh !important;
+    right: 1vw !important;
+    width: 88vw !important;
+    height: 96vh !important;
+    background-color: #ffffff !important;
+    overflow: hidden !important;
+    justify-content: start !important;
+    box-shadow: 0 0 0.5vw 0.1vw #ffffff !important;
+  }
+
+  .root-content-container {
+    padding: 2vw !important;
+  }
+
+  .root-header {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 50px !important;
+    margin-top: 0 !important;
+    padding: 1vw 0 !important;
+  }
+
+  .root-header h1 {
+    font-size: 1.8vw !important;
+  }
+
+  .root-settings {
+    gap: calc(7vw + 20px) !important;
+  }
+
+  .root-messages-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .root-avatarmini-icon {
+    height: 40px !important;
+    padding: 0.3vw !important;
+  }
+
+  .root-avatarmini-icon-img {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .main-content {
+    margin-top: 1vw !important;
+    padding: 1vw !important;
+  }
+
+  /* Профиль - отступы между блоками */
+  .profile-container-lineTop {
+    gap: 1vw !important;
+  }
+
+  .profile-container-lineDown {
+    gap: 1vw !important;
+  }
+
+  /* ========== СТРАНИЦА РЕДАКТИРОВАНИЯ ДАННЫХ ПОЛЬЗОВАТЕЛЯ ========== */
+  .correct-data-profile-container {
+    padding: 3vw !important;
+    gap: 3vw !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .correct-data-profile-container-panel {
+    width: 85% !important;
+    max-width: 85% !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    padding: 1.5vw !important;
+  }
+
+  /* Кнопка закрытия */
+  .correct-data-close-button {
+    width: 6vw !important;
+    height: 6vw !important;
+    min-width: 45px !important;
+    min-height: 45px !important;
+    font-size: 4.5vw !important;
+    top: 1.5vw !important;
+    right: 1.5vw !important;
+  }
+
+  /* Аватар */
+  .correct-data-profile-avatar-item {
+    height: 45vw !important;
+    min-height: 25vw !important;
+    width: 50% !important;
+  }
+
+  /* Заголовки форм */
+  .correct-data-profile-form-title,
+  .correct-data-profile-delete-form-title {
+    font-size: 3vw !important;
+  }
+
+  /* Лейблы и инпуты */
+  .correct-data-personal-info-panel label,
+  .correct-data-label {
+    font-size: 2.2vw !important;
+  }
+
+  .correct-data-personal-info-panel input,
+  .correct-data-input {
+    height: 6vw !important;
+    min-height: 6vw !important;
+    font-size: 2.2vw !important;
+    padding: 0 2vw !important;
+    padding-left: 2vw !important;
+    border-radius: 1.5vw !important;
+  }
+
+  .correct-data-personal-info-panel .wrapper {
+    border-radius: 1.5vw !important;
+  }
+
+  .correct-data-personal-info-panel .wrapper::before {
+    padding: 0.2vw !important;
+    border-radius: 1.5vw !important;
+  }
+
+  /* Гендер контейнер */
+  .gender-container {
+    border-radius: 1.5vw !important;
+    height: 7vw !important;
+    min-height: 7vw !important;
+  }
+
+  .gender-container label {
+    font-size: 3vw !important;
+    line-height: 7vw !important;
+  }
+
+  /* Кнопки */
+  .correct-data-profile-container-panel-button {
+    height: 9vw !important;
+    min-height: 9vw !important;
+    font-size: 3.5vw !important;
+    border-radius: 1.5vw !important;
+  }
+
+  .correct-data-profile-container-panel-button.gradient-border,
+  .correct-data-profile-container-panel-button.gradient-border::before {
+    border-radius: 1.5vw !important;
+  }
+
+  /* Форма удаления */
+  .correct-data-profile-delete-form-text span {
+    font-size: 2.8vw !important;
+  }
+
+  .correct-data-profile-delete-form-text p {
+    font-size: 2.5vw !important;
+  }
+
+  /* Биометрическая форма */
+  .correct-data-biometric-form-title {
+    font-size: 3.5vw !important;
+    text-align: center !important;
+    margin-left: 0 !important;
+    justify-content: center !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .correct-data-biometric-form-title img {
+    width: 3.5vw !important;
+    height: 3.5vw !important;
+    min-width: 25px !important;
+    min-height: 25px !important;
+  }
+
+  .correct-data-biometric-form > div[style*="fontSize"] {
+    font-size: 1.8vw !important;
+    text-align: center !important;
+  }
+
+  .correct-data-biometric-info {
+    width: 100% !important;
+    padding: 1.5vw !important;
+    box-sizing: border-box !important;
+  }
+
+  .correct-data-biometric-info > div {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 2vw !important;
+  }
+
+  .correct-data-biometric-info label {
+    width: calc(100% - 3vw) !important;
+    max-width: calc(100% - 3vw) !important;
+    margin: 0 1.5vw !important;
+    min-height: 12vw !important;
+    padding: 2vw !important;
+    box-sizing: border-box !important;
+  }
+
+  .correct-data-biometric-info label img {
+    width: 12vw !important;
+    height: 12vw !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+  }
+
+  .correct-data-biometric-info label span {
+    font-size: 1.8vw !important;
+  }
+
+  .correct-data-biometric-form span,
+  .correct-data-biometric-form p,
+  .correct-data-biometric-form div {
+    font-size: 1.8vw !important;
+  }
+
+  .correct-data-biometric-form .correct-data-biometric-credentials span {
+    font-size: 1.6vw !important;
+  }
+
+  .correct-data-biometric-form .correct-data-biometric-credentials-list {
+    font-size: 1.6vw !important;
+  }
+
+  .correct-data-biometric-form .correct-data-biometric-credentials-list span {
+    font-size: 1.6vw !important;
+  }
+
+  .correct-data-biometric-form .correct-data-biometric-credentials-list div {
+    font-size: 1.6vw !important;
+  }
+
+  .correct-data-biometric-credential-item {
+    font-size: 1.6vw !important;
+    width: 92% !important;
+    max-width: 92% !important;
+    margin: 1vw auto !important;
+    padding: 1.5vw 2vw !important;
+    border-radius: 1.2vw !important;
+  }
+
+  .correct-data-biometric-credential-item span {
+    font-size: 1.6vw !important;
+  }
+
+  .correct-data-biometric-credential-item div {
+    font-size: 1.6vw !important;
+  }
+
+  .correct-data-biometric-revoke-btn {
+    min-height: 5vw !important;
+    height: auto !important;
+    padding: 1vw 1.5vw !important;
+    font-size: 1.6vw !important;
+    font-weight: 600 !important;
+    border-radius: 1.2vw !important;
+    white-space: nowrap !important;
+  }
+
+  .correct-data-biometric-form-button {
+    min-height: 8vw !important;
+    height: auto !important;
+    padding: 1.5vw 2vw !important;
+    font-size: 2.5vw !important;
+    font-weight: 600 !important;
+    border-radius: 1.5vw !important;
+    white-space: nowrap !important;
+  }
+
+  /* Внутренние контейнеры */
+  html body .correct-data-profile-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    padding: 1.5vw !important;
+    margin: 0 !important;
+  }
+
+  html body .correct-data-personal-info-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 1.5vw 0 !important;
+    padding: 1.5vw !important;
+    overflow-x: hidden !important;
+  }
+
+  html body .correct-data-profile-delete-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 1.5vw 0 !important;
+    padding: 1.5vw !important;
+    overflow-x: hidden !important;
+  }
+
+  html body .correct-data-biometric-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 1.5vw 0 !important;
+    padding: 1.5vw !important;
+    overflow-x: hidden !important;
+  }
+
+  html body .correct-data-biometric-credentials-list {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  html body .correct-data-biometric-credential-item {
+    width: 92% !important;
+    max-width: 92% !important;
+    box-sizing: border-box !important;
+    margin: 1vw auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 1.5vw 2vw !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    border-radius: 1.2vw !important;
+  }
+
+  /* Верхняя секция */
+  .correct-data-profile-top-section {
+    width: 100% !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 2vw !important;
+    flex-shrink: 0 !important;
+    margin-bottom: 2vw !important;
+  }
+
+  .correct-data-profile-avatar {
+    align-items: center !important;
+    width: 100% !important;
+    gap: 1.5vw !important;
+  }
+
+  .correct-data-profile-avatar-item-button {
+    width: 70% !important;
+    height: 8vw !important;
+    font-size: 2.5vw !important;
+  }
+
+  /* Нижняя секция */
+  .correct-data-profile-bottom-section {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1.5vw !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Кнопки профиля */
+  .correct-data-profile-buttons {
+    margin-top: 2vw !important;
+    padding: 1.5vw !important;
+  }
+}
+

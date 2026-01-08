@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './entryes.css';
 
 /**
@@ -18,6 +18,9 @@ import './entryes.css';
  * без явных разрешений браузера, но мы предоставляем пользователю контроль.
  */
 function FingerprintPermissionsModal({ onPermissionsGranted, onPermissionsDenied }) {
+  const overlayRef = useRef(null);
+  const modalRef = useRef(null);
+  
   const [permissions, setPermissions] = useState({
     canvas: false,
     webgl: false,
@@ -26,6 +29,93 @@ function FingerprintPermissionsModal({ onPermissionsGranted, onPermissionsDenied
     plugins: false,
     hardware: false
   });
+
+  // Блокируем прокрутку body когда модалка открыта
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  // Обработчики touch событий для прокрутки модального окна на мобильных устройствах
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let scrollStart = 0;
+    let isVerticalScroll = false;
+    let touchStartTime = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      scrollStart = modal.scrollTop;
+      isVerticalScroll = false;
+      touchStartTime = Date.now();
+    };
+
+    const handleTouchMove = (e) => {
+      if (!touchStartY) return;
+
+      const touchY = e.touches[0].clientY;
+      const touchX = e.touches[0].clientX;
+      const deltaY = touchStartY - touchY;
+      const deltaX = touchStartX - touchX;
+      
+      // Определяем направление прокрутки только один раз
+      if (!isVerticalScroll) {
+        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 3) {
+          isVerticalScroll = true;
+        } else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 3) {
+          // Горизонтальная прокрутка - не обрабатываем
+          touchStartY = 0;
+          return;
+        } else {
+          // Слишком маленькое движение - ждем больше
+          return;
+        }
+      }
+
+      if (!isVerticalScroll) return;
+
+      const scrollTop = modal.scrollTop;
+      const scrollHeight = modal.scrollHeight;
+      const clientHeight = modal.clientHeight;
+      const maxScroll = Math.max(0, scrollHeight - clientHeight);
+
+      // Всегда прокручиваем, если это вертикальное движение
+      const newScrollTop = scrollStart + deltaY;
+      modal.scrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleTouchEnd = (e) => {
+      touchStartY = 0;
+      touchStartX = 0;
+      scrollStart = 0;
+      isVerticalScroll = false;
+      touchStartTime = 0;
+    };
+
+    // Используем passive: false для touchmove, чтобы иметь возможность preventDefault
+    modal.addEventListener('touchstart', handleTouchStart, { passive: true });
+    modal.addEventListener('touchmove', handleTouchMove, { passive: false });
+    modal.addEventListener('touchend', handleTouchEnd, { passive: true });
+    modal.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+
+    return () => {
+      modal.removeEventListener('touchstart', handleTouchStart);
+      modal.removeEventListener('touchmove', handleTouchMove);
+      modal.removeEventListener('touchend', handleTouchEnd);
+      modal.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, []);
 
   const handlePermissionToggle = (key) => {
     setPermissions(prev => ({
@@ -83,28 +173,56 @@ function FingerprintPermissionsModal({ onPermissionsGranted, onPermissionsDenied
   };
 
   return (
-    <div className="fingerprint-permissions-modal-overlay" style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 10000
-    }}>
-      <div className="fingerprint-permissions-modal" style={{
-        backgroundColor: '#1a1a1a',
-        padding: '2rem',
-        borderRadius: '12px',
-        maxWidth: '500px',
-        width: '90%',
-        border: '2px solid rgba(255, 255, 255, 0.1)',
-        maxHeight: '90vh',
-        overflowY: 'auto'
-      }}>
+    <div 
+      ref={overlayRef}
+      className="fingerprint-permissions-modal-overlay" 
+      onClick={(e) => {
+        if (e.target === overlayRef.current) {
+          handleCancel();
+        }
+      }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        zIndex: 10000,
+        padding: '20px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden'
+      }}
+    >
+      <div 
+        ref={modalRef}
+        className="fingerprint-permissions-modal" 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: '#1a1a1a',
+          padding: '2rem',
+          borderRadius: '12px',
+          maxWidth: '500px',
+          width: '100%',
+          maxHeight: '90vh',
+          minHeight: '400px',
+          border: '2px solid rgba(255, 255, 255, 0.1)',
+          position: 'relative',
+          boxSizing: 'border-box',
+          overflowY: 'scroll',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
+          overscrollBehavior: 'contain',
+          // Критично для мобильной прокрутки
+          willChange: 'scroll-position',
+          WebkitTransform: 'translateZ(0)',
+          transform: 'translateZ(0)'
+        }}
+      >
         <h2 style={{ color: '#fff', marginBottom: '1rem', fontSize: '1.5rem' }}>
           Разрешения для безопасности
         </h2>

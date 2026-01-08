@@ -9,10 +9,59 @@ const RequestModal = ({ request, onClose, onApprove, onReject }) => { // Ком�
   const [comment, setComment] = useState(request?.adminComment || ''); // Комментарий администратора
   const [savingComment, setSavingComment] = useState(false); // Флаг сохранения комментария
   
-  // Обновляем комментарий при изменении request
+  // Состояния для курса валюты (только для выводов)
+  const [courseValue, setCourseValue] = useState(request?.course || ''); // Значение курса валюты
+  const [courseDate, setCourseDate] = useState(''); // Дата курса валюты
+  const [availableCourses, setAvailableCourses] = useState([]); // Доступные курсы на выбранную дату
+  const [loadingCourses, setLoadingCourses] = useState(false); // Флаг загрузки курсов
+  
+  // Состояние для чекбокса отправки чека (только для депозитов)
+  const [sendReceipt, setSendReceipt] = useState(true); // По умолчанию чекбокс нажат
+  
+  // Функция загрузки курсов на дату
+  const loadCoursesForDate = async (date, currency) => {
+    setLoadingCourses(true);
+    try {
+      const { default: axiosAPI } = await import('../../../JS/auth/http/axios');
+      const response = await axiosAPI.get(`${API_CONFIG.BASE_URL}/admin/course/history`, {
+        params: {
+          currency: currency,
+          startDate: date,
+          endDate: date,
+          limit: 100
+        }
+      });
+      const history = response.data?.data?.history || [];
+      // Преобразуем историю в список курсов с расчетом withdrawalValue
+      const optionsResponse = await axiosAPI.get(`${API_CONFIG.BASE_URL}/admin/options`);
+      const withdrawalPercent = optionsResponse.data?.options?.comission_Currency_Widthdrawl || 0;
+      const courses = history.map(h => {
+        const spotValue = parseFloat(h.spotValue);
+        const withdrawalValue = Number((spotValue - (spotValue * withdrawalPercent) / 100).toFixed(2));
+        return {
+          id: h.id,
+          time: h.time,
+          spotValue,
+          withdrawalValue,
+          display: `${withdrawalValue.toFixed(2)} р. (${new Date(h.time).toLocaleString('ru-RU')})`
+        };
+      });
+      setAvailableCourses(courses);
+    } catch (error) {
+      console.error('Ошибка загрузки курсов:', error);
+      setAvailableCourses([]);
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+  
+  // Обновляем комментарий и курс при изменении request
   useEffect(() => {
     setComment(request?.adminComment || '');
-  }, [request?.adminComment]);
+    if (request?.type === 'withdrawal') {
+      setCourseValue(request?.course || '');
+    }
+  }, [request?.adminComment, request?.course, request?.type]);
   
   if (!request) return null; // Если заявка не передана, не рендерим модалку
   
@@ -55,9 +104,9 @@ const RequestModal = ({ request, onClose, onApprove, onReject }) => { // Ком�
   // Функция получения URL чека
   const getReceiptUrl = (receiptPath) => { // Функция формирования URL чека
     if (!receiptPath || receiptPath === 'Нет данных') return null; // Если чека нет
-    const token = localStorage.getItem('accessToken'); // Получаем токен
-    if (!token) return null; // Если токена нет
-    return `${API_CONFIG.BASE_URL}/admin/receipts/${receiptPath}?token=${token}&t=${Date.now()}`; // URL чека
+    // Токен не добавляем в URL - axiosAPI использует куки автоматически
+    const normalizedPath = receiptPath.startsWith('/') ? receiptPath.substring(1) : receiptPath;
+    return `${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?t=${Date.now()}`; // URL чека
   };
   
   // Обработка клика по оверлею (закрытие модалки)
@@ -158,6 +207,95 @@ const RequestModal = ({ request, onClose, onApprove, onReject }) => { // Ком�
               <h3 className="request-modal-section-title">РЕКВИЗИТЫ ДЛЯ ВЫВОДА</h3>
               <div className="request-modal-requisites">
                 <pre>{request.requisites}</pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Курс валюты для выводов (только для неутвержденных заявок) */}
+          {request.type === 'withdrawal' && request.status !== 'credited' && request.status !== 'Resolve' && (
+            <div className="request-modal-section">
+              <h3 className="request-modal-section-title">КУРС ВАЛЮТЫ НА МОМЕНТ УТВЕРЖДЕНИЯ</h3>
+              <div className="request-modal-info-grid" style={{ gap: '16px' }}>
+                <div className="request-modal-info-item" style={{ gridColumn: '1 / -1' }}>
+                  <label className="request-modal-info-label" style={{ display: 'block', marginBottom: '8px' }}>
+                    Дата курса валюты:
+                  </label>
+                  <input
+                    type="date"
+                    value={courseDate}
+                    onChange={(e) => {
+                      const date = e.target.value;
+                      setCourseDate(date);
+                      if (date && request.currency) {
+                        loadCoursesForDate(date, request.currency);
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: '1px solid #2a3a52',
+                      background: '#1a2332',
+                      color: '#e7ecf5',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                {availableCourses.length > 0 && (
+                  <div className="request-modal-info-item" style={{ gridColumn: '1 / -1' }}>
+                    <label className="request-modal-info-label" style={{ display: 'block', marginBottom: '8px' }}>
+                      Выберите курс из истории:
+                    </label>
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        const selectedCourse = availableCourses.find(c => c.id === parseInt(e.target.value));
+                        if (selectedCourse) {
+                          setCourseValue(selectedCourse.withdrawalValue);
+                          setCourseDate(new Date(selectedCourse.time).toISOString().split('T')[0]);
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #2a3a52',
+                        background: '#1a2332',
+                        color: '#e7ecf5',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="">-- Выберите курс --</option>
+                      {availableCourses.map(course => (
+                        <option key={course.id} value={course.id}>
+                          {course.display}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="request-modal-info-item" style={{ gridColumn: '1 / -1' }}>
+                  <label className="request-modal-info-label" style={{ display: 'block', marginBottom: '8px' }}>
+                    Курс валюты (руб.):
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={courseValue}
+                    onChange={(e) => setCourseValue(e.target.value)}
+                    placeholder="Введите курс валюты"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: '1px solid #2a3a52',
+                      background: '#1a2332',
+                      color: '#e7ecf5',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -299,10 +437,35 @@ const RequestModal = ({ request, onClose, onApprove, onReject }) => { // Ком�
         <div className="request-modal-footer">
           {/* Кнопки действий - для НЕ принятых заявок */}
           {request.status !== 'credited' && request.status !== 'Resolve' && (
-            <div className="request-modal-actions flex flex-row">
+            <div className="request-modal-actions flex flex-row" style={{ alignItems: 'center', gap: '1vw' }}>
+              {/* Чекбокс отправки чека (только для депозитов) */}
+              {request.type === 'deposit' && (
+                <div className="request-modal-checkbox-container" style={{ display: 'flex', alignItems: 'center', gap: '0.5vw' }}>
+                  <input
+                    type="checkbox"
+                    id="sendReceiptCheckbox"
+                    checked={sendReceipt}
+                    onChange={(e) => setSendReceipt(e.target.checked)}
+                    style={{ width: '1.2vw', height: '1.2vw', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="sendReceiptCheckbox" style={{ fontSize: '1vw', color: '#ffffff', fontWeight: 'bold', cursor: 'pointer', userSelect: 'none' }}>
+                    Отправить чек клиенту
+                  </label>
+                </div>
+              )}
               <button 
                 className="request-modal-action-btn request-modal-approve-btn gradient-border bru"
-                onClick={() => onApprove(request)}
+                onClick={() => {
+                  // Для выводов передаем курс валюты
+                  if (request.type === 'withdrawal' && courseValue) {
+                    onApprove(request, parseFloat(courseValue));
+                  } else if (request.type === 'deposit') {
+                    // Для депозитов передаем флаг отправки чека
+                    onApprove(request, null, sendReceipt);
+                  } else {
+                    onApprove(request);
+                  }
+                }}
               >
                 ✓ ПРИНЯТЬ
               </button>
@@ -344,19 +507,25 @@ const RequestModal = ({ request, onClose, onApprove, onReject }) => { // Ком�
               ✕
             </button>
             {(() => {
-              const normalizedPath = fullscreenReceipt.startsWith('/') ? fullscreenReceipt.substring(1) : fullscreenReceipt;
+              // Нормализуем путь: убираем все начальные слэши
+              let normalizedPath = fullscreenReceipt;
+              while (normalizedPath.startsWith('/')) {
+                normalizedPath = normalizedPath.substring(1);
+              }
               const token = localStorage.getItem('accessToken');
+              // Добавляем токен в query параметр для img и iframe, так как cookie может не передаваться
+              const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
               return (
                 <>
                   {fullscreenReceipt.toLowerCase().endsWith('.pdf') ? (
                     <iframe
-                      src={`${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?token=${token}`}
+                      src={`${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?t=${Date.now()}${tokenParam}`}
                       className="receipt-fullscreen-content receipt-fullscreen-pdf"
                       title="Чек"
                     />
                   ) : (
                     <img
-                      src={`${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?token=${token}&t=${Date.now()}`}
+                      src={`${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?t=${Date.now()}${tokenParam}`}
                       alt="Чек"
                       className="receipt-fullscreen-content receipt-fullscreen-image"
                     />
@@ -365,22 +534,15 @@ const RequestModal = ({ request, onClose, onApprove, onReject }) => { // Ком�
                     className="receipt-fullscreen-download"
                     onClick={async () => {
                       try {
-                        const downloadUrl = `${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?token=${token}&download=true`;
-                        
-                        // Используем fetch для получения файла как blob
-                        const response = await fetch(downloadUrl, {
-                          method: 'GET',
-                          headers: {
-                            'Authorization': `Bearer ${token}`
-                          }
+                        // Используем axiosAPI для скачивания - токен будет в куках
+                        const { default: axiosAPI } = await import('../../../JS/auth/http/axios');
+                        const response = await axiosAPI.get(`/admin/receipts/${normalizedPath}`, {
+                          params: { download: 'true' },
+                          responseType: 'blob'
                         });
                         
-                        if (!response.ok) {
-                          throw new Error(`Ошибка загрузки: ${response.status} ${response.statusText}`);
-                        }
-                        
-                        // Получаем blob
-                        const blob = await response.blob();
+                        // axios возвращает данные напрямую в response.data
+                        const blob = response.data;
                         
                         // Создаем временную ссылку для скачивания
                         const blobUrl = window.URL.createObjectURL(blob);

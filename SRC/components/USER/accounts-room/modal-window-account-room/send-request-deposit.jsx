@@ -219,6 +219,10 @@ function ModalWindowSendRequestDeposit({ onClose }) {
       const form = new FormData();
       form.append('account_id', String(selectedId));
       form.append('deposit_RUB_value', String(rub));
+      // Передаем ID способа пополнения, если выбран
+      if (paymentMethods.length > 0 && paymentMethods[currentQRIndex]?.id) {
+        form.append('payment_method_id', String(paymentMethods[currentQRIndex].id));
+      }
       if (file) form.append('cheque', file);
       const { data } = await axiosAPI.post('/profile/deposit', form);
       const ok = data?.serviceMessage || 'Заявка на пополнение создана';

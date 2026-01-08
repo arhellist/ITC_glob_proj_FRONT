@@ -14,6 +14,7 @@ export function ErrorNotification(root, text) {
   const id = uuidv4();
   const template = `
       <div class="notification error flex flex-row" data-id="${id}">
+        <div class="notification-blur-background"></div>
         <div class="error_icon notification_img img"></div>
         <div class="text">${text}</div>
       </div>`;
@@ -38,6 +39,7 @@ export function SuccessNotification(root, text) {
   const id = uuidv4();
   const template = `
     <div class="notification success flex flex-row" data-id="${id}">
+      <div class="notification-blur-background"></div>
       <div class="success_icon notification_img img"></div>
       <div class="text">${text}</div>
     </div>`;
@@ -62,6 +64,7 @@ export function AttentionNotification(root, text) {
   const id = uuidv4();
   const template = `
     <div class="notification attention flex flex-row" data-id="${id}">
+      <div class="notification-blur-background"></div>
       <div class="attention_icon notification_img img"></div>
       <div class="text">${text}</div>
     </div>`;
@@ -87,6 +90,7 @@ export function AttentionNotification(root, text) {
 export function InfoNotification(root, text, id = uuidv4()) {
   const template = `
     <div class="notification click_notification info flex flex-row" data-id="${id}">
+      <div class="notification-blur-background"></div>
       <div class="info_icon notification_img img"></div>
       <div class="text">${text}</div>
     </div>`;
@@ -113,6 +117,7 @@ export function InfoNotification(root, text, id = uuidv4()) {
 export function PostNotification(root, text, id = uuidv4()) {
   const template = `
     <div class="notification click_notification post flex flex-row" data-id="${id}">
+      <div class="notification-blur-background"></div>
       <div class="post_icon notification_img img"></div>
       <div class="text">${text}</div>
     </div>`;
@@ -139,6 +144,7 @@ export function PostNotification(root, text, id = uuidv4()) {
 export function MessageNotification(root, text, id = uuidv4()) {
   const template = `
     <div class="notification click_notification message flex flex-row" data-id="${id}">
+      <div class="notification-blur-background"></div>
       <div class="message_icon notification_img img"></div>
       <div class="text">${text}</div>
     </div>`;

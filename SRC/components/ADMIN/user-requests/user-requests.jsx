@@ -191,11 +191,11 @@ const UserRequests = () => { // Компонент отображения все
   };
   
   // Обработчик принятия заявки
-  const handleApprove = async (request) => { // Функция принятия заявки
+  const handleApprove = async (request, course = null, sendReceipt = true) => { // Функция принятия заявки (course - курс валюты для выводов, sendReceipt - отправлять ли чек для депозитов)
     try { // Начинаем блок обработки ошибок
-      console.log('UserRequests: Принятие заявки:', request); // Логируем
+      console.log('UserRequests: Принятие заявки:', request, 'course:', course, 'sendReceipt:', sendReceipt); // Логируем
       
-      const result = await adminService.updateRequestStatus(request.id, request.type, 'credited'); // Обновляем статус
+      const result = await adminService.updateRequestStatus(request.id, request.type, 'credited', null, course, sendReceipt); // Обновляем статус (передаем курс для выводов, sendReceipt для депозитов)
       console.log('UserRequests: Заявка принята:', result); // Логируем результат
       
       // Показываем SUCCESS-уведомление
@@ -636,30 +636,60 @@ const UserRequests = () => { // Компонент отображения все
             >
               ✕
             </button>
-            {fullscreenReceipt.toLowerCase().endsWith('.pdf') ? (
-              <iframe
-                src={`${API_CONFIG.BASE_URL}/admin/receipts/${fullscreenReceipt}?token=${localStorage.getItem('accessToken')}`}
-                className="receipt-fullscreen-content receipt-fullscreen-pdf"
-                title="Чек"
-              />
-            ) : (
-              <img
-                src={`${API_CONFIG.BASE_URL}/admin/receipts/${fullscreenReceipt}?token=${localStorage.getItem('accessToken')}&t=${Date.now()}`}
-                alt="Чек"
-                className="receipt-fullscreen-content receipt-fullscreen-image"
-              />
-            )}
+            {(() => {
+              // Нормализуем путь: убираем все начальные слэши
+              let normalizedPath = fullscreenReceipt;
+              while (normalizedPath.startsWith('/')) {
+                normalizedPath = normalizedPath.substring(1);
+              }
+              const token = localStorage.getItem('accessToken');
+              // Добавляем токен в query параметр для img и iframe, так как cookie может не передаваться
+              const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+              return fullscreenReceipt.toLowerCase().endsWith('.pdf') ? (
+                <iframe
+                  src={`${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?t=${Date.now()}${tokenParam}`}
+                  className="receipt-fullscreen-content receipt-fullscreen-pdf"
+                  title="Чек"
+                />
+              ) : (
+                <img
+                  src={`${API_CONFIG.BASE_URL}/admin/receipts/${normalizedPath}?t=${Date.now()}${tokenParam}`}
+                  alt="Чек"
+                  className="receipt-fullscreen-content receipt-fullscreen-image"
+                />
+              );
+            })()}
             <button
               className="receipt-fullscreen-download"
-              onClick={() => {
-                const token = localStorage.getItem('accessToken');
-                const downloadUrl = `${API_CONFIG.BASE_URL}/admin/receipts/${fullscreenReceipt}?token=${token}&download=true`;
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = fullscreenReceipt.split('/').pop() || 'receipt';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+              onClick={async () => {
+                try {
+                  // Используем axiosAPI для скачивания - токен будет в куках
+                  const { default: axiosAPI } = await import('../../../JS/auth/http/axios');
+                  // Нормализуем путь: убираем все начальные слэши
+                  let normalizedPath = fullscreenReceipt;
+                  while (normalizedPath.startsWith('/')) {
+                    normalizedPath = normalizedPath.substring(1);
+                  }
+                  const response = await axiosAPI.get(`/admin/receipts/${normalizedPath}`, {
+                    params: { download: 'true' },
+                    responseType: 'blob'
+                  });
+                  
+                  // Создаем blob URL для скачивания
+                  const blobUrl = window.URL.createObjectURL(response.data);
+                  const link = document.createElement('a');
+                  link.href = blobUrl;
+                  link.download = normalizedPath.split('/').pop() || 'receipt';
+                  document.body.appendChild(link);
+                  link.click();
+                  
+                  // Очищаем
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(blobUrl);
+                } catch (error) {
+                  console.error('Ошибка скачивания чека:', error);
+                  alert(`Ошибка скачивания: ${error.message}`);
+                }
               }}
             >
               Скачать

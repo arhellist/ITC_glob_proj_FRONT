@@ -1,12 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { API_CONFIG } from '../../../../../config/api.js'; // Импорт конфигурации API для получения базового URL
 import axiosAPI from '../../../../../JS/auth/http/axios.js'; // Импорт axios с interceptors
+import lostDocPlaceholder from '../../../../../IMG/lostDoc.png'; // Плейсхолдер для документов
 
 const UserDocs = ({ user, products = [], onDocumentView, onDocumentAction, onDocumentDelete }) => {
   console.log('UserDocs: user=', user); // Логируем объект пользователя
   console.log('UserDocs: user.documents=', user?.documents); // Логируем массив документов
   
   if (!user) return null; // Если пользователь не передан, ничего не рендерим
+
+  // Состояние для хранения blob URLs превью документов
+  const [previewUrls, setPreviewUrls] = useState({});
+  const previewUrlsRef = useRef({});
 
   // Функция для получения свежего токена (с попыткой refresh если нужно)
   const getFreshToken = async () => { // Асинхронная функция получения свежего токена
@@ -20,84 +25,50 @@ const UserDocs = ({ user, products = [], onDocumentView, onDocumentAction, onDoc
     }
   };
 
-  // Обработчик клика на документ с обновлением токена
+  // Обработчик клика на документ - загружаем через blob URL
   const handleDocumentClick = async (document, fileType) => { // Асинхронная функция обработки клика на документ
-    console.log('handleDocumentClick: обновляем токен перед открытием документа'); // Логируем начало обработки
-    const freshToken = await getFreshToken(); // Получаем свежий токен (с автоматическим refresh)
-    console.log('handleDocumentClick: токен обновлён, формируем URL'); // Логируем получение токена
-    
-    // Формируем URL с СВЕЖИМ токеном
-    // ВАЖНО: для PDF добавляем preview=true для конвертации в изображение (избегаем iframe блокировки)
-    const baseUrl = API_CONFIG.BASE_URL; // Базовый URL API
-    const timestamp = Date.now(); // Timestamp для обхода кэша
-    const previewParam = fileType === 'pdf' ? '&preview=true' : ''; // Для PDF конвертируем в изображение
-    const fullDocumentUrl = `${baseUrl}/admin/documents/${document.filePath}?token=${freshToken}&t=${timestamp}${previewParam}`; // URL документа (с preview для PDF)
-    
-    console.log('handleDocumentClick: открываем модалку с URL:', fullDocumentUrl); // Логируем URL
-    onDocumentView(document.type, fullDocumentUrl, 'image'); // Вызываем колбэк с типом 'image' - всё показываем как изображения
-  };
+    try {
+      console.log('handleDocumentClick: загружаем документ через blob URL'); // Логируем начало обработки
+      
+      if (!document.filePath) {
+        console.error('handleDocumentClick: нет filePath для документа', document);
+        return;
+      }
 
-  const getDocumentImageSrc = (document, isPreview = false) => { // Функция получения URL изображения документа (с опцией preview)
-    
-    if (!document || !document.status) { // Если документ не загружен или нет статуса
-      console.log(`No status for document ${document?.id}, returning placeholder`); // Логируем отсутствие статуса
-      return '/src/IMG/lostDoc.png'; // Возвращаем placeholder изображение
-    }
-    
-    // Получаем СВЕЖИЙ токен для авторизации запроса (берём из localStorage каждый раз)
-    const token = localStorage.getItem('accessToken'); // Извлекаем JWT токен из localStorage
-    if (!token) { // Если токен отсутствует
-      console.log(`No token found, returning placeholder`); // Логируем отсутствие токена
-      return '/src/IMG/lostDoc.png'; // Возвращаем placeholder
-    }
-    
-    // Для ВСЕХ документов (включая паспорта) используем единый endpoint по filePath
-    // Это позволяет просматривать любой документ из истории загрузок
-    if (document.filePath) { // Если у документа есть путь к файлу
-      const baseUrl = API_CONFIG.BASE_URL; // Получаем базовый URL из конфигурации
-      const timestamp = Date.now(); // Текущее время в миллисекундах
-      // Добавляем параметр preview для конвертации PDF в изображение на бэкенде
-      const previewParam = isPreview ? '&preview=true' : ''; // Параметр preview
-      const url = `${baseUrl}/admin/documents/${document.filePath}?token=${token}&t=${timestamp}${previewParam}`; // Формируем URL
-      return url; // Возвращаем сформированный URL
-    }
-    
-    console.log(`No filePath for document ${document.id}, returning placeholder`); // Логируем отсутствие пути
-    return '/src/IMG/lostDoc.png'; // Возвращаем placeholder если путь отсутствует
-  };
-
-  const handleImageError = (document, event) => { // Обработчик ошибки загрузки изображения
-    console.error(`❌ Error loading image for document ${document.id}:`, event); // Логируем событие ошибки
-    console.error(`  Document type: ${document.type}`); // Логируем тип документа
-    console.error(`  Document filePath: ${document.filePath}`); // Логируем путь к файлу
-    console.error(`  Document status: ${document.status}`); // Логируем статус
-    console.error(`  Image src that failed: ${event.target.src}`); // Логируем URL который не загрузился
-    console.error(`  Event target:`, event.target); // Логируем элемент img
-    console.error(`  Native event:`, event.nativeEvent); // Логируем нативное событие
-    
-    // Попробуем сделать fetch запрос для диагностики
-    fetch(event.target.src) // Делаем тестовый запрос
-      .then(response => { // Обрабатываем ответ
-        console.log(`  Fetch response status: ${response.status}`); // Логируем статус HTTP
-        console.log(`  Fetch response headers:`, response.headers); // Логируем заголовки
-        console.log(`  Fetch response contentType:`, response.headers.get('content-type')); // Логируем content-type
-        return response.blob(); // Получаем данные как blob
-      })
-      .then(blob => { // Обрабатываем blob
-        console.log(`  Fetch blob size: ${blob.size} bytes`); // Логируем размер
-        console.log(`  Fetch blob type: ${blob.type}`); // Логируем MIME тип
-      })
-      .catch(err => { // Обработка ошибки fetch
-        console.error(`  Fetch error:`, err); // Логируем ошибку fetch
+      const url = `/admin/documents/${document.filePath}`;
+      const params = {};
+      
+      // Для PDF превью добавляем preview=true, но для полноэкранного просмотра - НЕ добавляем (чтобы открывался PDF вьювер)
+      if (fileType === 'pdf') {
+        // Для полноэкранного просмотра PDF НЕ добавляем preview - пусть открывается в PDF вьювере
+        // params.preview = 'true'; // УБРАНО - теперь PDF открывается в полноценном вьювере
+      }
+      
+      const response = await axiosAPI.get(url, {
+        responseType: 'blob',
+        params
       });
-    
-    event.target.src = '/src/IMG/lostDoc.png'; // Устанавливаем placeholder
-    
-    // Если это паспорт и не удалось загрузить, показываем сообщение
-    if (document.type === 'passport') { // Если паспорт
-      console.log(`Passport ${document.id} failed to decrypt/load`); // Логируем ошибку паспорта
+      
+      const blobUrl = URL.createObjectURL(response.data);
+      console.log('handleDocumentClick: документ загружен, blob URL создан:', blobUrl.substring(0, 50) + '...');
+      
+      // Определяем тип для отображения
+      const mimeType = response.headers['content-type'] || '';
+      const isPdf = mimeType.includes('pdf') || fileType === 'pdf';
+      const isImage = mimeType.startsWith('image/') || fileType === 'image';
+      
+      // Вызываем колбэк с blob URL
+      onDocumentView(document.type, blobUrl, isPdf ? 'pdf' : (isImage ? 'image' : 'other'));
+      
+      // Освобождаем память через 5 минут (если модалка не закрыта)
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 5 * 60 * 1000);
+    } catch (error) {
+      console.error('handleDocumentClick: ошибка загрузки документа:', error);
     }
   };
+
 
   // Функция форматирования даты для отображения
   const formatDate = (dateString) => { // Функция форматирования даты загрузки документа
@@ -390,6 +361,90 @@ const UserDocs = ({ user, products = [], onDocumentView, onDocumentAction, onDoc
     });
   }, [user.documents, productMap]);
 
+  // Загружаем превью документов через blob URLs
+  useEffect(() => {
+    if (!documents || documents.length === 0) return;
+
+    let cancelled = false;
+
+    const loadPreviews = async () => {
+      for (const doc of documents) {
+        if (cancelled) break;
+        
+        // Пропускаем документы без статуса или filePath
+        if (!doc.status || !doc.filePath) continue;
+        
+        // Пропускаем если превью уже загружено
+        if (previewUrlsRef.current[doc._internalId]) continue;
+        
+        // Загружаем превью только для изображений и PDF
+        const shouldLoadPreview = isImageDocument(doc) || isPdfDocument(doc);
+        if (!shouldLoadPreview) continue;
+
+        try {
+          const url = `/admin/documents/${doc.filePath}`;
+          const params = {};
+          
+          // Для PDF добавляем preview=true для конвертации в изображение для превью
+          if (isPdfDocument(doc)) {
+            params.preview = 'true';
+          }
+          
+          console.log('🔍 Загрузка превью документа:', { docId: doc.id, filePath: doc.filePath, isPdf: isPdfDocument(doc) });
+          
+          const response = await axiosAPI.get(url, {
+            responseType: 'blob',
+            params
+          });
+          
+          if (cancelled) {
+            URL.revokeObjectURL(URL.createObjectURL(response.data));
+            continue;
+          }
+          
+          const blobUrl = URL.createObjectURL(response.data);
+          console.log('✅ Превью документа загружено:', { docId: doc.id, blobUrl: blobUrl.substring(0, 50) + '...' });
+          
+          setPreviewUrls(prev => {
+            if (prev[doc._internalId]) {
+              URL.revokeObjectURL(blobUrl);
+              previewUrlsRef.current = prev;
+              return prev;
+            }
+            const next = { ...prev, [doc._internalId]: blobUrl };
+            previewUrlsRef.current = next;
+            return next;
+          });
+        } catch (error) {
+          console.error(`❌ Ошибка загрузки превью для документа ${doc.id}:`, error);
+        }
+      }
+    };
+
+    loadPreviews();
+
+    // Очистка при размонтировании
+    return () => {
+      cancelled = true;
+      // Освобождаем все blob URLs
+      Object.values(previewUrlsRef.current).forEach(url => {
+        if (url && typeof url === 'string' && url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [documents]);
+
+  // Функция получения blob URL для превью документа
+  const getDocumentPreviewUrl = (document) => {
+    if (!document || !document.status) {
+      return lostDocPlaceholder;
+    }
+    
+    const blobUrl = previewUrls[document._internalId];
+    return blobUrl || lostDocPlaceholder;
+  };
+
   return (
     <div className="admin-user-portfolio-list-item flex flex-column bru-max gradient-border bg-color-lilac user-docs active-tab">
       <div className="admin-user-portfolio-document-scroll">
@@ -416,29 +471,26 @@ const UserDocs = ({ user, products = [], onDocumentView, onDocumentAction, onDoc
                   <div className="admin-user-portfolio-document-item-preview">
                     {isImageDocument(document) && (
                     <img 
-                      src={getDocumentImageSrc(document)}
+                      src={getDocumentPreviewUrl(document)}
                       alt={`${document.type} document`}
                       className="admin-user-portfolio-document-item-view bru pointer img"
                       onClick={() => handleDocumentClick(document, 'image')}
-                      onError={(e) => handleImageError(document, e)}
+                      onError={(e) => {
+                        console.error(`❌ Error loading image for document ${document.id}:`, e);
+                        e.target.src = lostDocPlaceholder;
+                      }}
                     />
                   )}
-                  {isPdfDocument(document) && document.type === 'passport' && (
+                  {isPdfDocument(document) && (
                     <img 
-                      src={getDocumentImageSrc(document, true)}
-                      alt="Passport PDF document"
-                      className="admin-user-portfolio-document-item-view bru pointer img"
-                      onClick={() => handleDocumentClick(document, 'pdf')}
-                      onError={(e) => handleImageError(document, e)}
-                    />
-                  )}
-                  {isPdfDocument(document) && document.type !== 'passport' && (
-                    <img 
-                      src={getDocumentImageSrc(document, true)}
+                      src={getDocumentPreviewUrl(document)}
                       alt={`${document.type} PDF document`}
                       className="admin-user-portfolio-document-item-view bru pointer img"
                       onClick={() => handleDocumentClick(document, 'pdf')}
-                      onError={(e) => handleImageError(document, e)}
+                      onError={(e) => {
+                        console.error(`❌ Error loading PDF preview for document ${document.id}:`, e);
+                        e.target.src = lostDocPlaceholder;
+                      }}
                     />
                   )}
                   {!isImageDocument(document) && !isPdfDocument(document) && (
@@ -493,8 +545,6 @@ const UserDocs = ({ user, products = [], onDocumentView, onDocumentAction, onDoc
                             const response = await axiosAPI.get(url, {
                               responseType: 'blob',
                               params: {
-                                token: freshToken,
-                                t: Date.now(),
                                 download: 'true'
                               }
                             });

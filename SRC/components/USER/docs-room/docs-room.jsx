@@ -19,7 +19,19 @@ const buildDownloadUrl = (path) => {
     return path;
   }
   const normalized = path.startsWith('/') ? path.slice(1) : path;
-  return `${API_CONFIG.BASE_URL}/${normalized}`;
+  const baseUrl = `${API_CONFIG.BASE_URL}/${normalized}`;
+  
+  // Добавляем токен в query параметр для защищенных эндпоинтов
+  // Проверяем как normalized (без начального /), так и оригинальный path
+  if (normalized.startsWith('profile/docs/') || path.includes('/profile/docs/')) {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      return `${baseUrl}${separator}token=${encodeURIComponent(token)}`;
+    }
+  }
+  
+  return baseUrl;
 };
 
 const BASE_DOC_CONFIGS = [
@@ -90,6 +102,11 @@ function DocsRoom() {
   const [products, setProducts] = useState([]);
   const [notApproveDescriptionByKind, setNotApproveDescriptionByKind] = useState({});
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, content: '' });
+  const [showViewer, setShowViewer] = useState(false);
+  const [viewerKind, setViewerKind] = useState(null);
+  const [viewerDocuments, setViewerDocuments] = useState([]);
+  const [documentUrls, setDocumentUrls] = useState({});
+  const viewerContentRef = useRef(null);
 
   // Функция для получения названия документа (должна быть определена до использования)
   const getDocumentName = useCallback((config, useQuotes = false) => {
@@ -602,7 +619,121 @@ function DocsRoom() {
     setTooltip({ visible: false, x: 0, y: 0, content: '' });
   };
 
-const renderDocCard = (config) => {
+  // URL документа: сначала пробуем blob-URL (для зашифрованных/предзагруженных файлов),
+  // если его нет — используем прямой API-URL основного backend (/profile/docs) как запасной вариант
+  const getDocumentUrl = (doc) => {
+    if (!doc || !doc.id) return null;
+
+    // 1) Если уже есть blob-URL из предварительной загрузки — используем его
+    if (documentUrls[doc.id]) {
+      return documentUrls[doc.id];
+    }
+
+    // 2) Fallback: прямой URL к API (/profile/docs), чтобы браузер сам запросил поток
+    const kind = normalizeKindName(doc.kind);
+    const endpoint =
+      kind === 'pasport' || kind === 'passport'
+        ? `/profile/docs/passport/${doc.id}`
+        : `/profile/docs/other/${doc.id}`;
+    return buildDownloadUrl(endpoint);
+  };
+
+  const handleViewDocuments = async (config) => {
+    if (!config) return;
+    setViewerKind(config.kind);
+    setShowViewer(true);
+    setViewerDocuments([]);
+    setDocumentUrls({});
+    try {
+      // Запрашиваем документы по нужному kind (как в миниапке)
+      const { data } = await axiosAPI.get('/profile/docs', {
+        params: { kind: config.kind }
+      });
+      const documents = Array.isArray(data?.documents) ? data.documents : [];
+
+      setViewerDocuments(documents);
+
+      // Загружаем каждый документ как blob (паспорт и другие), чтобы бэкенд расшифровал и отдал уже готовый поток
+      const urls = {};
+      for (const doc of documents) {
+        try {
+          const kind = normalizeKindName(doc.kind);
+          const endpoint =
+            kind === 'pasport' || kind === 'passport'
+              ? `/profile/docs/passport/${doc.id}`
+              : `/profile/docs/other/${doc.id}`;
+
+          const response = await axiosAPI.get(endpoint, {
+            responseType: 'blob'
+          });
+
+          const blob = new Blob([response.data], { type: doc.mimeType || 'image/jpeg' });
+          urls[doc.id] = URL.createObjectURL(blob);
+        } catch (err) {
+          console.error(`DocsRoom: Ошибка загрузки файла документа ${doc.id} для просмотра`, err);
+          urls[doc.id] = null;
+        }
+      }
+      setDocumentUrls(urls);
+
+      // Сбрасываем скролл ленты вьювера в самое начало после загрузки
+      setTimeout(() => {
+        if (viewerContentRef.current) {
+          viewerContentRef.current.scrollTop = 0;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('DocsRoom: Ошибка загрузки документов для просмотра', error);
+      setViewerDocuments([]);
+      setDocumentUrls({});
+    }
+  };
+
+  const closeViewer = () => {
+    // Освобождаем blob-URL
+    Object.values(documentUrls).forEach((url) => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    });
+    setShowViewer(false);
+    setViewerKind(null);
+    setViewerDocuments([]);
+    setDocumentUrls({});
+  };
+
+  const handleDownloadFromViewer = async (doc) => {
+    const kind = normalizeKindName(doc.kind);
+    const endpoint =
+      kind === 'pasport' || kind === 'passport'
+        ? `/profile/docs/passport/${doc.id}`
+        : `/profile/docs/other/${doc.id}`;
+
+    try {
+      // Качаем файл через axiosAPI (с авторизацией), а не прямым запросом браузера,
+      // чтобы избежать ошибок сети/HTTPS и проблем с токенами
+      const response = await axiosAPI.get(endpoint, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: doc.mimeType || 'application/octet-stream' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = doc.originalName || `document_${doc.id}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Освобождаем URL после скачивания
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('DocsRoom: Ошибка скачивания документа из вьювера', error);
+    }
+  };
+
+  const renderDocCard = (config) => {
     const normalizedKey = normalizeKindName(config.kind);
     const status = statusByKind[normalizedKey];
 
@@ -611,47 +742,55 @@ const renderDocCard = (config) => {
         key={config.key}
         className="add-document-button-container-item gradient-border flex flex-column bru"
       >
-        <div
-          className={btnClass(
-            'add-document-button-container-item-button flex bru pointer',
-            config.kind
-          )}
-          onClick={() => handleDocButtonClick(config)}
-          onMouseEnter={(e) => showTooltip(e, config)}
-          onMouseLeave={hideTooltip}
-        >
-          {config.buttonLinePrimary && config.buttonLineSecondary ? (
-            <span className="docs-room-button-text">
-              <span className="docs-room-button-text-line">{config.buttonLinePrimary}</span>
-              <span className="docs-room-button-text-line docs-room-button-text-line--secondary">
-                {config.buttonLineSecondary}
+        <div className="add-document-button-container-item-buttons flex flex-row">
+          <div
+            className={btnClass(
+              'add-document-button-container-item-button flex bru pointer',
+              config.kind
+            )}
+            onClick={() => handleDocButtonClick(config)}
+            onMouseEnter={(e) => showTooltip(e, config)}
+            onMouseLeave={hideTooltip}
+          >
+            {config.buttonLinePrimary && config.buttonLineSecondary ? (
+              <span className="docs-room-button-text">
+                <span className="docs-room-button-text-line">{config.buttonLinePrimary}</span>
+                <span className="docs-room-button-text-line docs-room-button-text-line--secondary">
+                  {config.buttonLineSecondary}
+                </span>
               </span>
-            </span>
-          ) : (
-            config.title
-          )}
-          {/* Крестик слева - показывается только при ошибке загрузки */}
-          <div className="iconEr img" style={{ 
-            display: status === 'error' ? 'block' : 'none',
-            left: '1vw',
-            right: 'auto'
-          }}></div>
-          {/* Вращающаяся Refresh-картинка слева - показывается когда документ на проверке (uploaded) */}
-          <div className="iconRefresh iconRefresh--uploaded img" style={{ 
-            display: status === 'uploaded' ? 'block' : 'none',
-            left: '1vw',
-            right: 'auto'
-          }}></div>
-          {/* Индикатор загрузки - показывается только при pending */}
-          <div className="iconRefresh img" style={{ 
-            display: status === 'pending' ? 'block' : 'none',
-            left: '1vw',
-            right: 'auto'
-          }}></div>
-          {/* Галочка справа - показывается когда документ загружен (uploaded, approved, rejected) */}
-          <div className="iconOk img" style={{ 
-            display: (status === 'uploaded' || status === 'approved' || status === 'rejected') ? 'block' : 'none'
-          }}></div>
+            ) : (
+              config.title
+            )}
+            {/* Крестик слева - показывается только при ошибке загрузки */}
+            <div className="iconEr img" style={{ 
+              display: status === 'error' ? 'block' : 'none',
+              left: '1vw',
+              right: 'auto'
+            }}></div>
+            {/* Вращающаяся Refresh-картинка слева - показывается когда документ на проверке (uploaded) */}
+            <div className="iconRefresh iconRefresh--uploaded img" style={{ 
+              display: status === 'uploaded' ? 'block' : 'none',
+              left: '1vw',
+              right: 'auto'
+            }}></div>
+            {/* Индикатор загрузки - показывается только при pending */}
+            <div className="iconRefresh img" style={{ 
+              display: status === 'pending' ? 'block' : 'none',
+              left: '1vw',
+              right: 'auto'
+            }}></div>
+            {/* Галочка справа - показывается когда документ загружен (uploaded, approved, rejected) */}
+            <div className="iconOk img" style={{ 
+              display: (status === 'uploaded' || status === 'approved' || status === 'rejected') ? 'block' : 'none'
+            }}></div>
+          </div>
+          <div
+            className="add-document-button-container-item-view-button flex bru pointer"
+            onClick={() => handleViewDocuments(config)}
+          >
+            <div className="iconView img" />
+          </div>
         </div>
         {config.description && (
           <span className="add-document-button-container-item-text">
@@ -720,6 +859,63 @@ const renderDocCard = (config) => {
           }}
         >
           {tooltip.content}
+        </div>
+      )}
+
+      {/* Модальное окно просмотра документов */}
+      {showViewer && (
+        <div className="docs-viewer-overlay flex flex-column" onClick={closeViewer}>
+          <div
+            className="docs-viewer-container gradient-border flex flex-column bru-max"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="docs-viewer-header flex flex-row">
+              <h2 className="docs-viewer-title">
+                {viewerKind || 'Документы'}
+              </h2>
+              <div className="docs-viewer-close flex pointer" onClick={closeViewer}>
+                <div className="docs-viewer-close-icon img" />
+              </div>
+            </div>
+            <div className="docs-viewer-content flex flex-column" ref={viewerContentRef}>
+              {viewerDocuments.length === 0 ? (
+                <div className="docs-viewer-empty">Нет загруженных документов</div>
+              ) : (
+                viewerDocuments.map((doc) => (
+                  <div key={doc.id} className="docs-viewer-item flex flex-column">
+                    <div className="docs-viewer-item-header flex flex-row">
+                      <span className="docs-viewer-item-name">
+                        {doc.originalName || `Документ ${doc.id}`}
+                      </span>
+                    </div>
+                    <div className="docs-viewer-item-image-wrapper">
+                      {doc.mimeType === 'application/pdf' ? (
+                        <iframe
+                          src={getDocumentUrl(doc)}
+                          className="docs-viewer-item-iframe"
+                          title={doc.originalName || `Документ ${doc.id}`}
+                        />
+                      ) : (
+                        <img
+                          src={getDocumentUrl(doc)}
+                          alt={doc.originalName || `Документ ${doc.id}`}
+                          className="docs-viewer-item-image"
+                        />
+                      )}
+                    </div>
+                    <div className="docs-viewer-item-actions flex flex-row">
+                      <button
+                        className="docs-viewer-item-download-button flex bru pointer"
+                        onClick={() => handleDownloadFromViewer(doc)}
+                      >
+                        Скачать
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
